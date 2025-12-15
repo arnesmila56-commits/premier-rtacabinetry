@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-/* ============================
-   CONFIG YOU EDIT (2 things)
-   ============================ */
+/** =========================================
+ *  SET THESE 2 THINGS
+ *  ========================================= */
 
-// 1) Stripe payment link (create in Stripe -> Payment Links)
-const STRIPE_PAYMENT_LINK = "PASTE_YOUR_STRIPE_PAYMENT_LINK_HERE";
+// 1) Stripe Payment Link (Apple Pay + card). Create in Stripe -> Payment Links.
+const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_LINK_HERE";
 
-// 2) Finish images: copy image address from tribecacabinetry.com and paste
+// 2) Paste Tribeca finish image URLs here (copy image address from Tribeca site).
 const FINISH_IMAGES = {
   "hudson-snow-white": "PASTE_IMAGE_URL",
   "hudson-cloud-white": "PASTE_IMAGE_URL",
@@ -24,28 +24,23 @@ const FINISH_IMAGES = {
 };
 
 const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
+  "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1800&auto=format&fit=crop";
 
-/* ============================
-   GLOBAL STYLES — Old-money luxury
-   (not too dark, not cartoon)
-   ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
-        --bg:#1a1b1f;          /* softer charcoal */
-        --bg2:#202126;         /* section tint */
-        --card:#24252b;        /* surface */
-        --card2:#2a2b33;       /* surface alt */
-        --text:#f4f4f6;        /* warm white */
-        --muted:#c9c9d2;
-        --muted2:#a7a7b5;
-
-        --primary:#e20b2f;     /* bright luxury red */
+        --bg:#202126;              /* lighter charcoal (not too dark) */
+        --bg2:#24262c;
+        --card:#2a2c33;
+        --card2:#30333c;
+        --text:#f4f4f6;
+        --muted:#d0d0da;
+        --muted2:#a9abba;
+        --primary:#ff1f4a;         /* brighter, premium red */
         --border: rgba(255,255,255,.10);
-        --shadow: 0 24px 70px rgba(0,0,0,.45);
-        --ring: rgba(226,11,47,.28);
+        --shadow: 0 20px 60px rgba(0,0,0,.40);
+        --ring: rgba(255,31,74,.22);
       }
 
       html,body{
@@ -58,34 +53,32 @@ function GlobalStyles() {
       }
       *,*::before,*::after{ box-sizing:border-box; }
       a{ color:inherit; text-decoration:none; }
-      img{ max-width:100%; display:block; }
+      img{ display:block; max-width:100%; }
 
-      /* Type: classic, not bold/cartoon */
+      /* Old-money typography: serif headings, normal weights */
       h1,h2,h3{
         font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
-        letter-spacing:-0.015em;
-        line-height:1.14;
-        margin:0 0 10px;
-        font-weight: 600;
+        font-weight: 600;             /* not bold */
+        letter-spacing: -0.01em;
+        line-height: 1.18;
+        margin: 0 0 10px;
       }
       p{
         margin:10px 0;
-        line-height:1.65;
-        color:var(--muted);
+        line-height: 1.7;
+        color: var(--muted);
         font-weight: 400;
       }
 
       .container{ max-width:1200px; margin:0 auto; padding:0 22px; }
-      section.section{ padding:48px 0; }
-      @media (max-width: 900px){
-        section.section{ padding:34px 0; }
-      }
+      section{ padding: 46px 0; }
+      @media (max-width:900px){ section{ padding: 34px 0; } }
 
       header{
         position:sticky; top:0; z-index:50;
-        background: rgba(26,27,31,.80);
+        background: rgba(32,33,38,.82);
         backdrop-filter: blur(10px);
-        border-bottom:1px solid var(--border);
+        border-bottom: 1px solid var(--border);
       }
 
       nav a{
@@ -95,23 +88,27 @@ function GlobalStyles() {
         text-transform:uppercase;
         padding:8px 10px;
         border-radius:12px;
-        color:var(--text);
+        color: var(--text);
         opacity:.92;
       }
       nav a:hover{ background: rgba(255,255,255,.05); opacity:1; }
 
-      /* Cards */
       .card{
         background: var(--card);
-        border: 1px solid var(--border);
+        border:1px solid var(--border);
         border-radius:18px;
         padding:18px;
-        box-shadow: 0 1px 0 rgba(0,0,0,.20);
       }
       .card.soft{ background: var(--card2); }
       .shadow{ box-shadow: var(--shadow); }
 
-      /* Buttons: subtle, premium */
+      .grid{ display:grid; gap:16px; }
+      .two{ grid-template-columns: 1fr 1fr; }
+      .three{ grid-template-columns: repeat(3, 1fr); }
+      @media (max-width:900px){ .two,.three{ grid-template-columns:1fr; } }
+
+      .row{ display:flex; gap:12px; flex-wrap:wrap; }
+
       .btn{
         display:inline-flex;
         align-items:center;
@@ -129,17 +126,9 @@ function GlobalStyles() {
       .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
       .btn:active{ transform: translateY(0px); box-shadow:none; }
 
-      .btn-primary{
-        background: var(--primary);
-        color:#fff;
-      }
-      .btn-outline{
-        background: transparent;
-        border-color: var(--border);
-        color: var(--text);
-      }
+      .btn-primary{ background: var(--primary); color:#fff; }
+      .btn-outline{ background: transparent; border-color: var(--border); color: var(--text); }
 
-      /* Inputs */
       label{
         font-size:11px;
         font-weight:600;
@@ -155,7 +144,7 @@ function GlobalStyles() {
         border-radius:14px;
         border:1px solid var(--border);
         background: rgba(255,255,255,.04);
-        color:var(--text);
+        color: var(--text);
         outline:none;
       }
       input:focus,select:focus,textarea:focus{
@@ -163,44 +152,19 @@ function GlobalStyles() {
         box-shadow: 0 0 0 4px var(--ring);
       }
 
-      /* Layout helpers */
-      .grid{ display:grid; gap:16px; }
-      .two{ grid-template-columns: 1fr 1fr; }
-      .three{ grid-template-columns: repeat(3, 1fr); }
-      @media (max-width: 900px){
-        .two,.three{ grid-template-columns:1fr; }
-      }
-      .row{ display:flex; gap:12px; flex-wrap:wrap; }
-
-      /* Pills */
       .pill{
         display:inline-flex;
         align-items:center;
         padding:6px 10px;
         border-radius:999px;
-        font-size:12px;
         border:1px solid var(--border);
         background: rgba(255,255,255,.04);
+        font-size:12px;
+        font-weight:600;
         color: var(--text);
-        font-weight: 600;
       }
       .pill.red{ background: var(--primary); border-color: transparent; }
 
-      /* Finish card */
-      .finish-img{
-        border-radius:16px;
-        overflow:hidden;
-        border:1px solid var(--border);
-        background: rgba(255,255,255,.03);
-      }
-      .finish-img img{ width:100%; height:180px; object-fit:cover; }
-
-      /* Table */
-      table{ width:100%; border-collapse:collapse; }
-      th,td{ padding:10px 12px; border-bottom:1px solid var(--border); }
-      th{ color:var(--muted2); font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:600; }
-
-      /* Section headers */
       .kicker{
         font-size:11px;
         letter-spacing:.22em;
@@ -208,41 +172,41 @@ function GlobalStyles() {
         color:var(--muted2);
         font-weight:600;
       }
+
+      .finish-img{
+        border-radius:16px;
+        overflow:hidden;
+        border:1px solid var(--border);
+        background: rgba(255,255,255,.03);
+      }
+      .finish-img img{ width:100%; height:185px; object-fit:cover; }
+
+      table{ width:100%; border-collapse:collapse; }
+      th,td{ padding:10px 12px; border-bottom:1px solid var(--border); }
+      th{ color:var(--muted2); font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:600; }
     `}</style>
   );
 }
 
-/* ============================
-   DATA
-   ============================ */
 const usd = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 const FINISH_GROUPS = [
-  {
-    group: "Hudson",
-    finishes: [
-      { id: "hudson-snow-white", name: "Hudson Snow White" },
-      { id: "hudson-cloud-white", name: "Hudson Cloud White" },
-      { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
-      { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
-      { id: "hudson-cashew", name: "Hudson Cashew" },
-    ],
-  },
-  {
-    group: "Soho",
-    finishes: [
-      { id: "soho-snow-white", name: "Soho Snow White" },
-      { id: "soho-empire-blue", name: "Soho Empire Blue" },
-    ],
-  },
-  {
-    group: "Southampton",
-    finishes: [
-      { id: "southampton-snow-white", name: "Southampton Snow White" },
-      { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
-      { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
-    ],
-  },
+  { group: "Hudson", finishes: [
+    { id: "hudson-snow-white", name: "Hudson Snow White" },
+    { id: "hudson-cloud-white", name: "Hudson Cloud White" },
+    { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
+    { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
+    { id: "hudson-cashew", name: "Hudson Cashew" },
+  ]},
+  { group: "Soho", finishes: [
+    { id: "soho-snow-white", name: "Soho Snow White" },
+    { id: "soho-empire-blue", name: "Soho Empire Blue" },
+  ]},
+  { group: "Southampton", finishes: [
+    { id: "southampton-snow-white", name: "Southampton Snow White" },
+    { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
+    { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
+  ]},
 ];
 
 const CABINET_SKUS = [
@@ -262,27 +226,18 @@ const CABINET_SKUS = [
   { sku: "B39",  name: 'Base 39" Double', width: 39, height: 34.5, depth: 24, hinge: "Double", price: 405 },
 ];
 
-function getFinishImage(id) {
-  const url = FINISH_IMAGES[id];
-  if (!url || url === "PASTE_IMAGE_URL") return FALLBACK_IMAGE;
-  return url;
+function imgFor(id) {
+  const u = FINISH_IMAGES[id];
+  if (!u || u === "PASTE_IMAGE_URL") return FALLBACK_IMAGE;
+  return u;
 }
 
-/* ============================
-   BRAND HEADER
-   ============================ */
 function Logo() {
   return (
     <div style={{ display:"flex", alignItems:"baseline", gap:8, lineHeight:1 }}>
-      <span style={{ fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif', fontWeight:700, fontSize:20 }}>
-        Premier
-      </span>
-      <span style={{ fontWeight:700, fontSize:16, color:"var(--primary)", letterSpacing:".12em" }}>
-        RTA
-      </span>
-      <span style={{ fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif', fontWeight:600, fontSize:16, opacity:.95 }}>
-        Cabinetry
-      </span>
+      <span style={{ fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif', fontWeight:600, fontSize:20 }}>Premier</span>
+      <span style={{ fontWeight:600, fontSize:16, color:"var(--primary)", letterSpacing:".12em" }}>RTA</span>
+      <span style={{ fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif', fontWeight:500, fontSize:16, opacity:.95 }}>Cabinetry</span>
     </div>
   );
 }
@@ -308,34 +263,34 @@ function Header({ cartCount }) {
   );
 }
 
-/* ============================
-   HOME (scaled correctly)
-   ============================ */
 function HomeHero() {
   return (
-    <section className="section" id="top" style={{ background:"linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,0))" }}>
+    <section id="top">
       <div className="container grid two" style={{ alignItems:"center" }}>
         <div>
-          <div className="kicker">Classic Luxury • Designer Led</div>
-          <h1 style={{ fontSize:42, marginTop:10 }}>Cabinetry that feels like a private showroom.</h1>
+          <div className="kicker">Old Money • Classic Luxury</div>
+          <h1 style={{ fontSize:42, marginTop:10 }}>A calmer way to buy a kitchen.</h1>
           <p>
-            We design and ship Tribeca cabinetry nationwide. If you’re overwhelmed, our team makes it simple—
-            with a free 3D kitchen design, cabinet placement, and an itemized list before you buy.
+            We make it simple: pick a finish, build your cabinet list, and checkout securely.
+            If you’re unsure, our design team creates a free 3D layout and cabinet placement plan first.
           </p>
           <div className="row" style={{ marginTop:14 }}>
             <a className="btn btn-primary" href="#shop">Browse Finishes</a>
             <a className="btn btn-outline" href="#design">Start Free 3D Design</a>
           </div>
           <div className="row" style={{ marginTop:14 }}>
-            <span className="pill">Nationwide Shipping</span>
-            <span className="pill">20+ Years Experience</span>
+            <span className="pill">Nationwide</span>
+            <span className="pill">Designer-Led</span>
             <span className="pill red">Free 3D Render</span>
           </div>
+          <p style={{ color:"var(--muted2)" }}>
+            Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
+          </p>
         </div>
 
         <div className="card shadow" style={{ padding:0, overflow:"hidden" }}>
           <img
-            src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1800&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1800&auto=format&fit=crop"
             alt="Luxury kitchen"
             style={{ width:"100%", height:"min(520px, 70vh)", objectFit:"cover" }}
           />
@@ -345,11 +300,8 @@ function HomeHero() {
   );
 }
 
-/* ============================
-   SHOP — All finishes on ONE PAGE + inline configurator + cart + checkout
-   ============================ */
-function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
-  const selectedFinish = useMemo(() => {
+function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
+  const selected = useMemo(() => {
     for (const g of FINISH_GROUPS) {
       const f = g.finishes.find(x => x.id === selectedFinishId);
       if (f) return { ...f, group: g.group };
@@ -366,18 +318,17 @@ function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
   const total = unit * qty;
 
   return (
-    <section className="section" id="shop">
+    <section id="shop">
       <div className="container">
         <div className="kicker">Shop</div>
-        <h2 style={{ fontSize:30, marginTop:10 }}>Tribeca Finishes</h2>
-        <p>All collections below. Choose a finish and build your SKU list without leaving the page.</p>
+        <h2 style={{ fontSize:30, marginTop:10 }}>Tribeca Finishes (all on one page)</h2>
+        <p>Select a finish below, then build your cabinet list on the right.</p>
 
-        {/* Finish grid */}
         {FINISH_GROUPS.map(group => (
-          <div key={group.group} style={{ marginTop:20 }}>
-            <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between", gap:12, flexWrap:"wrap" }}>
+          <div key={group.group} style={{ marginTop:22 }}>
+            <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
               <h3 style={{ margin:0 }}>{group.group}</h3>
-              <span className="pill">Tribeca Collection</span>
+              <span className="pill">Tribeca</span>
             </div>
 
             <div className="grid three" style={{ marginTop:12 }}>
@@ -393,19 +344,17 @@ function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
                       textAlign:"left",
                       cursor:"pointer",
                       borderColor: active ? "var(--primary)" : "var(--border)",
-                      background: active ? "rgba(225,11,47,.08)" : "var(--card)",
+                      background: active ? "rgba(255,31,74,.10)" : "var(--card)",
                     }}
                   >
                     <div className="finish-img">
-                      <img src={getFinishImage(f.id)} alt={f.name} />
+                      <img src={imgFor(f.id)} alt={f.name} />
                     </div>
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
+                    <div className="row" style={{ justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
                       <div style={{ fontWeight:600 }}>{f.name}</div>
                       <span className={active ? "pill red" : "pill"}>{active ? "Selected" : "Select"}</span>
                     </div>
-                    <p style={{ color:"var(--muted2)", marginTop:8 }}>
-                      RTA • Ships nationwide • Configure SKUs below
-                    </p>
+                    <p style={{ color:"var(--muted2)", marginTop:8 }}>RTA • Nationwide shipping • Configure below</p>
                   </button>
                 );
               })}
@@ -413,22 +362,17 @@ function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
           </div>
         ))}
 
-        {/* Inline Configurator */}
         <div className="grid two" style={{ marginTop:26, alignItems:"start" }}>
           <div className="card shadow" style={{ padding:0, overflow:"hidden" }}>
-            <img
-              src={getFinishImage(selectedFinish.id)}
-              alt={selectedFinish.name}
-              style={{ width:"100%", height:420, objectFit:"cover" }}
-            />
+            <img src={imgFor(selected.id)} alt={selected.name} style={{ width:"100%", height:420, objectFit:"cover" }} />
             <div style={{ padding:18 }}>
-              <div className="kicker">{selectedFinish.group}</div>
-              <h3 style={{ fontSize:24, marginTop:10 }}>{selectedFinish.name}</h3>
+              <div className="kicker">{selected.group}</div>
+              <h3 style={{ fontSize:24, marginTop:10 }}>{selected.name}</h3>
               <p style={{ color:"var(--muted2)" }}>
-                Add SKUs to cart. Checkout is handled through Stripe (Apple Pay / card supported).
+                Add SKUs to cart. Checkout supports Apple Pay & card when Stripe link is set.
               </p>
               <p style={{ color:"var(--muted2)" }}>
-                Questions? Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
+                Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
               </p>
             </div>
           </div>
@@ -448,12 +392,7 @@ function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
             <div className="grid two" style={{ marginTop:10 }}>
               <div>
                 <label>Quantity</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={qty}
-                  onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value || "1")))}
-                />
+                <input type="number" min={1} value={qty} onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value || "1")))} />
               </div>
               <div>
                 <label>Assembly</label>
@@ -493,8 +432,8 @@ function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
                 className="btn btn-primary"
                 type="button"
                 onClick={() => onAddToCart({
-                  finishId: selectedFinish.id,
-                  finishName: selectedFinish.name,
+                  finishId: selected.id,
+                  finishName: selected.name,
                   sku,
                   qty,
                   assembly,
@@ -505,12 +444,6 @@ function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
               </button>
               <a className="btn btn-outline" href="#cart">View Cart</a>
             </div>
-
-            <div className="card soft" style={{ marginTop:14 }}>
-              <p style={{ margin:0, color:"var(--muted2)" }}>
-                Checkout is powered by Stripe. Add items to cart, then click Checkout in Cart.
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -518,124 +451,44 @@ function ShopSection({ onAddToCart, selectedFinishId, setSelectedFinishId }) {
   );
 }
 
-/* ============================
-   FUN, SIMPLE DESIGN CENTER (less confusing)
-   ============================ */
 function DesignCenter() {
-  const [mode, setMode] = useState("Quick"); // Quick | Guided
-  const [layout, setLayout] = useState("Not Sure");
-  const [budget, setBudget] = useState(25000);
-  const [style, setStyle] = useState("Classic White + Brass");
-  const [notes, setNotes] = useState("");
-  const [contact, setContact] = useState({ name:"", email:"", phone:"" });
-
   return (
-    <section className="section" id="design" style={{ background:"var(--bg2)" }}>
+    <section id="design" style={{ background:"var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Design Center</div>
-        <h2 style={{ fontSize:30, marginTop:10 }}>Free 3D Design — made easy</h2>
+        <h2 style={{ fontSize:30, marginTop:10 }}>Free 3D Design (easy)</h2>
         <p>
-          Choose “Quick” if you want it simple, or “Guided” if you want more detail.
-          Our pro design team will send a 3D layout and cabinet plan.
+          Not sure what to order? Send your details and our pro team creates a 3D layout, cabinet placement,
+          and an itemized list — free.
         </p>
-
-        <div className="row" style={{ marginTop:14 }}>
-          <button className={mode==="Quick" ? "btn btn-primary" : "btn btn-outline"} onClick={()=>setMode("Quick")} type="button">Quick (Recommended)</button>
-          <button className={mode==="Guided" ? "btn btn-primary" : "btn btn-outline"} onClick={()=>setMode("Guided")} type="button">Guided</button>
-        </div>
-
-        <div className="grid two" style={{ marginTop:18, alignItems:"start" }}>
-          <div className="card">
-            <h3 style={{ fontSize:22 }}>Your Preferences</h3>
-
-            <label>Layout</label>
-            <select value={layout} onChange={(e)=>setLayout(e.target.value)}>
-              <option>Not Sure</option>
-              <option>L-Shape</option>
-              <option>U-Shape</option>
-              <option>Galley</option>
-              <option>Single Wall</option>
-              <option>Island Kitchen</option>
-            </select>
-
-            <label>Budget Comfort</label>
-            <input type="range" min={8000} max={80000} step={1000} value={budget} onChange={(e)=>setBudget(parseInt(e.target.value||"25000"))}/>
-            <div style={{ marginTop:8, color:"var(--muted)" }}>Target: <b style={{ color:"var(--text)" }}>{usd(budget)}</b></div>
-
-            <label>Style Direction</label>
-            <select value={style} onChange={(e)=>setStyle(e.target.value)}>
-              <option>Classic White + Brass</option>
-              <option>White + Matte Black</option>
-              <option>Two-Tone White + Rift Oak</option>
-              <option>Warm Neutral + Brass</option>
-            </select>
-
-            <label>Notes</label>
-            <textarea rows={mode==="Guided" ? 5 : 3} value={notes} onChange={(e)=>setNotes(e.target.value)}
-              placeholder={mode==="Guided"
-                ? "Walls, windows, ceiling height, sink location, appliances, anything important…"
-                : "Any quick notes (optional)…"
-              }
-            />
-          </div>
-
-          <div className="card soft">
-            <h3 style={{ fontSize:22 }}>Submit (Free)</h3>
-            <p>
-              After you submit, our <b style={{ color:"var(--text)" }}>in-house design team</b> will create a
-              <b style={{ color:"var(--text)" }}> custom 3D kitchen design</b> and cabinet plan.
-            </p>
-            <div className="row wrap" style={{ marginTop:10 }}>
-              <span className="pill red">24 hour response</span>
-              <span className="pill">3D render</span>
-              <span className="pill">Cabinet list</span>
-            </div>
-
-            <label>Name</label>
-            <input value={contact.name} onChange={(e)=>setContact(c=>({...c,name:e.target.value}))} />
-
-            <label>Email</label>
-            <input value={contact.email} onChange={(e)=>setContact(c=>({...c,email:e.target.value}))} placeholder="Use your best email" />
-
-            <label>Phone</label>
-            <input value={contact.phone} onChange={(e)=>setContact(c=>({...c,phone:e.target.value}))} />
-
-            <div className="row" style={{ marginTop:14 }}>
-              <button className="btn btn-primary" type="button">Request Free 3D Design</button>
-              <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email Us</a>
-            </div>
-
-            <p style={{ color:"var(--muted2)" }}>
-              Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
-            </p>
-          </div>
+        <div className="card soft" style={{ marginTop:14 }}>
+          <p style={{ margin:0, color:"var(--muted2)" }}>
+            Email inspiration photos to <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
+          </p>
         </div>
       </div>
     </section>
   );
 }
 
-/* ============================
-   LEARNING (expanded + better)
-   ============================ */
 function LearningCenter() {
   const items = [
-    { title: "What is RTA?", body: "Ready-to-Assemble cabinets ship flat-packed. Easier delivery, easier handling, and fast install. We provide guidance and a cabinet list before purchase." },
-    { title: "How to measure your kitchen", body: "Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner. If you’re unsure, submit the Design Center and we guide you." },
-    { title: "How shipping works (freight)", body: "Most cabinet orders ship via LTL freight. Inspect boxes before signing. We can coordinate delivery windows and guidance." },
-    { title: "Assembly & installation", body: "RTA includes hardware and instructions. A mallet, driver, level, and square help. Keep parts organized by wall/run." },
-    { title: "Returns / Damages", body: "If anything arrives damaged, notify us quickly with photos. Policies vary by order type. We’ll coordinate replacement parts where applicable." },
+    { title: "What is RTA?", body: "Ready-to-Assemble cabinets ship flat-packed. Easier delivery, easier handling, faster install. We guide you through the cabinet list." },
+    { title: "How to measure", body: "Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner. If unsure, submit Design Center." },
+    { title: "Shipping (freight)", body: "Most orders ship LTL freight. Inspect boxes before signing. Delivery coordination available." },
+    { title: "Assembly & installation", body: "Hardware and instructions included. A mallet, driver, level, and square help. Keep boxes organized by wall/run." },
+    { title: "Returns / damages", body: "Report issues quickly with photos. Policies vary by order type. We coordinate replacements where applicable." },
   ];
   return (
-    <section className="section" id="learning">
+    <section id="learning">
       <div className="container">
         <div className="kicker">Learning</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Learning Center</h2>
-        <p>Clear answers so customers feel confident before ordering.</p>
+        <p>Clear answers so customers feel confident ordering online.</p>
 
         <div className="grid two" style={{ marginTop:14 }}>
-          {items.map((it) => (
-            <div key={it.title} className="card">
+          {items.map(it => (
+            <div className="card" key={it.title}>
               <h3 style={{ fontSize:18 }}>{it.title}</h3>
               <p style={{ color:"var(--muted2)" }}>{it.body}</p>
             </div>
@@ -646,24 +499,21 @@ function LearningCenter() {
   );
 }
 
-/* ============================
-   GALLERY (with real photos)
-   ============================ */
 function Gallery() {
   const photos = [
     "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1400&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1400&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1400&auto=format&fit=crop",
   ];
   return (
-    <section className="section" id="gallery" style={{ background:"var(--bg2)" }}>
+    <section id="gallery" style={{ background:"var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Gallery</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Project Inspiration</h2>
-        <p>Luxury references now — replace with your real installs anytime.</p>
+        <p>Replace these with your installs anytime.</p>
 
         <div className="grid three" style={{ marginTop:14 }}>
           {photos.map((src,i)=>(
@@ -677,25 +527,19 @@ function Gallery() {
   );
 }
 
-/* ============================
-   CART + CHECKOUT
-   ============================ */
 function Cart({ cart, onRemove, onClear }) {
   const subtotal = cart.reduce((s,it)=> s + it.unitPrice * it.qty, 0);
-
-  const checkoutUrl = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_YOUR_STRIPE_PAYMENT_LINK_HERE"
-    ? STRIPE_PAYMENT_LINK
-    : null;
+  const checkoutUrl = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_LINK_HERE" ? STRIPE_PAYMENT_LINK : null;
 
   return (
-    <section className="section" id="cart">
+    <section id="cart">
       <div className="container">
         <div className="kicker">Cart</div>
-        <h2 style={{ fontSize:30, marginTop:10 }}>Your Cart</h2>
+        <h2 style={{ fontSize:30, marginTop:10 }}>Checkout</h2>
 
         {cart.length === 0 ? (
           <div className="card">
-            <p>Your cart is empty. Add SKUs from the Shop section above.</p>
+            <p>Your cart is empty. Add SKUs from Shop above.</p>
             <a className="btn btn-primary" href="#shop">Go to Shop</a>
           </div>
         ) : (
@@ -723,9 +567,7 @@ function Cart({ cart, onRemove, onClear }) {
                       <td>{usd(it.unitPrice)}</td>
                       <td>{usd(it.unitPrice * it.qty)}</td>
                       <td>
-                        <button className="btn btn-outline" type="button" onClick={()=>onRemove(it.key)}>
-                          Remove
-                        </button>
+                        <button className="btn btn-outline" type="button" onClick={()=>onRemove(it.key)}>Remove</button>
                       </td>
                     </tr>
                   ))}
@@ -742,20 +584,17 @@ function Cart({ cart, onRemove, onClear }) {
 
               {checkoutUrl ? (
                 <a className="btn btn-primary" href={checkoutUrl} target="_blank" rel="noreferrer">
-                  Checkout (Apple Pay / Card)
+                  Pay (Apple Pay / Card)
                 </a>
               ) : (
-                <a className="btn btn-primary" href="#contact">
-                  Add Stripe Link (required)
-                </a>
+                <a className="btn btn-primary" href="#contact">Enable Checkout</a>
               )}
             </div>
 
             {!checkoutUrl && (
               <div className="card soft" style={{ marginTop:14 }}>
                 <p style={{ margin:0, color:"var(--muted2)" }}>
-                  To enable real checkout (Apple Pay / card), create a Stripe Payment Link and paste it into
-                  <b style={{ color:"var(--text)" }}> STRIPE_PAYMENT_LINK</b> at the top of this file.
+                  To enable checkout, create a Stripe Payment Link and paste it into <b style={{ color:"var(--text)" }}>STRIPE_PAYMENT_LINK</b>.
                 </p>
               </div>
             )}
@@ -766,22 +605,14 @@ function Cart({ cart, onRemove, onClear }) {
   );
 }
 
-/* ============================
-   CONTACT / FOOTER
-   ============================ */
 function Contact() {
   return (
-    <section className="section" id="contact">
+    <section id="contact">
       <div className="container">
         <div className="kicker">Contact</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Premier RTA Cabinetry</h2>
         <p>Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b></p>
         <p>Phone: 800-PREMIER</p>
-        <div className="card soft" style={{ marginTop:14 }}>
-          <p style={{ margin:0, color:"var(--muted2)" }}>
-            Want QuickBooks syncing? Use Stripe for checkout, then sync payments into QuickBooks Online via Synder/A2X.
-          </p>
-        </div>
       </div>
     </section>
   );
@@ -798,7 +629,7 @@ function Footer() {
 }
 
 /* ============================
-   ROOT APP (single-page, no confusing routing)
+   APP (single page)
    ============================ */
 export default function App() {
   const [cart, setCart] = useState(() => {
@@ -806,7 +637,7 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem("premier_cart") || "[]"); } catch { return []; }
   });
 
-  const [selectedFinishId, setSelectedFinishId] = useState(DEFAULT_FINISH_ID);
+  const [selectedFinishId, setSelectedFinishId] = useState("hudson-snow-white");
 
   useEffect(() => {
     localStorage.setItem("premier_cart", JSON.stringify(cart));
@@ -823,9 +654,7 @@ export default function App() {
       }
       return [...prev, { key, finishId, finishName, sku, qty, assembly, unitPrice }];
     });
-    // scroll to cart
-    const el = document.getElementById("cart");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("cart")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const removeFromCart = (key) => setCart(prev => prev.filter(x => x.key !== key));
@@ -839,21 +668,17 @@ export default function App() {
       <HomeHero />
 
       <ShopSection
-        onAddToCart={addToCart}
         selectedFinishId={selectedFinishId}
         setSelectedFinishId={setSelectedFinishId}
+        onAddToCart={addToCart}
       />
 
       <DesignCenter />
-
       <LearningCenter />
-
       <Gallery />
 
       <Cart cart={cart} onRemove={removeFromCart} onClear={clearCart} />
-
       <Contact />
-
       <Footer />
     </div>
   );
