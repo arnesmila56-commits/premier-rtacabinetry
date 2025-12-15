@@ -7,7 +7,7 @@ const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_PAYMENT_LINK_HERE"; // Apple Pay + car
 
 // Paste Tribeca image URLs later if you want (optional). If blank, fallback image shows.
 const FINISH_IMAGES = {
-  "hudson-snow-white": "",
+  "hudson-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-1-788x1024.jpg",
   "hudson-cloud-white": "",
   "hudson-hearthstone": "",
   "hudson-white-rift-oak": "",
