@@ -325,7 +325,11 @@ function Home(){
           </div>
         </div>
         <div className="card" style={{ padding:0, overflow:"hidden" }}>
-          <img src={https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg} alt="Kitchen" style={{ width:"100%", height:"min(520px,70vh)", objectFit:"cover" }} />
+          <img
+  src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg"
+  alt="Kitchen"
+  style={{ width:"100%", height:"min(520px,70vh)", objectFit:"cover" }}
+/>
         </div>
       </div>
     </section>
