@@ -236,17 +236,17 @@ const DEFAULT_FINISH_ID = "hudson-snow-white";
  */
 const TRIBECA_FINISH_IMAGES = {
   "hudson-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-1-788x1024.jpg",
-  "hudson-cloud-white": "REPLACE_WITH_IMAGE_URL",
-  "hudson-hearthstone": "REPLACE_WITH_IMAGE_URL",
-  "hudson-white-rift-oak": "REPLACE_WITH_IMAGE_URL",
-  "hudson-cashew": "REPLACE_WITH_IMAGE_URL",
+  "hudson-cloud-white": "https://tribecacabinetry.com/wp-content/uploads/2025/03/HD-CW-2-788x1024.jpg",
+  "hudson-hearthstone": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-788x1024.jpg",
+  "hudson-white-rift-oak": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_7-788x1024.jpg",
+  "hudson-cashew": "https://tribecacabinetry.com/wp-content/uploads/2025/05/HD-CA-4-788x1024.jpg",
 
-  "soho-snow-white": "REPLACE_WITH_IMAGE_URL",
-  "soho-empire-blue": "REPLACE_WITH_IMAGE_URL",
+  "soho-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_4-788x1024.jpg",
+  "soho-empire-blue": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_EP-rev-788x1024.jpg",
 
-  "southampton-snow-white": "REPLACE_WITH_IMAGE_URL",
-  "southampton-white-rift-oak": "REPLACE_WITH_IMAGE_URL",
-  "southampton-carbon-black-oak": "REPLACE_WITH_IMAGE_URL",
+  "southampton-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_7-1-788x1024.jpg",
+  "southampton-white-rift-oak": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_6-788x1024.jpg",
+  "southampton-carbon-black-oak": "https://tribecacabinetry.com/wp-content/uploads/2025/03/STH-CBO-2-788x1024.jpg",
 };
 
 const FALLBACK_IMAGE =
