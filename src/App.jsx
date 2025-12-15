@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-/** =========================================
- *  SET THESE 2 THINGS
- *  ========================================= */
+/* ============================
+   CONFIG (edit these 2)
+   ============================ */
+// Stripe Payment Link (Apple Pay + Card). Create in Stripe -> Payment Links.
+const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_PAYMENT_LINK_HERE";
 
-// 1) Stripe Payment Link (Apple Pay + card). Create in Stripe -> Payment Links.
-const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_LINK_HERE";
-
-// 2) Paste Tribeca finish image URLs here (copy image address from Tribeca site).
+// Paste image URLs per finish (copy image address from Tribeca site).
 const FINISH_IMAGES = {
   "hudson-snow-white": "PASTE_IMAGE_URL",
   "hudson-cloud-white": "PASTE_IMAGE_URL",
@@ -26,19 +25,24 @@ const FINISH_IMAGES = {
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1800&auto=format&fit=crop";
 
+/* ============================
+   GLOBAL STYLES — Classic Luxury / Old Money
+   (lighter charcoal, refined red, normal weights)
+   ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
-        --bg:#202126;              /* lighter charcoal (not too dark) */
-        --bg2:#24262c;
-        --card:#2a2c33;
-        --card2:#30333c;
-        --text:#f4f4f6;
-        --muted:#d0d0da;
+        --bg:#232429;
+        --bg2:#2a2b31;
+        --card:#2f3139;
+        --card2:#353744;
+        --text:#f4f4f7;
+        --muted:#d2d2dc;
         --muted2:#a9abba;
-        --primary:#ff1f4a;         /* brighter, premium red */
-        --border: rgba(255,255,255,.10);
+
+        --primary:#ff1f4a; /* refined bright red */
+        --border: rgba(255,255,255,.12);
         --shadow: 0 20px 60px rgba(0,0,0,.40);
         --ring: rgba(255,31,74,.22);
       }
@@ -47,183 +51,223 @@ function GlobalStyles() {
         margin:0;
         background:var(--bg);
         color:var(--text);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
+
       *,*::before,*::after{ box-sizing:border-box; }
       a{ color:inherit; text-decoration:none; }
       img{ display:block; max-width:100%; }
 
-      /* Old-money typography: serif headings, normal weights */
       h1,h2,h3{
-        font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
-        font-weight: 600;             /* not bold */
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 600;
         letter-spacing: -0.01em;
         line-height: 1.18;
         margin: 0 0 10px;
       }
+
       p{
-        margin:10px 0;
+        margin: 10px 0;
         line-height: 1.7;
         color: var(--muted);
         font-weight: 400;
       }
 
       .container{ max-width:1200px; margin:0 auto; padding:0 22px; }
-      section{ padding: 46px 0; }
-      @media (max-width:900px){ section{ padding: 34px 0; } }
+      section{ padding: 48px 0; }
+
+      @media (max-width:900px){
+        section{ padding: 34px 0; }
+      }
 
       header{
-        position:sticky; top:0; z-index:50;
-        background: rgba(32,33,38,.82);
+        position:sticky;
+        top:0;
+        z-index:50;
+        background: rgba(35,36,41,.88);
         backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--border);
       }
 
       nav a{
-        font-size:11px;
-        font-weight:600;
-        letter-spacing:.18em;
-        text-transform:uppercase;
-        padding:8px 10px;
-        border-radius:12px;
-        color: var(--text);
-        opacity:.92;
+        font-size: 11px;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-weight: 600;
+        opacity: .92;
       }
-      nav a:hover{ background: rgba(255,255,255,.05); opacity:1; }
+      nav a:hover{ background: rgba(255,255,255,.06); opacity:1; }
+
+      .kicker{
+        font-size: 11px;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+        color: var(--muted2);
+        font-weight: 600;
+      }
 
       .card{
         background: var(--card);
-        border:1px solid var(--border);
-        border-radius:18px;
-        padding:18px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
       }
+
       .card.soft{ background: var(--card2); }
-      .shadow{ box-shadow: var(--shadow); }
 
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns: 1fr 1fr; }
       .three{ grid-template-columns: repeat(3, 1fr); }
-      @media (max-width:900px){ .two,.three{ grid-template-columns:1fr; } }
 
-      .row{ display:flex; gap:12px; flex-wrap:wrap; }
+      @media (max-width:900px){
+        .two,.three{ grid-template-columns: 1fr; }
+      }
+
+      .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+
+      .pill{
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(255,255,255,.04);
+      }
+
+      .pill.red{
+        background: var(--primary);
+        border-color: transparent;
+        color:#fff;
+      }
 
       .btn{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        gap:10px;
-        padding:11px 16px;
-        border-radius:14px;
-        border:1px solid transparent;
-        cursor:pointer;
-        font-weight:600;
-        letter-spacing:.02em;
+        padding: 11px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        background: transparent;
         transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease, border-color .12s ease;
-        user-select:none;
       }
-      .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
-      .btn:active{ transform: translateY(0px); box-shadow:none; }
 
-      .btn-primary{ background: var(--primary); color:#fff; }
-      .btn-outline{ background: transparent; border-color: var(--border); color: var(--text); }
+      .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
+      .btn:active{ transform: translateY(0px); box-shadow: none; }
+
+      .btn-primary{
+        background: var(--primary);
+        color:#fff;
+      }
+
+      .btn-outline{
+        border-color: var(--border);
+        color: var(--text);
+      }
 
       label{
-        font-size:11px;
-        font-weight:600;
-        letter-spacing:.18em;
-        text-transform:uppercase;
-        color:var(--muted2);
+        font-size: 11px;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        color: var(--muted2);
+        font-weight: 600;
         display:block;
-        margin:12px 0 6px;
+        margin: 12px 0 6px;
       }
+
       input,select,textarea{
         width:100%;
-        padding:11px 12px;
-        border-radius:14px;
-        border:1px solid var(--border);
+        padding: 11px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
         background: rgba(255,255,255,.04);
         color: var(--text);
-        outline:none;
+        outline: none;
       }
+
       input:focus,select:focus,textarea:focus{
         border-color: var(--primary);
         box-shadow: 0 0 0 4px var(--ring);
       }
 
-      .pill{
-        display:inline-flex;
-        align-items:center;
-        padding:6px 10px;
-        border-radius:999px;
-        border:1px solid var(--border);
-        background: rgba(255,255,255,.04);
-        font-size:12px;
-        font-weight:600;
-        color: var(--text);
-      }
-      .pill.red{ background: var(--primary); border-color: transparent; }
-
-      .kicker{
-        font-size:11px;
-        letter-spacing:.22em;
-        text-transform:uppercase;
-        color:var(--muted2);
-        font-weight:600;
-      }
-
       .finish-img{
-        border-radius:16px;
-        overflow:hidden;
-        border:1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--border);
         background: rgba(255,255,255,.03);
       }
-      .finish-img img{ width:100%; height:185px; object-fit:cover; }
+
+      .finish-img img{
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
 
       table{ width:100%; border-collapse:collapse; }
       th,td{ padding:10px 12px; border-bottom:1px solid var(--border); }
-      th{ color:var(--muted2); font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:600; }
+      th{ font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted2); font-weight: 600; }
+
+      .mini{
+        font-size: 13px;
+        color: var(--muted2);
+        line-height: 1.6;
+      }
     `}</style>
   );
 }
 
+/* ============================
+   DATA
+   ============================ */
 const usd = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 const FINISH_GROUPS = [
-  { group: "Hudson", finishes: [
-    { id: "hudson-snow-white", name: "Hudson Snow White" },
-    { id: "hudson-cloud-white", name: "Hudson Cloud White" },
-    { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
-    { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
-    { id: "hudson-cashew", name: "Hudson Cashew" },
-  ]},
-  { group: "Soho", finishes: [
-    { id: "soho-snow-white", name: "Soho Snow White" },
-    { id: "soho-empire-blue", name: "Soho Empire Blue" },
-  ]},
-  { group: "Southampton", finishes: [
-    { id: "southampton-snow-white", name: "Southampton Snow White" },
-    { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
-    { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
-  ]},
+  {
+    group: "Hudson",
+    finishes: [
+      { id: "hudson-snow-white", name: "Hudson Snow White" },
+      { id: "hudson-cloud-white", name: "Hudson Cloud White" },
+      { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
+      { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
+      { id: "hudson-cashew", name: "Hudson Cashew" },
+    ],
+  },
+  {
+    group: "Soho",
+    finishes: [
+      { id: "soho-snow-white", name: "Soho Snow White" },
+      { id: "soho-empire-blue", name: "Soho Empire Blue" },
+    ],
+  },
+  {
+    group: "Southampton",
+    finishes: [
+      { id: "southampton-snow-white", name: "Southampton Snow White" },
+      { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
+      { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
+    ],
+  },
 ];
 
 const CABINET_SKUS = [
-  { sku: "B12R", name: 'Base 12" Right', width: 12, height: 34.5, depth: 24, hinge: "Right", price: 225 },
-  { sku: "B12L", name: 'Base 12" Left', width: 12, height: 34.5, depth: 24, hinge: "Left", price: 225 },
-  { sku: "B15R", name: 'Base 15" Right', width: 15, height: 34.5, depth: 24, hinge: "Right", price: 245 },
-  { sku: "B15L", name: 'Base 15" Left', width: 15, height: 34.5, depth: 24, hinge: "Left", price: 245 },
-  { sku: "B18R", name: 'Base 18" Right', width: 18, height: 34.5, depth: 24, hinge: "Right", price: 265 },
-  { sku: "B18L", name: 'Base 18" Left', width: 18, height: 34.5, depth: 24, hinge: "Left", price: 265 },
-  { sku: "B21R", name: 'Base 21" Right', width: 21, height: 34.5, depth: 24, hinge: "Right", price: 285 },
-  { sku: "B21L", name: 'Base 21" Left', width: 21, height: 34.5, depth: 24, hinge: "Left", price: 285 },
-  { sku: "B24",  name: 'Base 24" Double', width: 24, height: 34.5, depth: 24, hinge: "Double", price: 305 },
-  { sku: "B27",  name: 'Base 27" Double', width: 27, height: 34.5, depth: 24, hinge: "Double", price: 325 },
-  { sku: "B30",  name: 'Base 30" Double', width: 30, height: 34.5, depth: 24, hinge: "Double", price: 345 },
-  { sku: "B33",  name: 'Base 33" Double', width: 33, height: 34.5, depth: 24, hinge: "Double", price: 365 },
-  { sku: "B36",  name: 'Base 36" Double', width: 36, height: 34.5, depth: 24, hinge: "Double", price: 385 },
-  { sku: "B39",  name: 'Base 39" Double', width: 39, height: 34.5, depth: 24, hinge: "Double", price: 405 },
+  { sku:"B12R", price:225 }, { sku:"B12L", price:225 },
+  { sku:"B15R", price:245 }, { sku:"B15L", price:245 },
+  { sku:"B18R", price:265 }, { sku:"B18L", price:265 },
+  { sku:"B21R", price:285 }, { sku:"B21L", price:285 },
+  { sku:"B24", price:305 },  { sku:"B27", price:325 },
+  { sku:"B30", price:345 },  { sku:"B33", price:365 },
+  { sku:"B36", price:385 },  { sku:"B39", price:405 },
+];
+
+const GALLERY = [
+  "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
 ];
 
 function imgFor(id) {
@@ -232,63 +276,84 @@ function imgFor(id) {
   return u;
 }
 
+/* ============================
+   UI
+   ============================ */
 function Logo() {
   return (
     <div style={{ display:"flex", alignItems:"baseline", gap:8, lineHeight:1 }}>
-      <span style={{ fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif', fontWeight:600, fontSize:20 }}>Premier</span>
-      <span style={{ fontWeight:600, fontSize:16, color:"var(--primary)", letterSpacing:".12em" }}>RTA</span>
-      <span style={{ fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif', fontWeight:500, fontSize:16, opacity:.95 }}>Cabinetry</span>
+      <span style={{ fontFamily:'Georgia, "Times New Roman", serif', fontWeight:600, fontSize:20 }}>
+        Premier
+      </span>
+      <span style={{ fontWeight:600, fontSize:16, color:"var(--primary)", letterSpacing:".14em" }}>
+        RTA
+      </span>
+      <span style={{ fontFamily:'Georgia, "Times New Roman", serif', fontWeight:500, fontSize:16, opacity:.95 }}>
+        Cabinetry
+      </span>
     </div>
   );
 }
 
-function Header({ cartCount }) {
+function Header({ tab, setTab, cartCount }) {
+  const tabs = ["Home","Shop","Design Center","Learning","Gallery","Cart","Contact"];
+
   return (
     <header>
       <div className="container" style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 0", flexWrap:"wrap" }}>
-        <a href="#top"><Logo /></a>
+        <a href="#" onClick={(e)=>{e.preventDefault(); setTab("Home");}}><Logo /></a>
+
         <nav style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-          <a href="#shop">Shop</a>
-          <a href="#design">Design Center</a>
-          <a href="#learning">Learning</a>
-          <a href="#gallery">Gallery</a>
-          <a href="#cart">Cart ({cartCount})</a>
-          <a href="#contact">Contact</a>
+          {tabs.map(t=>(
+            <a
+              key={t}
+              href="#"
+              onClick={(e)=>{e.preventDefault(); setTab(t);}}
+              style={{ background: tab===t ? "rgba(255,255,255,.06)" : "transparent" }}
+            >
+              {t}{t==="Cart" ? ` (${cartCount})` : ""}
+            </a>
+          ))}
         </nav>
-        <div style={{ marginLeft:"auto" }}>
-          <a className="btn btn-primary" href="#cart">Checkout</a>
+
+        <div style={{ marginLeft:"auto", display:"flex", gap:10 }}>
+          <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email</a>
+          <button className="btn btn-primary" onClick={()=>setTab("Cart")} type="button">Checkout</button>
         </div>
       </div>
     </header>
   );
 }
 
-function HomeHero() {
+/* ============================
+   PAGES
+   ============================ */
+function HomePage({ setTab }) {
   return (
-    <section id="top">
+    <section>
       <div className="container grid two" style={{ alignItems:"center" }}>
         <div>
           <div className="kicker">Old Money • Classic Luxury</div>
           <h1 style={{ fontSize:42, marginTop:10 }}>A calmer way to buy a kitchen.</h1>
           <p>
-            We make it simple: pick a finish, build your cabinet list, and checkout securely.
-            If you’re unsure, our design team creates a free 3D layout and cabinet placement plan first.
+            Browse all Tribeca finish options, build your cabinet list, and checkout securely.
+            If you don’t know what to order, our pro design team creates a free 3D layout and cabinet list first.
           </p>
           <div className="row" style={{ marginTop:14 }}>
-            <a className="btn btn-primary" href="#shop">Browse Finishes</a>
-            <a className="btn btn-outline" href="#design">Start Free 3D Design</a>
+            <button className="btn btn-primary" type="button" onClick={()=>setTab("Shop")}>Browse Finishes</button>
+            <button className="btn btn-outline" type="button" onClick={()=>setTab("Design Center")}>Free 3D Design</button>
           </div>
           <div className="row" style={{ marginTop:14 }}>
             <span className="pill">Nationwide</span>
-            <span className="pill">Designer-Led</span>
-            <span className="pill red">Free 3D Render</span>
+            <span className="pill">20+ Years</span>
+            <span className="pill red">Designer-Led</span>
           </div>
-          <p style={{ color:"var(--muted2)" }}>
+          <p className="mini" style={{ marginTop:14 }}>
             Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
           </p>
         </div>
 
-        <div className="card shadow" style={{ padding:0, overflow:"hidden" }}>
+        <div className="card" style={{ padding:0, overflow:"hidden" }}>
           <img
             src="https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1800&auto=format&fit=crop"
             alt="Luxury kitchen"
@@ -300,8 +365,9 @@ function HomeHero() {
   );
 }
 
-function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
-  const selected = useMemo(() => {
+function ShopPage({ onAddToCart }) {
+  const [selectedFinishId, setSelectedFinishId] = useState(FINISH_GROUPS[0].finishes[0].id);
+  const selectedFinish = useMemo(() => {
     for (const g of FINISH_GROUPS) {
       const f = g.finishes.find(x => x.id === selectedFinishId);
       if (f) return { ...f, group: g.group };
@@ -309,21 +375,22 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
     return { ...FINISH_GROUPS[0].finishes[0], group: FINISH_GROUPS[0].group };
   }, [selectedFinishId]);
 
-  const [sku, setSku] = useState("B12R");
+  const [sku, setSku] = useState(CABINET_SKUS[0].sku);
   const [qty, setQty] = useState(1);
   const [assembly, setAssembly] = useState("rta");
 
-  const chosen = useMemo(() => CABINET_SKUS.find(s => s.sku === sku), [sku]);
-  const unit = (chosen?.price || 0) + (assembly === "assembled" ? 99 : 0);
+  const basePrice = useMemo(() => CABINET_SKUS.find(s=>s.sku===sku)?.price || 0, [sku]);
+  const unit = basePrice + (assembly==="assembled" ? 99 : 0);
   const total = unit * qty;
 
   return (
-    <section id="shop">
+    <section>
       <div className="container">
         <div className="kicker">Shop</div>
-        <h2 style={{ fontSize:30, marginTop:10 }}>Tribeca Finishes (all on one page)</h2>
-        <p>Select a finish below, then build your cabinet list on the right.</p>
+        <h2 style={{ fontSize:30, marginTop:10 }}>All Finishes — One Shop Page</h2>
+        <p>All colors are visible here. Select a finish, build SKUs on the right. You never leave Shop.</p>
 
+        {/* ALL finishes visible (grouped) */}
         {FINISH_GROUPS.map(group => (
           <div key={group.group} style={{ marginTop:22 }}>
             <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
@@ -333,13 +400,13 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
 
             <div className="grid three" style={{ marginTop:12 }}>
               {group.finishes.map(f => {
-                const active = f.id === selectedFinishId;
+                const active = f.id===selectedFinishId;
                 return (
                   <button
                     key={f.id}
                     type="button"
-                    onClick={() => setSelectedFinishId(f.id)}
                     className="card"
+                    onClick={()=>setSelectedFinishId(f.id)}
                     style={{
                       textAlign:"left",
                       cursor:"pointer",
@@ -350,11 +417,11 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
                     <div className="finish-img">
                       <img src={imgFor(f.id)} alt={f.name} />
                     </div>
-                    <div className="row" style={{ justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
+                    <div className="row" style={{ justifyContent:"space-between", marginTop:10 }}>
                       <div style={{ fontWeight:600 }}>{f.name}</div>
                       <span className={active ? "pill red" : "pill"}>{active ? "Selected" : "Select"}</span>
                     </div>
-                    <p style={{ color:"var(--muted2)", marginTop:8 }}>RTA • Nationwide shipping • Configure below</p>
+                    <p className="mini" style={{ marginTop:8 }}>Same base SKU set • Configure right side</p>
                   </button>
                 );
               })}
@@ -362,29 +429,26 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
           </div>
         ))}
 
+        {/* Inline builder stays in Shop */}
         <div className="grid two" style={{ marginTop:26, alignItems:"start" }}>
-          <div className="card shadow" style={{ padding:0, overflow:"hidden" }}>
-            <img src={imgFor(selected.id)} alt={selected.name} style={{ width:"100%", height:420, objectFit:"cover" }} />
+          <div className="card" style={{ padding:0, overflow:"hidden" }}>
+            <img src={imgFor(selectedFinish.id)} alt={selectedFinish.name} style={{ width:"100%", height:420, objectFit:"cover" }} />
             <div style={{ padding:18 }}>
-              <div className="kicker">{selected.group}</div>
-              <h3 style={{ fontSize:24, marginTop:10 }}>{selected.name}</h3>
-              <p style={{ color:"var(--muted2)" }}>
-                Add SKUs to cart. Checkout supports Apple Pay & card when Stripe link is set.
-              </p>
-              <p style={{ color:"var(--muted2)" }}>
-                Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
-              </p>
+              <div className="kicker">{selectedFinish.group}</div>
+              <h3 style={{ fontSize:24, marginTop:10 }}>{selectedFinish.name}</h3>
+              <p className="mini">RTA • Nationwide shipping • Add SKUs to cart below.</p>
+              <p className="mini">Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b></p>
             </div>
           </div>
 
           <div className="card">
-            <h3 style={{ fontSize:22 }}>Build Your Cabinet List</h3>
+            <h3 style={{ fontSize:22 }}>Cabinet Builder (Simple)</h3>
 
-            <label>Cabinet SKU</label>
+            <label>SKU</label>
             <select value={sku} onChange={(e)=>setSku(e.target.value)}>
-              {CABINET_SKUS.map(s => (
+              {CABINET_SKUS.map(s=>(
                 <option key={s.sku} value={s.sku}>
-                  {s.sku} — {s.name} ({s.width}"W) — {usd(s.price)}
+                  {s.sku} — {usd(s.price)}
                 </option>
               ))}
             </select>
@@ -392,37 +456,26 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
             <div className="grid two" style={{ marginTop:10 }}>
               <div>
                 <label>Quantity</label>
-                <input type="number" min={1} value={qty} onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value || "1")))} />
+                <input type="number" min={1} value={qty} onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value||"1")))} />
               </div>
               <div>
                 <label>Assembly</label>
                 <select value={assembly} onChange={(e)=>setAssembly(e.target.value)}>
-                  <option value="rta">Ship RTA (unassembled)</option>
-                  <option value="assembled">Pre-assemble (+$99)</option>
+                  <option value="rta">RTA (unassembled)</option>
+                  <option value="assembled">Assembled (+$99)</option>
                 </select>
               </div>
             </div>
 
-            {chosen && (
-              <table style={{ marginTop:14 }}>
-                <tbody>
-                  <tr><th>Width</th><td>{chosen.width}"</td></tr>
-                  <tr><th>Height</th><td>{chosen.height}"</td></tr>
-                  <tr><th>Depth</th><td>{chosen.depth}"</td></tr>
-                  <tr><th>Hinge</th><td>{chosen.hinge}</td></tr>
-                </tbody>
-              </table>
-            )}
-
             <div className="card soft" style={{ marginTop:14 }}>
-              <div style={{ display:"flex", justifyContent:"space-between" }}>
+              <div className="row" style={{ justifyContent:"space-between" }}>
                 <div>
                   <div className="kicker">Unit</div>
-                  <div style={{ fontSize:22, fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif' }}>{usd(unit)}</div>
+                  <div style={{ fontSize:22, fontFamily:'Georgia, "Times New Roman", serif' }}>{usd(unit)}</div>
                 </div>
                 <div style={{ textAlign:"right" }}>
                   <div className="kicker">Total</div>
-                  <div style={{ fontSize:22, fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif' }}>{usd(total)}</div>
+                  <div style={{ fontSize:22, fontFamily:'Georgia, "Times New Roman", serif' }}>{usd(total)}</div>
                 </div>
               </div>
             </div>
@@ -432,8 +485,8 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
                 className="btn btn-primary"
                 type="button"
                 onClick={() => onAddToCart({
-                  finishId: selected.id,
-                  finishName: selected.name,
+                  finishId: selectedFinish.id,
+                  finishName: selectedFinish.name,
                   sku,
                   qty,
                   assembly,
@@ -442,8 +495,11 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
               >
                 Add to Cart
               </button>
-              <a className="btn btn-outline" href="#cart">View Cart</a>
             </div>
+
+            <p className="mini" style={{ marginTop:12 }}>
+              Want Apple Pay / card checkout? Add Stripe payment link in code.
+            </p>
           </div>
         </div>
       </div>
@@ -451,46 +507,116 @@ function ShopSection({ selectedFinishId, setSelectedFinishId, onAddToCart }) {
   );
 }
 
-function DesignCenter() {
+/* Design Center: NEW, easier, “fun” */
+function DesignCenterPage() {
+  const [mode, setMode] = useState("Design It For Me"); // Design It For Me | I Have Measurements | I Want Advice
+  const [budget, setBudget] = useState(25000);
+  const [style, setStyle] = useState("Classic White + Brass");
+  const [notes, setNotes] = useState("");
+  const [contact, setContact] = useState({ name:"", email:"", phone:"" });
+
   return (
-    <section id="design" style={{ background:"var(--bg2)" }}>
+    <section style={{ background:"var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Design Center</div>
-        <h2 style={{ fontSize:30, marginTop:10 }}>Free 3D Design (easy)</h2>
-        <p>
-          Not sure what to order? Send your details and our pro team creates a 3D layout, cabinet placement,
-          and an itemized list — free.
-        </p>
-        <div className="card soft" style={{ marginTop:14 }}>
-          <p style={{ margin:0, color:"var(--muted2)" }}>
-            Email inspiration photos to <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
-          </p>
+        <h2 style={{ fontSize:30, marginTop:10 }}>Free 3D Design — pick a path</h2>
+        <p>Choose what fits you. This is designed for people who don’t know what they’re ordering.</p>
+
+        <div className="row" style={{ marginTop:14 }}>
+          {["Design It For Me","I Have Measurements","I Want Advice"].map(m=>(
+            <button
+              key={m}
+              className={mode===m ? "btn btn-primary" : "btn btn-outline"}
+              type="button"
+              onClick={()=>setMode(m)}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid two" style={{ marginTop:16, alignItems:"start" }}>
+          <div className="card">
+            <h3 style={{ fontSize:22 }}>{mode}</h3>
+            <p className="mini">
+              {mode==="Design It For Me" && "Upload photos + tell us budget. We’ll handle layout, cabinet sizing, and a 3D render."}
+              {mode==="I Have Measurements" && "Send wall lengths, ceiling height, and window locations. We’ll create a 3D plan + cabinet list."}
+              {mode==="I Want Advice" && "Tell us your goal and budget. We’ll recommend finishes + layout direction and next steps."}
+            </p>
+
+            <label>Budget comfort</label>
+            <input type="range" min={8000} max={80000} step={1000} value={budget} onChange={(e)=>setBudget(parseInt(e.target.value||"25000"))} />
+            <div className="mini">Target: <b style={{ color:"var(--text)" }}>{usd(budget)}</b></div>
+
+            <label>Style direction</label>
+            <select value={style} onChange={(e)=>setStyle(e.target.value)}>
+              <option>Classic White + Brass</option>
+              <option>White + Matte Black</option>
+              <option>Two Tone White + Rift Oak</option>
+              <option>Warm Neutral + Brass</option>
+            </select>
+
+            <label>Notes</label>
+            <textarea rows={5} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Walls/windows, appliances, timeline, anything important…" />
+          </div>
+
+          <div className="card soft">
+            <h3 style={{ fontSize:22 }}>Submit (Free)</h3>
+            <p>
+              After you submit, our <b style={{ color:"var(--text)" }}>professional design team</b> will create a
+              <b style={{ color:"var(--text)" }}> custom 3D kitchen design</b> + cabinet placement + itemized list.
+            </p>
+            <div className="row" style={{ marginTop:10 }}>
+              <span className="pill red">24 hour response</span>
+              <span className="pill">3D render</span>
+              <span className="pill">Cabinet list</span>
+            </div>
+
+            <label>Name</label>
+            <input value={contact.name} onChange={(e)=>setContact(c=>({ ...c, name:e.target.value }))} />
+
+            <label>Email</label>
+            <input value={contact.email} onChange={(e)=>setContact(c=>({ ...c, email:e.target.value }))} />
+
+            <label>Phone</label>
+            <input value={contact.phone} onChange={(e)=>setContact(c=>({ ...c, phone:e.target.value }))} />
+
+            <div className="row" style={{ marginTop:14 }}>
+              <button className="btn btn-primary" type="button">Request Free Design</button>
+              <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email Us</a>
+            </div>
+
+            <p className="mini" style={{ marginTop:12 }}>
+              Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
+            </p>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function LearningCenter() {
+function LearningPage() {
   const items = [
-    { title: "What is RTA?", body: "Ready-to-Assemble cabinets ship flat-packed. Easier delivery, easier handling, faster install. We guide you through the cabinet list." },
-    { title: "How to measure", body: "Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner. If unsure, submit Design Center." },
-    { title: "Shipping (freight)", body: "Most orders ship LTL freight. Inspect boxes before signing. Delivery coordination available." },
-    { title: "Assembly & installation", body: "Hardware and instructions included. A mallet, driver, level, and square help. Keep boxes organized by wall/run." },
-    { title: "Returns / damages", body: "Report issues quickly with photos. Policies vary by order type. We coordinate replacements where applicable." },
+    { title:"What is RTA?", body:"Ready-to-Assemble cabinets ship flat-packed for easier delivery and handling. We help you pick SKUs and provide guidance."},
+    { title:"How to measure", body:"Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner. If unsure, use Design Center."},
+    { title:"Freight shipping", body:"Most cabinet orders ship LTL freight. Inspect boxes before signing. We can coordinate delivery."},
+    { title:"Assembly & install", body:"RTA includes hardware and instructions. A mallet, driver, level, and square help. Keep boxes organized by wall/run."},
+    { title:"Damages / returns", body:"Report issues quickly with photos. Policies vary by order type. We coordinate replacements where applicable."},
+    { title:"Ordering help", body:"If you feel stuck, email premier@premierkm.com and we’ll guide you through finish + cabinet list."},
   ];
   return (
-    <section id="learning">
+    <section>
       <div className="container">
         <div className="kicker">Learning</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Learning Center</h2>
         <p>Clear answers so customers feel confident ordering online.</p>
 
         <div className="grid two" style={{ marginTop:14 }}>
-          {items.map(it => (
-            <div className="card" key={it.title}>
+          {items.map(it=>(
+            <div key={it.title} className="card">
               <h3 style={{ fontSize:18 }}>{it.title}</h3>
-              <p style={{ color:"var(--muted2)" }}>{it.body}</p>
+              <p className="mini">{it.body}</p>
             </div>
           ))}
         </div>
@@ -499,24 +625,16 @@ function LearningCenter() {
   );
 }
 
-function Gallery() {
-  const photos = [
-    "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1400&auto=format&fit=crop",
-  ];
+function GalleryPage() {
   return (
-    <section id="gallery" style={{ background:"var(--bg2)" }}>
+    <section style={{ background:"var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Gallery</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Project Inspiration</h2>
-        <p>Replace these with your installs anytime.</p>
+        <p>Luxury placeholders now — replace with your installs anytime.</p>
 
         <div className="grid three" style={{ marginTop:14 }}>
-          {photos.map((src,i)=>(
+          {GALLERY.map((src,i)=>(
             <div key={i} className="card" style={{ padding:0, overflow:"hidden" }}>
               <img src={src} alt="Gallery" style={{ width:"100%", height:240, objectFit:"cover" }} />
             </div>
@@ -527,20 +645,19 @@ function Gallery() {
   );
 }
 
-function Cart({ cart, onRemove, onClear }) {
+function CartPage({ cart, onRemove, onClear }) {
   const subtotal = cart.reduce((s,it)=> s + it.unitPrice * it.qty, 0);
-  const checkoutUrl = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_LINK_HERE" ? STRIPE_PAYMENT_LINK : null;
+  const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
 
   return (
-    <section id="cart">
+    <section>
       <div className="container">
         <div className="kicker">Cart</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Checkout</h2>
 
-        {cart.length === 0 ? (
+        {cart.length===0 ? (
           <div className="card">
-            <p>Your cart is empty. Add SKUs from Shop above.</p>
-            <a className="btn btn-primary" href="#shop">Go to Shop</a>
+            <p>Your cart is empty. Add SKUs in the Shop tab.</p>
           </div>
         ) : (
           <>
@@ -575,26 +692,27 @@ function Cart({ cart, onRemove, onClear }) {
               </table>
             </div>
 
-            <div style={{ display:"flex", justifyContent:"flex-end", marginTop:12, fontSize:18, color:"var(--text)" }}>
-              Subtotal: <span style={{ marginLeft:10, fontFamily:'ui-serif, Georgia, "Times New Roman", Times, serif' }}>{usd(subtotal)}</span>
+            <div style={{ display:"flex", justifyContent:"flex-end", marginTop:12, fontSize:18 }}>
+              Subtotal: <span style={{ marginLeft:10, fontFamily:'Georgia, "Times New Roman", serif' }}>{usd(subtotal)}</span>
             </div>
 
             <div className="row" style={{ justifyContent:"flex-end", marginTop:12 }}>
               <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
-
-              {checkoutUrl ? (
-                <a className="btn btn-primary" href={checkoutUrl} target="_blank" rel="noreferrer">
+              {checkoutOk ? (
+                <a className="btn btn-primary" href={STRIPE_PAYMENT_LINK} target="_blank" rel="noreferrer">
                   Pay (Apple Pay / Card)
                 </a>
               ) : (
-                <a className="btn btn-primary" href="#contact">Enable Checkout</a>
+                <a className="btn btn-primary" href="mailto:premier@premierkm.com">
+                  Checkout Setup Needed
+                </a>
               )}
             </div>
 
-            {!checkoutUrl && (
+            {!checkoutOk && (
               <div className="card soft" style={{ marginTop:14 }}>
-                <p style={{ margin:0, color:"var(--muted2)" }}>
-                  To enable checkout, create a Stripe Payment Link and paste it into <b style={{ color:"var(--text)" }}>STRIPE_PAYMENT_LINK</b>.
+                <p className="mini" style={{ margin:0 }}>
+                  Paste your Stripe Payment Link into STRIPE_PAYMENT_LINK at the top of this file.
                 </p>
               </div>
             )}
@@ -605,9 +723,9 @@ function Cart({ cart, onRemove, onClear }) {
   );
 }
 
-function Contact() {
+function ContactPage() {
   return (
-    <section id="contact">
+    <section>
       <div className="container">
         <div className="kicker">Contact</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Premier RTA Cabinetry</h2>
@@ -618,26 +736,16 @@ function Contact() {
   );
 }
 
-function Footer() {
-  return (
-    <footer style={{ borderTop:"1px solid var(--border)", marginTop:20 }}>
-      <div className="container" style={{ padding:"20px 0", fontSize:14, color:"var(--muted2)" }}>
-        © {new Date().getFullYear()} Premier RTA Cabinetry • premier@premierkm.com
-      </div>
-    </footer>
-  );
-}
-
 /* ============================
-   APP (single page)
+   APP
    ============================ */
 export default function App() {
+  const [tab, setTab] = useState("Home");
+
   const [cart, setCart] = useState(() => {
     if (typeof window === "undefined") return [];
     try { return JSON.parse(localStorage.getItem("premier_cart") || "[]"); } catch { return []; }
   });
-
-  const [selectedFinishId, setSelectedFinishId] = useState("hudson-snow-white");
 
   useEffect(() => {
     localStorage.setItem("premier_cart", JSON.stringify(cart));
@@ -654,32 +762,23 @@ export default function App() {
       }
       return [...prev, { key, finishId, finishName, sku, qty, assembly, unitPrice }];
     });
-    document.getElementById("cart")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const removeFromCart = (key) => setCart(prev => prev.filter(x => x.key !== key));
   const clearCart = () => setCart([]);
 
   return (
-    <div>
+    <>
       <GlobalStyles />
-      <Header cartCount={cart.reduce((s,it)=>s + it.qty, 0)} />
+      <Header tab={tab} setTab={setTab} cartCount={cart.reduce((s,it)=>s+it.qty,0)} />
 
-      <HomeHero />
-
-      <ShopSection
-        selectedFinishId={selectedFinishId}
-        setSelectedFinishId={setSelectedFinishId}
-        onAddToCart={addToCart}
-      />
-
-      <DesignCenter />
-      <LearningCenter />
-      <Gallery />
-
-      <Cart cart={cart} onRemove={removeFromCart} onClear={clearCart} />
-      <Contact />
-      <Footer />
-    </div>
+      {tab === "Home" && <HomePage setTab={setTab} />}
+      {tab === "Shop" && <ShopPage onAddToCart={addToCart} />}
+      {tab === "Design Center" && <DesignCenterPage />}
+      {tab === "Learning" && <LearningPage />}
+      {tab === "Gallery" && <GalleryPage />}
+      {tab === "Cart" && <CartPage cart={cart} onRemove={removeFromCart} onClear={clearCart} />}
+      {tab === "Contact" && <ContactPage />}
+    </>
   );
 }
