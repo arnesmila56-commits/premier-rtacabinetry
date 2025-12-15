@@ -74,16 +74,48 @@ function GlobalStyles() {
    ============================ */
 const usd = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
-const LINE = {
-  id: "tribeca-snow-white",
-  name: "Tribeca Snow White",
-  quickShip: true,
-  finish: "Matte",
-  door: "Shaker",
-  image:
-    "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1400&auto=format&fit=crop",
-  leadTime: "2–5 biz days",
-};
+const TRIBECA_IMAGE =
+  "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1400&auto=format&fit=crop";
+
+const TRIBECA_FINISH_TABS = [
+  {
+    tab: "Hudson",
+    finishes: [
+      { id: "hudson-snow-white", name: "Hudson Snow White" },
+      { id: "hudson-cloud-white", name: "Hudson Cloud White" },
+      { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
+      { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
+      { id: "hudson-cashew", name: "Hudson Cashew" },
+    ],
+  },
+  {
+    tab: "Soho",
+    finishes: [
+      { id: "soho-snow-white", name: "Soho Snow White" },
+      { id: "soho-empire-blue", name: "Soho Empire Blue" },
+    ],
+  },
+  {
+    tab: "Southampton",
+    finishes: [
+      { id: "southampton-snow-white", name: "Southampton Snow White" },
+      { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
+      { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
+    ],
+  },
+];
+
+const DEFAULT_FINISH_ID = "hudson-snow-white";
+
+function getFinishById(id) {
+  for (const group of TRIBECA_FINISH_TABS) {
+    for (const f of group.finishes) {
+      if (f.id === id) return f;
+    }
+  }
+  // fallback
+  return TRIBECA_FINISH_TABS[0].finishes[0];
+}
 
 const CABINET_SKUS = [
   { sku: "B12R", name: 'Base 12" Right', width: 12, height: 34.5, depth: 24, hinge: "Right", price: 225 },
@@ -131,9 +163,9 @@ function Header({ dark, onToggleDark, cartCount }) {
       <div className="container" style={{ display:"flex", alignItems:"center", gap:18, padding:"12px 0" }}>
         <a href="#/home" aria-label="Home" style={{ display:"flex", alignItems:"center" }}>
           <svg width="360" height="54" viewBox="0 0 620 100" role="img" aria-label="Premier RTA Cabinetry">
-            <text x="0" y="68" fontFamily='ui-serif, Georgia' fontWeight="800" fontSize="58" fill="var(--text)">Premier</text>
-            <text x="290" y="68" fontFamily='ui-sans-serif, system-ui' fontWeight="900" fontSize="52" fill="var(--primary)">RTA</text>
-            <text x="420" y="68" fontFamily='ui-serif, Georgia' fontWeight="700" fontSize="44" fill="var(--text)">Cabinetry</text>
+            <text x="0" y="68" fontFamily="ui-serif, Georgia" fontWeight="800" fontSize="58" fill="var(--text)">Premier</text>
+            <text x="290" y="68" fontFamily="ui-sans-serif, system-ui" fontWeight="900" fontSize="52" fill="var(--primary)">RTA</text>
+            <text x="420" y="68" fontFamily="ui-serif, Georgia" fontWeight="700" fontSize="44" fill="var(--text)">Cabinetry</text>
           </svg>
         </a>
 
@@ -157,11 +189,6 @@ function Header({ dark, onToggleDark, cartCount }) {
    HOME
    ============================ */
 function Home() {
-  const imgs = [
-    LINE.image,
-    "https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1400&auto=format&fit=crop",
-  ];
   return (
     <section className="section" style={{ background:"linear-gradient(to bottom right, var(--bg), var(--subtle))" }}>
       <div className="container" style={{ display:"grid", gridTemplateColumns:"1.1fr .9fr", gap:20, alignItems:"center" }}>
@@ -170,7 +197,7 @@ function Home() {
           <p>Based in <b>Staten Island</b> with 20+ years of experience. Nationwide shipping. Concierge-level design help.</p>
           <p><b>Free 3D Design:</b> Submit your room details and our in-house team creates a custom 3D layout and cabinet placement.</p>
           <div style={{ display:"flex", gap:10, marginTop:8 }}>
-            <a href="#/shop" className="btn btn-primary">Shop Tribeca Snow White</a>
+            <a href="#/shop" className="btn btn-primary">Shop Tribeca</a>
             <a href="#/builder" className="btn btn-outline">Start Free Design</a>
           </div>
           <div style={{ display:"flex", gap:8, marginTop:8, flexWrap:"wrap" }}>
@@ -179,10 +206,54 @@ function Home() {
             <span className="pill red">Designer-Led</span>
           </div>
         </div>
-        <div style={{ display:"grid", gridTemplateRows:"repeat(3, 1fr)", gap:10 }}>
-          {imgs.map((src,i)=>(
-            <div key={i} className="card" style={{ padding:0, overflow:"hidden" }}>
-              <img src={src} alt="project" style={{ width:"100%", height:150, objectFit:"cover" }}/>
+        <div className="card" style={{ padding:0, overflow:"hidden" }}>
+          <img src={TRIBECA_IMAGE} alt="Kitchen" style={{ width:"100%", height:360, objectFit:"cover" }} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================
+   SHOP (TABS + FINISH OPTIONS)
+   ============================ */
+function Shop() {
+  const [activeTab, setActiveTab] = useState("Hudson");
+  const tabObj = TRIBECA_FINISH_TABS.find(t => t.tab === activeTab) || TRIBECA_FINISH_TABS[0];
+
+  return (
+    <section className="section">
+      <div className="container">
+        <h2 style={{ fontSize:28, fontWeight:900 }}>Shop — Tribeca Finishes</h2>
+        <p>Select a finish family, then choose your finish. All finishes use the same base cabinet SKU set.</p>
+
+        <div className="tab-list" role="tablist" style={{ marginTop:12 }}>
+          {TRIBECA_FINISH_TABS.map(t => (
+            <button
+              key={t.tab}
+              className="tab-btn"
+              aria-selected={activeTab === t.tab}
+              onClick={() => setActiveTab(t.tab)}
+              type="button"
+            >
+              {t.tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid" style={{ gridTemplateColumns:"repeat(auto-fit, minmax(300px, 1fr))", marginTop:16 }}>
+          {tabObj.finishes.map(f => (
+            <div key={f.id} className="card">
+              <img src={TRIBECA_IMAGE} alt={f.name} style={{ width:"100%", height:180, objectFit:"cover", borderRadius:12 }} />
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
+                <div style={{ fontWeight:900 }}>{f.name}</div>
+                <span className="pill red">Tribeca</span>
+              </div>
+              <p>RTA • Nationwide shipping • Build an itemized quote by selecting SKUs.</p>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
+                <div style={{ fontWeight:900 }}>From selection</div>
+                <a href={`#/shop/${f.id}`} className="btn btn-primary">Configure</a>
+              </div>
             </div>
           ))}
         </div>
@@ -192,38 +263,15 @@ function Home() {
 }
 
 /* ============================
-   SHOP + CONFIGURATOR
+   CONFIGURATOR (USES FINISH ID)
    ============================ */
-function Shop() {
-  return (
-    <section className="section">
-      <div className="container">
-        <h2 style={{ fontSize:28, fontWeight:900 }}>Shop</h2>
-        <p><b>{LINE.name}</b> — Matte Snow White Shaker. Select SKUs to price your order.</p>
+function Configurator({ finishId, onAddToCart }) {
+  const finish = getFinishById(finishId || DEFAULT_FINISH_ID);
 
-        <div className="grid" style={{ gridTemplateColumns:"repeat(auto-fit, minmax(300px, 1fr))", marginTop:16 }}>
-          <div className="card">
-            <img src={LINE.image} alt={LINE.name} style={{ width:"100%", height:180, objectFit:"cover", borderRadius:12 }}/>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
-              <div style={{ fontWeight:900 }}>{LINE.name}</div>
-              <span className="pill red">Quick-Ship</span>
-            </div>
-            <p>Finish: {LINE.finish} • Door: {LINE.door} • Lead time: {LINE.leadTime}</p>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
-              <div style={{ fontWeight:900 }}>From selection</div>
-              <a href={`#/shop/${LINE.id}`} className="btn btn-primary">Configure</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Configurator({ onAddToCart }) {
   const [sku, setSku] = useState("B12R");
   const [qty, setQty] = useState(1);
   const [assembly, setAssembly] = useState("rta");
+
   const chosen = CABINET_SKUS.find((s) => s.sku === sku);
   const base = chosen ? chosen.price : 0;
   const assemblyUp = assembly === "assembled" ? 99 : 0;
@@ -234,10 +282,10 @@ function Configurator({ onAddToCart }) {
     <section className="section">
       <div className="container" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
         <div className="card" style={{ padding:0, overflow:"hidden" }}>
-          <img src={LINE.image} alt={LINE.name} style={{ width:"100%", height:360, objectFit:"cover" }}/>
+          <img src={TRIBECA_IMAGE} alt={finish.name} style={{ width:"100%", height:360, objectFit:"cover" }}/>
           <div style={{ padding:14 }}>
-            <h2 style={{ fontSize:24, fontWeight:900 }}>{LINE.name}</h2>
-            <p>Ships flat in labeled boxes. Hardware, cams & instructions included.</p>
+            <h2 style={{ fontSize:24, fontWeight:900 }}>{finish.name}</h2>
+            <p>Tribeca cabinetry • Ships flat with hardware and instructions.</p>
           </div>
         </div>
 
@@ -293,7 +341,14 @@ function Configurator({ onAddToCart }) {
             <button
               className="btn btn-primary"
               type="button"
-              onClick={() => onAddToCart({ sku, qty, assembly, unitPrice: unit })}
+              onClick={() => onAddToCart({
+                finishId: finish.id,
+                finishName: finish.name,
+                sku,
+                qty,
+                assembly,
+                unitPrice: unit
+              })}
             >
               Add to Cart
             </button>
@@ -306,229 +361,32 @@ function Configurator({ onAddToCart }) {
 }
 
 /* ============================
-   DESIGN CENTER (with windows/walls/budget/colors + 3D promise)
+   DESIGN CENTER (kept simple here)
    ============================ */
-function LayoutCard({ name, selected, onSelect }) {
-  return (
-    <div className="card" style={{ cursor:"pointer", borderColor: selected ? "var(--primary)" : undefined }} onClick={()=>onSelect(name)}>
-      <svg viewBox="0 0 120 80" width="100%" height="90">
-        <text x="6" y="10" fontSize="6">B=Base</text>
-        <text x="42" y="10" fontSize="6">W=Wall</text>
-        <text x="80" y="10" fontSize="6">T=Tall</text>
-        {name==="L-Shape" && <path d="M10 20 H80 V30 H30 V65 H10 Z" fill="none" stroke="currentColor" strokeWidth="3" />}
-        {name==="U-Shape" && <path d="M10 20 H90 V65 H70 V35 H30 V65 H10 Z" fill="none" stroke="currentColor" strokeWidth="3" />}
-        {name==="Galley" && <>
-          <rect x="10" y="20" width="25" height="45" fill="none" stroke="currentColor" strokeWidth="3" />
-          <rect x="85" y="20" width="25" height="45" fill="none" stroke="currentColor" strokeWidth="3" />
-        </>}
-        {name==="Single Wall" && <rect x="10" y="40" width="100" height="18" fill="none" stroke="currentColor" strokeWidth="3" />}
-        {name==="Island Kitchen" && <>
-          <rect x="10" y="40" width="80" height="18" fill="none" stroke="currentColor" strokeWidth="3" />
-          <rect x="40" y="62" width="40" height="12" fill="none" stroke="currentColor" strokeWidth="3" />
-        </>}
-      </svg>
-      <div style={{ textAlign:"center", fontWeight:900 }}>{name}</div>
-      <p style={{ fontSize:12, textAlign:"center" }}>Typical cabinet placement</p>
-    </div>
-  );
-}
-
 function DesignCenter() {
-  const saved = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("design_center_progress") || "{}") : {};
-  const [step, setStep] = useState(saved.step || 1);
-  const [layout, setLayout] = useState(saved.layout || "Not Sure");
-  const [walls, setWalls] = useState(saved.walls || { wallA:"", wallB:"", wallC:"", ceiling:"" });
-  const [windows, setWindows] = useState(saved.windows || [{ id:1, wall:"A", width:"", height:"", sill:"", offset:"" }]);
-  const [budget, setBudget] = useState(saved.budget || 25000);
-  const [palette, setPalette] = useState(saved.palette || "Snow White + Brass");
-  const [contact, setContact] = useState(saved.contact || { name:"", email:"", phone:"", notes:"" });
-
-  useEffect(() => {
-    try { localStorage.setItem("design_center_progress", JSON.stringify({ step, layout, walls, windows, budget, palette, contact })); } catch {}
-  }, [step, layout, walls, windows, budget, palette, contact]);
-
-  const updateWall = (k,v)=>setWalls((w)=>({ ...w, [k]: v }));
-  const updateWindow = (id, patch)=>setWindows((ws)=>ws.map((w)=>w.id===id?{...w,...patch}:w));
-  const addWindow = ()=>setWindows((ws)=>[...ws,{ id:(ws[ws.length-1]?.id||0)+1, wall:"A", width:"", height:"", sill:"", offset:"" }]);
-  const removeWindow = (id)=>setWindows((ws)=>ws.length<=1?ws:ws.filter((w)=>w.id!==id));
-
   return (
     <section className="section">
-      <div className="container grid" style={{ gap:16 }}>
-        <div>
-          <h2 style={{ fontSize:32, fontWeight:900 }}>Design Center — Free 3D Kitchen Design</h2>
-          <p>Answer a few questions and our professional in-house team will deliver a <b>custom 3D design</b>, cabinet placement, and recommendations — free.</p>
-          <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginTop:8 }}>
-            <span className="pill red">Free Design • No Pressure</span>
-            <span className="pill">Response in 24 Hours</span>
-            <span className="pill">3D Render Included</span>
-          </div>
+      <div className="container">
+        <h2 style={{ fontSize:28, fontWeight:900 }}>Design Center — Free 3D Kitchen Design</h2>
+        <p>Submit your room details and our professional team will deliver a custom 3D design + cabinet placement, free.</p>
+        <div style={{ display:"flex", gap:10, marginTop:12 }}>
+          <a className="btn btn-primary" href="#/contact">Request Free Design</a>
+          <a className="btn btn-outline" href="#/shop">Shop Tribeca</a>
         </div>
-
-        <div className="card" style={{ background:"var(--subtle)" }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-            <div style={{ fontWeight:900 }}>Step {step} of 5</div>
-            <div style={{ color:"var(--muted)", fontSize:13 }}>Auto-saves</div>
-          </div>
-        </div>
-
-        {step===1 && (
-          <div className="card">
-            <h3>1) Pick the closest layout</h3>
-            <div className="grid" style={{ gridTemplateColumns:"repeat(3,1fr)" }}>
-              {["Not Sure","L-Shape","U-Shape","Galley","Single Wall","Island Kitchen"].map((l)=>(
-                l==="Not Sure"
-                  ? <button key={l} className={`btn ${layout===l?"btn-primary":"btn-outline"}`} onClick={()=>setLayout(l)}>Not Sure — Help Me</button>
-                  : <LayoutCard key={l} name={l} selected={layout===l} onSelect={setLayout} />
-              ))}
-            </div>
-            <div style={{ display:"flex", justifyContent:"flex-end", marginTop:12 }}>
-              <button className="btn btn-primary" type="button" onClick={()=>setStep(2)}>Next</button>
-            </div>
-          </div>
-        )}
-
-        {step===2 && (
-          <div className="card">
-            <h3>2) Wall sizes (inches)</h3>
-            <div className="grid" style={{ gridTemplateColumns:"repeat(4,1fr)" }}>
-              <div><label>Wall A</label><input value={walls.wallA} onChange={(e)=>updateWall("wallA",e.target.value)} placeholder="192"/></div>
-              <div><label>Wall B</label><input value={walls.wallB} onChange={(e)=>updateWall("wallB",e.target.value)} placeholder="120"/></div>
-              <div><label>Wall C</label><input value={walls.wallC} onChange={(e)=>updateWall("wallC",e.target.value)} placeholder="optional"/></div>
-              <div><label>Ceiling</label><input value={walls.ceiling} onChange={(e)=>updateWall("ceiling",e.target.value)} placeholder="108"/></div>
-            </div>
-            <div style={{ display:"flex", justifyContent:"space-between", marginTop:12 }}>
-              <button className="btn btn-outline" type="button" onClick={()=>setStep(1)}>Back</button>
-              <button className="btn btn-primary" type="button" onClick={()=>setStep(3)}>Next</button>
-            </div>
-          </div>
-        )}
-
-        {step===3 && (
-          <div className="card">
-            <h3>3) Window locations</h3>
-            <p>Windows affect where wall cabinets can go. Add each window you have.</p>
-            <div className="grid" style={{ gap:12 }}>
-              {windows.map((w)=>(
-                <div key={w.id} className="card">
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                    <div style={{ fontWeight:900 }}>Window {w.id}</div>
-                    <button className="btn btn-outline" type="button" onClick={()=>removeWindow(w.id)}>Remove</button>
-                  </div>
-                  <div className="grid" style={{ gridTemplateColumns:"repeat(4,1fr)", gap:12, marginTop:8 }}>
-                    <div>
-                      <label>Wall</label>
-                      <select value={w.wall} onChange={(e)=>updateWindow(w.id,{ wall:e.target.value })}>
-                        <option value="A">Wall A</option>
-                        <option value="B">Wall B</option>
-                        <option value="C">Wall C</option>
-                      </select>
-                    </div>
-                    <div><label>Width</label><input value={w.width} onChange={(e)=>updateWindow(w.id,{ width:e.target.value })} placeholder="36"/></div>
-                    <div><label>Height</label><input value={w.height} onChange={(e)=>updateWindow(w.id,{ height:e.target.value })} placeholder="48"/></div>
-                    <div><label>Sill</label><input value={w.sill} onChange={(e)=>updateWindow(w.id,{ sill:e.target.value })} placeholder="from floor"/></div>
-                  </div>
-                  <div style={{ marginTop:10 }}>
-                    <label>Offset from left corner</label>
-                    <input value={w.offset} onChange={(e)=>updateWindow(w.id,{ offset:e.target.value })} placeholder="distance from left corner"/>
-                  </div>
-                </div>
-              ))}
-              <button className="btn btn-outline" type="button" onClick={addWindow}>+ Add another window</button>
-            </div>
-            <div style={{ display:"flex", justifyContent:"space-between", marginTop:12 }}>
-              <button className="btn btn-outline" type="button" onClick={()=>setStep(2)}>Back</button>
-              <button className="btn btn-primary" type="button" onClick={()=>setStep(4)}>Next</button>
-            </div>
-          </div>
-        )}
-
-        {step===4 && (
-          <div className="card">
-            <h3>4) Budget & color direction</h3>
-            <div className="grid" style={{ gridTemplateColumns:"1fr 1fr" }}>
-              <div className="card" style={{ background:"var(--subtle)" }}>
-                <h3 style={{ marginBottom:6 }}>Budget comfort</h3>
-                <input type="range" min={8000} max={80000} step={1000} value={budget} onChange={(e)=>setBudget(parseInt(e.target.value||"25000"))}/>
-                <div style={{ fontWeight:900, marginTop:8 }}>{usd(budget)}</div>
-              </div>
-              <div className="card" style={{ background:"var(--subtle)" }}>
-                <h3 style={{ marginBottom:6 }}>Color palette</h3>
-                <select value={palette} onChange={(e)=>setPalette(e.target.value)}>
-                  <option>Snow White + Brass</option>
-                  <option>Snow White + Matte Black</option>
-                  <option>Two-Tone: White + Warm Oak</option>
-                  <option>Two-Tone: White + Deep Walnut</option>
-                  <option>All White (clean + bright)</option>
-                </select>
-              </div>
-            </div>
-            <div style={{ display:"flex", justifyContent:"space-between", marginTop:12 }}>
-              <button className="btn btn-outline" type="button" onClick={()=>setStep(3)}>Back</button>
-              <button className="btn btn-primary" type="button" onClick={()=>setStep(5)}>Next</button>
-            </div>
-          </div>
-        )}
-
-        {step===5 && (
-          <div className="card" style={{ background:"var(--subtle)" }}>
-            <h3>5) Submit your free design request</h3>
-            <p style={{ maxWidth:760 }}>
-              After you submit, our <b>professional in-house design team</b> will create a <b>custom 3D design</b> of your kitchen.
-              You’ll receive realistic <b>3D renderings</b>, cabinet placement guidance, and expert recommendations — completely free.
-            </p>
-
-            <div className="grid" style={{ gridTemplateColumns:"1fr 1fr", gap:12 }}>
-              <div><label>Name</label><input value={contact.name} onChange={(e)=>setContact(c=>({...c,name:e.target.value}))} /></div>
-              <div><label>Email</label><input value={contact.email} onChange={(e)=>setContact(c=>({...c,email:e.target.value}))} /></div>
-              <div><label>Phone</label><input value={contact.phone} onChange={(e)=>setContact(c=>({...c,phone:e.target.value}))} /></div>
-              <div><label>Notes</label><input value={contact.notes} onChange={(e)=>setContact(c=>({...c,notes:e.target.value}))} placeholder="timeline, preferences, etc."/></div>
-            </div>
-
-            <div style={{ display:"flex", gap:10, marginTop:12 }}>
-              <button className="btn btn-primary" type="button">Request Free Design Help</button>
-              <button className="btn btn-outline" type="button" onClick={()=>setStep(1)}>Start Over</button>
-              <a className="btn btn-outline" href="#/shop">View Shop</a>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
 }
 
 /* ============================
-   LEARNING / GALLERY / CONTACT / CART / FOOTER
+   LEARN / GALLERY / CONTACT
    ============================ */
 function Learn(){
-  const [tab, setTab] = useState("faq");
-  const tabs = [
-    ["faq","FAQs"],["measure","How to Measure"],["design","Free Design Process"],
-    ["assembly","Assembly"],["shipping","Shipping & Delivery"],["returns","Returns & Damages"],
-    ["care","Care & Cleaning"],["warranty","Warranty"]
-  ];
   return (
     <section className="section">
       <div className="container">
-        <h2 style={{ fontSize:28, fontWeight:900 }}>Learning Center</h2>
+        <h2 style={{ fontSize:28, fontWeight:900 }}>Learning</h2>
         <p>Guides and tips for measuring, ordering, delivery, assembly, and care.</p>
-        <div className="tabs">
-          <div className="tab-list" role="tablist">
-            {tabs.map(([k,l])=>(
-              <button key={k} className="tab-btn" aria-selected={tab===k} onClick={()=>setTab(k)}>{l}</button>
-            ))}
-          </div>
-          <div style={{ marginTop:12 }}>
-            {tab==="faq" && <div className="card"><h3>FAQs</h3><p>Ask us anything — we guide you start to finish.</p></div>}
-            {tab==="measure" && <div className="card"><h3>How to Measure</h3><p>Sketch walls A/B/C, mark windows & doors, then measure lengths and heights.</p></div>}
-            {tab==="design" && <div className="card"><h3>Free Design Process</h3><p>Submit → Review → 3D layout → Cabinet list → Quote.</p></div>}
-            {tab==="assembly" && <div className="card"><h3>Assembly</h3><p>RTA ships flat with hardware and instructions.</p></div>}
-            {tab==="shipping" && <div className="card"><h3>Shipping</h3><p>Freight delivery options available. Inspect boxes before signing.</p></div>}
-            {tab==="returns" && <div className="card"><h3>Returns</h3><p>Policies vary by order type. Contact us before returning anything.</p></div>}
-            {tab==="care" && <div className="card"><h3>Care</h3><p>Soft cloth + mild soap. Avoid abrasives and harsh chemicals.</p></div>}
-            {tab==="warranty" && <div className="card"><h3>Warranty</h3><p>Warranty terms provided with your quote/order confirmation.</p></div>}
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -539,12 +397,7 @@ function Gallery(){
     <section className="section">
       <div className="container">
         <h2 style={{ fontSize:28, fontWeight:900 }}>Gallery</h2>
-        <p>Upload your project photos later — placeholder grid for now.</p>
-        <div className="grid" style={{ gridTemplateColumns:"repeat(3, 1fr)", gap:12, marginTop:12 }}>
-          {Array.from({length:6}).map((_,i)=>(
-            <div key={i} className="card" style={{ padding:0, aspectRatio:"4/3", background:"var(--subtle)" }} />
-          ))}
-        </div>
+        <p>Project gallery coming soon.</p>
       </div>
     </section>
   );
@@ -562,6 +415,9 @@ function Contact(){
   );
 }
 
+/* ============================
+   CART
+   ============================ */
 function Cart({ cart, onRemove, onClear }){
   const subtotal = cart.reduce((s,it)=>s + it.unitPrice * it.qty, 0);
   return (
@@ -578,11 +434,20 @@ function Cart({ cart, onRemove, onClear }){
             <div className="card" style={{ padding:0, overflow:"hidden", marginTop:12 }}>
               <table>
                 <thead>
-                  <tr><th>SKU</th><th>Assembly</th><th>Qty</th><th>Unit</th><th>Total</th><th></th></tr>
+                  <tr>
+                    <th>Finish</th>
+                    <th>SKU</th>
+                    <th>Assembly</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
                 </thead>
                 <tbody>
                   {cart.map((it)=>(
                     <tr key={it.key}>
+                      <td>{it.finishName}</td>
                       <td>{it.sku}</td>
                       <td>{it.assembly}</td>
                       <td>{it.qty}</td>
@@ -594,9 +459,11 @@ function Cart({ cart, onRemove, onClear }){
                 </tbody>
               </table>
             </div>
+
             <div style={{ display:"flex", justifyContent:"flex-end", marginTop:12, fontSize:18, fontWeight:900 }}>
               Subtotal: {usd(subtotal)}
             </div>
+
             <div style={{ display:"flex", gap:10, justifyContent:"flex-end", marginTop:12 }}>
               <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
               <button className="btn btn-primary" type="button">Checkout (stub)</button>
@@ -663,8 +530,8 @@ function AppRoot(){
 
   const { route, sub } = parseRouteFromHash(hash);
 
-  const addToCart = ({ sku, qty, assembly, unitPrice }) => {
-    const key = `${LINE.id}|${sku}|${assembly}`;
+  const addToCart = ({ finishId, finishName, sku, qty, assembly, unitPrice }) => {
+    const key = `${finishId}|${sku}|${assembly}`;
     setCart(prev=>{
       const idx = prev.findIndex(x=>x.key===key);
       if (idx>=0){
@@ -672,7 +539,7 @@ function AppRoot(){
         copy[idx] = { ...copy[idx], qty: copy[idx].qty + qty };
         return copy;
       }
-      return [...prev, { key, sku, qty, assembly, unitPrice }];
+      return [...prev, { key, finishId, finishName, sku, qty, assembly, unitPrice }];
     });
     window.location.hash = "/cart";
   };
@@ -685,13 +552,15 @@ function AppRoot(){
       <GlobalStyles />
       <ErrorBoundary>
         <Header dark={dark} onToggleDark={()=>setDark(!dark)} cartCount={cart.reduce((s,it)=>s+it.qty,0)} />
+
         {route==="home" && <Home />}
-        {route==="shop" && (!sub ? <Shop /> : <Configurator onAddToCart={addToCart} />)}
+        {route==="shop" && (!sub ? <Shop /> : <Configurator finishId={sub} onAddToCart={addToCart} />)}
         {route==="builder" && <DesignCenter />}
         {route==="learn" && <Learn />}
         {route==="gallery" && <Gallery />}
         {route==="contact" && <Contact />}
         {route==="cart" && <Cart cart={cart} onRemove={removeFromCart} onClear={clearCart} />}
+
         <Footer />
       </ErrorBoundary>
     </div>
