@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 /* ============================
-   CONFIG (edit these 2)
+   CONFIG (YOU EDIT THESE)
    ============================ */
-// Stripe Payment Link (Apple Pay + Card). Create in Stripe -> Payment Links.
+// Stripe Payment Link (Apple Pay + Card). Create in Stripe -> Payment Links
 const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_PAYMENT_LINK_HERE";
 
-// Paste image URLs per finish (copy image address from Tribeca site).
+// Paste finish image URLs here (copy image address from Tribeca site)
 const FINISH_IMAGES = {
   "hudson-snow-white": "PASTE_IMAGE_URL",
   "hudson-cloud-white": "PASTE_IMAGE_URL",
@@ -23,27 +23,25 @@ const FINISH_IMAGES = {
 };
 
 const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1800&auto=format&fit=crop";
+  "https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
    GLOBAL STYLES — Classic Luxury / Old Money
-   (lighter charcoal, refined red, normal weights)
    ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
-        --bg:#232429;
-        --bg2:#2a2b31;
-        --card:#2f3139;
-        --card2:#353744;
-        --text:#f4f4f7;
-        --muted:#d2d2dc;
+        --bg:#26272d;      /* not too dark */
+        --bg2:#2e2f36;
+        --card:#33343c;
+        --card2:#3a3b45;
+        --text:#f5f5f8;
+        --muted:#d4d4de;
         --muted2:#a9abba;
 
-        --primary:#ff1f4a; /* refined bright red */
+        --primary:#ff1f4a;   /* refined bright red */
         --border: rgba(255,255,255,.12);
-        --shadow: 0 20px 60px rgba(0,0,0,.40);
         --ring: rgba(255,31,74,.22);
       }
 
@@ -55,11 +53,11 @@ function GlobalStyles() {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
-
       *,*::before,*::after{ box-sizing:border-box; }
       a{ color:inherit; text-decoration:none; }
       img{ display:block; max-width:100%; }
 
+      /* Old money typography: serif headings, normal weights */
       h1,h2,h3{
         font-family: Georgia, "Times New Roman", serif;
         font-weight: 600;
@@ -67,7 +65,6 @@ function GlobalStyles() {
         line-height: 1.18;
         margin: 0 0 10px;
       }
-
       p{
         margin: 10px 0;
         line-height: 1.7;
@@ -77,16 +74,11 @@ function GlobalStyles() {
 
       .container{ max-width:1200px; margin:0 auto; padding:0 22px; }
       section{ padding: 48px 0; }
-
-      @media (max-width:900px){
-        section{ padding: 34px 0; }
-      }
+      @media (max-width:900px){ section{ padding: 34px 0; } }
 
       header{
-        position:sticky;
-        top:0;
-        z-index:50;
-        background: rgba(35,36,41,.88);
+        position:sticky; top:0; z-index:50;
+        background: rgba(38,39,45,.88);
         backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--border);
       }
@@ -116,16 +108,12 @@ function GlobalStyles() {
         border-radius: 16px;
         padding: 18px;
       }
-
       .card.soft{ background: var(--card2); }
 
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns: 1fr 1fr; }
       .three{ grid-template-columns: repeat(3, 1fr); }
-
-      @media (max-width:900px){
-        .two,.three{ grid-template-columns: 1fr; }
-      }
+      @media (max-width:900px){ .two,.three{ grid-template-columns:1fr; } }
 
       .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
 
@@ -137,7 +125,6 @@ function GlobalStyles() {
         font-weight: 600;
         background: rgba(255,255,255,.04);
       }
-
       .pill.red{
         background: var(--primary);
         border-color: transparent;
@@ -151,21 +138,9 @@ function GlobalStyles() {
         border: 1px solid transparent;
         cursor: pointer;
         background: transparent;
-        transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease, border-color .12s ease;
       }
-
-      .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
-      .btn:active{ transform: translateY(0px); box-shadow: none; }
-
-      .btn-primary{
-        background: var(--primary);
-        color:#fff;
-      }
-
-      .btn-outline{
-        border-color: var(--border);
-        color: var(--text);
-      }
+      .btn-primary{ background: var(--primary); color:#fff; }
+      .btn-outline{ border-color: var(--border); color: var(--text); }
 
       label{
         font-size: 11px;
@@ -176,7 +151,6 @@ function GlobalStyles() {
         display:block;
         margin: 12px 0 6px;
       }
-
       input,select,textarea{
         width:100%;
         padding: 11px 12px;
@@ -186,7 +160,6 @@ function GlobalStyles() {
         color: var(--text);
         outline: none;
       }
-
       input:focus,select:focus,textarea:focus{
         border-color: var(--primary);
         box-shadow: 0 0 0 4px var(--ring);
@@ -198,22 +171,18 @@ function GlobalStyles() {
         border: 1px solid var(--border);
         background: rgba(255,255,255,.03);
       }
-
       .finish-img img{
         width: 100%;
-        height: 180px;
+        height: 170px;
         object-fit: cover;
       }
 
       table{ width:100%; border-collapse:collapse; }
-      th,td{ padding:10px 12px; border-bottom:1px solid var(--border); }
+      th,td{ padding:10px 12px; border-bottom:1px solid var(--border); vertical-align: middle; }
       th{ font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted2); font-weight: 600; }
-
-      .mini{
-        font-size: 13px;
-        color: var(--muted2);
-        line-height: 1.6;
-      }
+      .mini{ font-size: 13px; color: var(--muted2); line-height: 1.6; }
+      .sku-btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer; font-weight:600; }
+      .sku-btn:hover{ background: rgba(255,255,255,.05); }
     `}</style>
   );
 }
@@ -224,31 +193,22 @@ function GlobalStyles() {
 const usd = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 const FINISH_GROUPS = [
-  {
-    group: "Hudson",
-    finishes: [
-      { id: "hudson-snow-white", name: "Hudson Snow White" },
-      { id: "hudson-cloud-white", name: "Hudson Cloud White" },
-      { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
-      { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
-      { id: "hudson-cashew", name: "Hudson Cashew" },
-    ],
-  },
-  {
-    group: "Soho",
-    finishes: [
-      { id: "soho-snow-white", name: "Soho Snow White" },
-      { id: "soho-empire-blue", name: "Soho Empire Blue" },
-    ],
-  },
-  {
-    group: "Southampton",
-    finishes: [
-      { id: "southampton-snow-white", name: "Southampton Snow White" },
-      { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
-      { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
-    ],
-  },
+  { group:"Hudson", finishes:[
+    { id:"hudson-snow-white", name:"Hudson Snow White" },
+    { id:"hudson-cloud-white", name:"Hudson Cloud White" },
+    { id:"hudson-hearthstone", name:"Hudson Hearthstone" },
+    { id:"hudson-white-rift-oak", name:"Hudson White Rift Oak" },
+    { id:"hudson-cashew", name:"Hudson Cashew" },
+  ]},
+  { group:"Soho", finishes:[
+    { id:"soho-snow-white", name:"Soho Snow White" },
+    { id:"soho-empire-blue", name:"Soho Empire Blue" },
+  ]},
+  { group:"Southampton", finishes:[
+    { id:"southampton-snow-white", name:"Southampton Snow White" },
+    { id:"southampton-white-rift-oak", name:"Southampton White Rift Oak" },
+    { id:"southampton-carbon-black-oak", name:"Southampton Carbon Black Oak" },
+  ]},
 ];
 
 const CABINET_SKUS = [
@@ -270,7 +230,7 @@ const GALLERY = [
   "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
 ];
 
-function imgFor(id) {
+function imgFor(id){
   const u = FINISH_IMAGES[id];
   if (!u || u === "PASTE_IMAGE_URL") return FALLBACK_IMAGE;
   return u;
@@ -297,7 +257,6 @@ function Logo() {
 
 function Header({ tab, setTab, cartCount }) {
   const tabs = ["Home","Shop","Design Center","Learning","Gallery","Cart","Contact"];
-
   return (
     <header>
       <div className="container" style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 0", flexWrap:"wrap" }}>
@@ -317,7 +276,7 @@ function Header({ tab, setTab, cartCount }) {
         </nav>
 
         <div style={{ marginLeft:"auto", display:"flex", gap:10 }}>
-          <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email</a>
+          <a className="btn btn-outline" href="mailto:premier@premierkm.com">premier@premierkm.com</a>
           <button className="btn btn-primary" onClick={()=>setTab("Cart")} type="button">Checkout</button>
         </div>
       </div>
@@ -326,7 +285,7 @@ function Header({ tab, setTab, cartCount }) {
 }
 
 /* ============================
-   PAGES
+   HOME — more interesting
    ============================ */
 function HomePage({ setTab }) {
   return (
@@ -334,30 +293,36 @@ function HomePage({ setTab }) {
       <div className="container grid two" style={{ alignItems:"center" }}>
         <div>
           <div className="kicker">Old Money • Classic Luxury</div>
-          <h1 style={{ fontSize:42, marginTop:10 }}>A calmer way to buy a kitchen.</h1>
+          <h1 style={{ fontSize:44, marginTop:10 }}>A private-showroom buying experience.</h1>
           <p>
-            Browse all Tribeca finish options, build your cabinet list, and checkout securely.
-            If you don’t know what to order, our pro design team creates a free 3D layout and cabinet list first.
+            Browse every Tribeca finish, add the SKUs you want, and checkout securely.
+            If you don’t know where to start, our designers create a free 3D layout + cabinet list first.
           </p>
+
           <div className="row" style={{ marginTop:14 }}>
-            <button className="btn btn-primary" type="button" onClick={()=>setTab("Shop")}>Browse Finishes</button>
+            <button className="btn btn-primary" type="button" onClick={()=>setTab("Shop")}>Shop Finishes</button>
             <button className="btn btn-outline" type="button" onClick={()=>setTab("Design Center")}>Free 3D Design</button>
           </div>
+
           <div className="row" style={{ marginTop:14 }}>
-            <span className="pill">Nationwide</span>
+            <span className="pill">Nationwide Shipping</span>
             <span className="pill">20+ Years</span>
-            <span className="pill red">Designer-Led</span>
+            <span className="pill red">3D Render Included</span>
           </div>
-          <p className="mini" style={{ marginTop:14 }}>
-            Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
-          </p>
+
+          <div className="card soft" style={{ marginTop:18 }}>
+            <div className="kicker">How it works</div>
+            <p className="mini" style={{ margin:10, marginTop:8 }}>
+              1) Choose a finish • 2) Select SKUs • 3) Checkout • OR • Request a free 3D design first.
+            </p>
+          </div>
         </div>
 
         <div className="card" style={{ padding:0, overflow:"hidden" }}>
           <img
-            src="https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1800&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1800&auto=format&fit=crop"
             alt="Luxury kitchen"
-            style={{ width:"100%", height:"min(520px, 70vh)", objectFit:"cover" }}
+            style={{ width:"100%", height:"min(540px, 70vh)", objectFit:"cover" }}
           />
         </div>
       </div>
@@ -365,151 +330,110 @@ function HomePage({ setTab }) {
   );
 }
 
+/* ============================
+   SHOP — all colors on one page, NO builder panel
+   Each finish card contains full SKU list
+   ============================ */
 function ShopPage({ onAddToCart }) {
-  const [selectedFinishId, setSelectedFinishId] = useState(FINISH_GROUPS[0].finishes[0].id);
-  const selectedFinish = useMemo(() => {
-    for (const g of FINISH_GROUPS) {
-      const f = g.finishes.find(x => x.id === selectedFinishId);
-      if (f) return { ...f, group: g.group };
-    }
-    return { ...FINISH_GROUPS[0].finishes[0], group: FINISH_GROUPS[0].group };
-  }, [selectedFinishId]);
+  // Qty per finish+sku
+  const [qtyMap, setQtyMap] = useState({});
 
-  const [sku, setSku] = useState(CABINET_SKUS[0].sku);
-  const [qty, setQty] = useState(1);
-  const [assembly, setAssembly] = useState("rta");
-
-  const basePrice = useMemo(() => CABINET_SKUS.find(s=>s.sku===sku)?.price || 0, [sku]);
-  const unit = basePrice + (assembly==="assembled" ? 99 : 0);
-  const total = unit * qty;
+  const qtyFor = (finishId, sku) => qtyMap[`${finishId}|${sku}`] ?? 1;
+  const setQtyFor = (finishId, sku, v) =>
+    setQtyMap((m)=>({ ...m, [`${finishId}|${sku}`]: v }));
 
   return (
     <section>
       <div className="container">
         <div className="kicker">Shop</div>
-        <h2 style={{ fontSize:30, marginTop:10 }}>All Finishes — One Shop Page</h2>
-        <p>All colors are visible here. Select a finish, build SKUs on the right. You never leave Shop.</p>
+        <h2 style={{ fontSize:30, marginTop:10 }}>All Tribeca Finishes</h2>
+        <p>All finishes are shown here. Each finish includes the full SKU list — add directly to cart.</p>
 
-        {/* ALL finishes visible (grouped) */}
         {FINISH_GROUPS.map(group => (
-          <div key={group.group} style={{ marginTop:22 }}>
+          <div key={group.group} style={{ marginTop:24 }}>
             <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
               <h3 style={{ margin:0 }}>{group.group}</h3>
               <span className="pill">Tribeca</span>
             </div>
 
             <div className="grid three" style={{ marginTop:12 }}>
-              {group.finishes.map(f => {
-                const active = f.id===selectedFinishId;
-                return (
-                  <button
-                    key={f.id}
-                    type="button"
-                    className="card"
-                    onClick={()=>setSelectedFinishId(f.id)}
-                    style={{
-                      textAlign:"left",
-                      cursor:"pointer",
-                      borderColor: active ? "var(--primary)" : "var(--border)",
-                      background: active ? "rgba(255,31,74,.10)" : "var(--card)",
-                    }}
-                  >
-                    <div className="finish-img">
-                      <img src={imgFor(f.id)} alt={f.name} />
-                    </div>
-                    <div className="row" style={{ justifyContent:"space-between", marginTop:10 }}>
-                      <div style={{ fontWeight:600 }}>{f.name}</div>
-                      <span className={active ? "pill red" : "pill"}>{active ? "Selected" : "Select"}</span>
-                    </div>
-                    <p className="mini" style={{ marginTop:8 }}>Same base SKU set • Configure right side</p>
-                  </button>
-                );
-              })}
+              {group.finishes.map(f => (
+                <div key={f.id} className="card">
+                  <div className="finish-img">
+                    <img src={imgFor(f.id)} alt={f.name} />
+                  </div>
+
+                  <div className="row" style={{ justifyContent:"space-between", marginTop:10 }}>
+                    <div style={{ fontWeight:600 }}>{f.name}</div>
+                    <span className="pill red">Finish</span>
+                  </div>
+
+                  <p className="mini">Base cabinet SKUs (Tribeca). Add any size to cart.</p>
+
+                  <div className="card soft" style={{ padding:0, overflow:"hidden" }}>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>SKU</th>
+                          <th>Price</th>
+                          <th>Qty</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {CABINET_SKUS.map(s => (
+                          <tr key={s.sku}>
+                            <td>{s.sku}</td>
+                            <td>{usd(s.price)}</td>
+                            <td style={{ width:90 }}>
+                              <input
+                                type="number"
+                                min={1}
+                                value={qtyFor(f.id, s.sku)}
+                                onChange={(e)=>setQtyFor(f.id, s.sku, Math.max(1, parseInt(e.target.value||"1")))}
+                                style={{ padding:"8px 10px", borderRadius:10 }}
+                              />
+                            </td>
+                            <td style={{ width:120 }}>
+                              <button
+                                className="sku-btn"
+                                type="button"
+                                onClick={()=>onAddToCart({
+                                  finishId: f.id,
+                                  finishName: f.name,
+                                  sku: s.sku,
+                                  qty: qtyFor(f.id, s.sku),
+                                  assembly: "rta",
+                                  unitPrice: s.price
+                                })}
+                              >
+                                Add
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p className="mini" style={{ marginTop:10 }}>
+                    Need assembled? We can quote assembled options — email <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         ))}
-
-        {/* Inline builder stays in Shop */}
-        <div className="grid two" style={{ marginTop:26, alignItems:"start" }}>
-          <div className="card" style={{ padding:0, overflow:"hidden" }}>
-            <img src={imgFor(selectedFinish.id)} alt={selectedFinish.name} style={{ width:"100%", height:420, objectFit:"cover" }} />
-            <div style={{ padding:18 }}>
-              <div className="kicker">{selectedFinish.group}</div>
-              <h3 style={{ fontSize:24, marginTop:10 }}>{selectedFinish.name}</h3>
-              <p className="mini">RTA • Nationwide shipping • Add SKUs to cart below.</p>
-              <p className="mini">Email: <b style={{ color:"var(--text)" }}>premier@premierkm.com</b></p>
-            </div>
-          </div>
-
-          <div className="card">
-            <h3 style={{ fontSize:22 }}>Cabinet Builder (Simple)</h3>
-
-            <label>SKU</label>
-            <select value={sku} onChange={(e)=>setSku(e.target.value)}>
-              {CABINET_SKUS.map(s=>(
-                <option key={s.sku} value={s.sku}>
-                  {s.sku} — {usd(s.price)}
-                </option>
-              ))}
-            </select>
-
-            <div className="grid two" style={{ marginTop:10 }}>
-              <div>
-                <label>Quantity</label>
-                <input type="number" min={1} value={qty} onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value||"1")))} />
-              </div>
-              <div>
-                <label>Assembly</label>
-                <select value={assembly} onChange={(e)=>setAssembly(e.target.value)}>
-                  <option value="rta">RTA (unassembled)</option>
-                  <option value="assembled">Assembled (+$99)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="card soft" style={{ marginTop:14 }}>
-              <div className="row" style={{ justifyContent:"space-between" }}>
-                <div>
-                  <div className="kicker">Unit</div>
-                  <div style={{ fontSize:22, fontFamily:'Georgia, "Times New Roman", serif' }}>{usd(unit)}</div>
-                </div>
-                <div style={{ textAlign:"right" }}>
-                  <div className="kicker">Total</div>
-                  <div style={{ fontSize:22, fontFamily:'Georgia, "Times New Roman", serif' }}>{usd(total)}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="row" style={{ marginTop:14 }}>
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={() => onAddToCart({
-                  finishId: selectedFinish.id,
-                  finishName: selectedFinish.name,
-                  sku,
-                  qty,
-                  assembly,
-                  unitPrice: unit
-                })}
-              >
-                Add to Cart
-              </button>
-            </div>
-
-            <p className="mini" style={{ marginTop:12 }}>
-              Want Apple Pay / card checkout? Add Stripe payment link in code.
-            </p>
-          </div>
-        </div>
       </div>
     </section>
   );
 }
 
-/* Design Center: NEW, easier, “fun” */
+/* ============================
+   DESIGN CENTER — new, easy, “fun”
+   ============================ */
 function DesignCenterPage() {
-  const [mode, setMode] = useState("Design It For Me"); // Design It For Me | I Have Measurements | I Want Advice
+  const [path, setPath] = useState("Design It For Me");
   const [budget, setBudget] = useState(25000);
   const [style, setStyle] = useState("Classic White + Brass");
   const [notes, setNotes] = useState("");
@@ -519,29 +443,29 @@ function DesignCenterPage() {
     <section style={{ background:"var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Design Center</div>
-        <h2 style={{ fontSize:30, marginTop:10 }}>Free 3D Design — pick a path</h2>
-        <p>Choose what fits you. This is designed for people who don’t know what they’re ordering.</p>
+        <h2 style={{ fontSize:30, marginTop:10 }}>Free 3D Design — simple on purpose</h2>
+        <p>You pick a path, we do the hard part. This is built for people who don’t know what to order.</p>
 
         <div className="row" style={{ marginTop:14 }}>
-          {["Design It For Me","I Have Measurements","I Want Advice"].map(m=>(
+          {["Design It For Me","I Have Measurements","I Just Want Advice"].map(p=>(
             <button
-              key={m}
-              className={mode===m ? "btn btn-primary" : "btn btn-outline"}
+              key={p}
+              className={path===p ? "btn btn-primary" : "btn btn-outline"}
               type="button"
-              onClick={()=>setMode(m)}
+              onClick={()=>setPath(p)}
             >
-              {m}
+              {p}
             </button>
           ))}
         </div>
 
         <div className="grid two" style={{ marginTop:16, alignItems:"start" }}>
           <div className="card">
-            <h3 style={{ fontSize:22 }}>{mode}</h3>
+            <h3 style={{ fontSize:22 }}>{path}</h3>
             <p className="mini">
-              {mode==="Design It For Me" && "Upload photos + tell us budget. We’ll handle layout, cabinet sizing, and a 3D render."}
-              {mode==="I Have Measurements" && "Send wall lengths, ceiling height, and window locations. We’ll create a 3D plan + cabinet list."}
-              {mode==="I Want Advice" && "Tell us your goal and budget. We’ll recommend finishes + layout direction and next steps."}
+              {path==="Design It For Me" && "Send photos + your style & budget. We create a 3D layout and cabinet list."}
+              {path==="I Have Measurements" && "Send wall lengths, ceiling height, and window locations. We create a 3D plan + itemized list."}
+              {path==="I Just Want Advice" && "Tell us your goal and budget. We’ll recommend finishes, layout direction, and next steps."}
             </p>
 
             <label>Budget comfort</label>
@@ -557,7 +481,7 @@ function DesignCenterPage() {
             </select>
 
             <label>Notes</label>
-            <textarea rows={5} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Walls/windows, appliances, timeline, anything important…" />
+            <textarea rows={5} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Windows, walls, appliances, timeline… (optional)" />
           </div>
 
           <div className="card soft">
@@ -598,12 +522,12 @@ function DesignCenterPage() {
 
 function LearningPage() {
   const items = [
-    { title:"What is RTA?", body:"Ready-to-Assemble cabinets ship flat-packed for easier delivery and handling. We help you pick SKUs and provide guidance."},
-    { title:"How to measure", body:"Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner. If unsure, use Design Center."},
-    { title:"Freight shipping", body:"Most cabinet orders ship LTL freight. Inspect boxes before signing. We can coordinate delivery."},
-    { title:"Assembly & install", body:"RTA includes hardware and instructions. A mallet, driver, level, and square help. Keep boxes organized by wall/run."},
-    { title:"Damages / returns", body:"Report issues quickly with photos. Policies vary by order type. We coordinate replacements where applicable."},
-    { title:"Ordering help", body:"If you feel stuck, email premier@premierkm.com and we’ll guide you through finish + cabinet list."},
+    { title:"What is RTA?", body:"Ready-to-Assemble ships flat-packed. Easier delivery and handling. We guide SKU selection."},
+    { title:"How to measure", body:"Measure wall lengths, ceiling height, and windows/doors. Take photos from each corner."},
+    { title:"Freight shipping", body:"Most orders ship LTL freight. Inspect boxes before signing. Delivery coordination available."},
+    { title:"Assembly", body:"Hardware and instructions included. A mallet, driver, level, and square help."},
+    { title:"Damages/returns", body:"Report issues quickly with photos. Policies vary by order type. We coordinate replacements where possible."},
+    { title:"Need help?", body:"Email premier@premierkm.com and we’ll guide you through finish + SKU list + order."},
   ];
   return (
     <section>
@@ -657,7 +581,7 @@ function CartPage({ cart, onRemove, onClear }) {
 
         {cart.length===0 ? (
           <div className="card">
-            <p>Your cart is empty. Add SKUs in the Shop tab.</p>
+            <p>Your cart is empty. Add SKUs in Shop.</p>
           </div>
         ) : (
           <>
@@ -667,7 +591,6 @@ function CartPage({ cart, onRemove, onClear }) {
                   <tr>
                     <th>Finish</th>
                     <th>SKU</th>
-                    <th>Assembly</th>
                     <th>Qty</th>
                     <th>Unit</th>
                     <th>Total</th>
@@ -679,7 +602,6 @@ function CartPage({ cart, onRemove, onClear }) {
                     <tr key={it.key}>
                       <td>{it.finishName}</td>
                       <td>{it.sku}</td>
-                      <td>{it.assembly}</td>
                       <td>{it.qty}</td>
                       <td>{usd(it.unitPrice)}</td>
                       <td>{usd(it.unitPrice * it.qty)}</td>
