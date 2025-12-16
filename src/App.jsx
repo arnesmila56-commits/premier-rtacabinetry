@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 /* ============================
    CONFIG (edit these)
@@ -43,6 +43,9 @@ function GlobalStyles() {
         --border: rgba(255,255,255,.12);
         --ring: rgba(225,29,72,.22);
         --shadow: 0 18px 50px rgba(0,0,0,.40);
+
+        /* FIX: you were using var(--subtle) but it wasn’t defined */
+        --subtle:#2a2b31;
       }
 
       html,body{
@@ -208,22 +211,55 @@ const FINISH_GROUPS = [
   ]},
 ];
 
-const BASE_SKUS = [
-  { sku:"B12R", width:12, price:225 },
-  { sku:"B12L", width:12, price:225 },
-  { sku:"B15R", width:15, price:245 },
-  { sku:"B15L", width:15, price:245 },
-  { sku:"B18R", width:18, price:265 },
-  { sku:"B18L", width:18, price:265 },
-  { sku:"B21R", width:21, price:285 },
-  { sku:"B21L", width:21, price:285 },
-  { sku:"B24",  width:24, price:305 },
-  { sku:"B27",  width:27, price:325 },
-  { sku:"B30",  width:30, price:345 },
-  { sku:"B33",  width:33, price:365 },
-  { sku:"B36",  width:36, price:385 },
-  { sku:"B39",  width:39, price:405 },
-];
+/* ✅ REAL PRICING LOGIC (assembly is now applied) */
+const ASSEMBLY_UPCHARGE_PER_CABINET = 99; // change to your real number if needed
+
+/* ✅ CABINET CATALOG (Base + Wall + Tall) */
+const CABINET_CATALOG = {
+  base: {
+    label: "Base Cabinets",
+    items: [
+      { sku:"B12R", width:12, price:225 },
+      { sku:"B12L", width:12, price:225 },
+      { sku:"B15R", width:15, price:245 },
+      { sku:"B15L", width:15, price:245 },
+      { sku:"B18R", width:18, price:265 },
+      { sku:"B18L", width:18, price:265 },
+      { sku:"B21R", width:21, price:285 },
+      { sku:"B21L", width:21, price:285 },
+      { sku:"B24",  width:24, price:305 },
+      { sku:"B27",  width:27, price:325 },
+      { sku:"B30",  width:30, price:345 },
+      { sku:"B33",  width:33, price:365 },
+      { sku:"B36",  width:36, price:385 },
+      { sku:"B39",  width:39, price:405 },
+    ],
+  },
+
+  // IMPORTANT: Replace these with your real Wall SKUs + prices
+  wall: {
+    label: "Wall Cabinets",
+    items: [
+      { sku:"W12", width:12, price:199 },
+      { sku:"W15", width:15, price:219 },
+      { sku:"W18", width:18, price:239 },
+      { sku:"W21", width:21, price:259 },
+      { sku:"W24", width:24, price:279 },
+      { sku:"W30", width:30, price:319 },
+      { sku:"W36", width:36, price:359 },
+    ],
+  },
+
+  // IMPORTANT: Replace these with your real Tall/Pantry SKUs + prices
+  tall: {
+    label: "Tall / Pantry Cabinets",
+    items: [
+      { sku:"T18", width:18, price:699 },
+      { sku:"T21", width:21, price:749 },
+      { sku:"T24", width:24, price:799 },
+    ],
+  },
+};
 
 const GALLERY = [
   "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop",
@@ -311,7 +347,7 @@ function Home(){
           <div className="pill red">Classic Luxury • Designer Led</div>
           <h1 style={{ fontSize:44, marginTop:12 }}>A calmer way to buy a kitchen.</h1>
           <p>
-            Browse Tribeca finishes, configure base cabinet sizes, and order with confidence.
+            Browse Tribeca finishes, choose base/wall/tall cabinet SKUs, and order with confidence.
             If you don’t know where to start, our team creates a free 3D layout and cabinet list first.
           </p>
           <div className="row" style={{ marginTop:14 }}>
@@ -326,10 +362,10 @@ function Home(){
         </div>
         <div className="card" style={{ padding:0, overflow:"hidden" }}>
           <img
-  src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg"
-  alt="Kitchen"
-  style={{ width:"100%", height:"min(520px,70vh)", objectFit:"cover" }}
-/>
+            src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg"
+            alt="Kitchen"
+            style={{ width:"100%", height:"min(520px,70vh)", objectFit:"cover" }}
+          />
         </div>
       </div>
     </section>
@@ -343,7 +379,7 @@ function ShopList(){
       <div className="container">
         <div className="kicker">Shop</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Tribeca Finishes</h2>
-        <p>Select a finish to configure SKUs and add to cart.</p>
+        <p>Select a finish to configure cabinets and add to cart.</p>
 
         {FINISH_GROUPS.map(g=>(
           <div key={g.group} style={{ marginTop:22 }}>
@@ -362,7 +398,7 @@ function ShopList(){
                     <div style={{ fontWeight:600 }}>{f.name}</div>
                     <span className="pill red">Finish</span>
                   </div>
-                  <p className="mini">Click configure to choose base SKUs and add to cart.</p>
+                  <p className="mini">Click configure to choose cabinet type + SKU and add to cart.</p>
                   <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
                 </div>
               ))}
@@ -374,14 +410,27 @@ function ShopList(){
   );
 }
 
-/** Configurator page (choose SKU/qty/assembly and add to cart) */
+/** ✅ Configurator page (dropdown cabinet type + SKU + qty + real pricing) */
 function Configurator({ finishId, onAddToCart }){
   const finish = getFinishById(finishId);
-  const [qty, setQty] = useState({});
-  const [assembly, setAssembly] = useState("rta");
 
-  const qtyFor = (sku) => qty[sku] ?? 1;
-  const setQtyFor = (sku,v) => setQty(m=>({ ...m, [sku]: v }));
+  const [assembly, setAssembly] = useState("rta");
+  const [cabType, setCabType] = useState("base"); // base | wall | tall
+  const [selectedSku, setSelectedSku] = useState(() => CABINET_CATALOG.base.items[0].sku);
+  const [qty, setQty] = useState(1);
+
+  useEffect(() => {
+    const firstSku = CABINET_CATALOG[cabType]?.items?.[0]?.sku || "";
+    setSelectedSku(firstSku);
+    setQty(1);
+  }, [cabType]);
+
+  const catalogItems = CABINET_CATALOG[cabType].items;
+  const chosen = catalogItems.find(x => x.sku === selectedSku) || catalogItems[0];
+
+  const assemblyFeeEach = assembly === "assembled" ? ASSEMBLY_UPCHARGE_PER_CABINET : 0;
+  const unitTotal = (chosen?.price ?? 0) + assemblyFeeEach;
+  const lineTotal = unitTotal * qty;
 
   return (
     <section className="section">
@@ -392,76 +441,83 @@ function Configurator({ finishId, onAddToCart }){
             <div className="kicker">Tribeca Finish</div>
             <h2 style={{ fontSize:28, marginTop:10 }}>{finish.name}</h2>
             <p className="mini">
-              Choose your base cabinet sizes. Add to cart. Need a full plan? Use Design Center.
+              Choose cabinet type + SKU, set quantity, and add to cart. Need a full plan? Use Design Center.
             </p>
           </div>
         </div>
 
         <div className="card">
-          <h3 style={{ fontSize:22 }}>Base Cabinets</h3>
+          <h3 style={{ fontSize:22 }}>Add Cabinets</h3>
 
           <label>Assembly</label>
           <select value={assembly} onChange={(e)=>setAssembly(e.target.value)}>
             <option value="rta">RTA (unassembled)</option>
-            <option value="assembled">Assembled (+$99 add-on later)</option>
+            <option value="assembled">Assembled (+{usd(ASSEMBLY_UPCHARGE_PER_CABINET)} each)</option>
           </select>
 
-          <div className="card soft" style={{ marginTop:14, padding:0, overflow:"hidden" }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>SKU</th>
-                  <th>Width</th>
-                  <th>Price</th>
-                  <th style={{ width:90 }}>Qty</th>
-                  <th style={{ width:120 }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {BASE_SKUS.map(s=>(
-                  <tr key={s.sku}>
-                    <td>{s.sku}</td>
-                    <td>{s.width}"</td>
-                    <td>{usd(s.price)}</td>
-                    <td>
-                      <input
-                        type="number"
-                        min={1}
-                        value={qtyFor(s.sku)}
-                        onChange={(e)=>setQtyFor(s.sku, Math.max(1, parseInt(e.target.value||"1")))}
-                        style={{ padding:"8px 10px", borderRadius:10 }}
-                      />
-                    </td>
-                    <td>
-                      <button
-                        className="btn btn-primary"
-                        type="button"
-                        onClick={()=>onAddToCart({
-                          finishId: finish.id,
-                          finishName: finish.name,
-                          sku: s.sku,
-                          qty: qtyFor(s.sku),
-                          unitPrice: s.price,
-                          assembly
-                        })}
-                      >
-                        Add
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <label>Cabinet type</label>
+          <select value={cabType} onChange={(e)=>setCabType(e.target.value)}>
+            <option value="base">{CABINET_CATALOG.base.label}</option>
+            <option value="wall">{CABINET_CATALOG.wall.label}</option>
+            <option value="tall">{CABINET_CATALOG.tall.label}</option>
+          </select>
+
+          <label>SKU</label>
+          <select value={selectedSku} onChange={(e)=>setSelectedSku(e.target.value)}>
+            {catalogItems.map(it => (
+              <option key={it.sku} value={it.sku}>
+                {it.sku} — {it.width}" — {usd(it.price)}
+              </option>
+            ))}
+          </select>
+
+          <label>Quantity</label>
+          <input
+            type="number"
+            min={1}
+            value={qty}
+            onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value || "1")))}
+          />
+
+          <div className="card soft" style={{ marginTop:14 }}>
+            <div className="mini" style={{ display:"grid", gap:6 }}>
+              <div>
+                <b style={{ color:"var(--text)" }}>Unit:</b> {usd(chosen.price)}
+                {assembly==="assembled" ? ` + ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} assembly` : ""}
+              </div>
+              <div><b style={{ color:"var(--text)" }}>Unit Total:</b> {usd(unitTotal)}</div>
+              <div><b style={{ color:"var(--text)" }}>Line Total:</b> {usd(lineTotal)}</div>
+            </div>
           </div>
 
           <div className="row" style={{ marginTop:14 }}>
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={()=>{
+                onAddToCart({
+                  finishId: finish.id,
+                  finishName: finish.name,
+                  cabinetType: cabType,
+                  cabinetTypeLabel: CABINET_CATALOG[cabType].label,
+                  sku: chosen.sku,
+                  qty,
+                  unitPrice: chosen.price,
+                  assembly,
+                  assemblyFeeEach,
+                });
+              }}
+            >
+              Add to cart
+            </button>
+
             <a className="btn btn-outline" href="#/shop">Back to finishes</a>
-            <a className="btn btn-primary" href="#/cart">Go to cart</a>
+            <a className="btn btn-outline" href="#/cart">Go to cart</a>
           </div>
 
           <div className="card soft" style={{ marginTop:14 }}>
             <p className="mini" style={{ margin:0 }}>
-              Questions or want wall/tall cabinets next? Email <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
+              Questions or want fillers/panels next? Email <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
             </p>
           </div>
         </div>
@@ -536,7 +592,7 @@ function Learning(){
     { title:"What is RTA?", body:"Ready-to-Assemble ships flat-packed for easier delivery and handling." },
     { title:"How to measure", body:"Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner." },
     { title:"Freight shipping", body:"Most cabinet orders ship LTL freight. Inspect boxes before signing." },
-    { title:"Assembly", body:"Hardware/instructions included. A mallet, driver, level, and square help." },
+    { title:"Assembly", body:`Hardware/instructions included. Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet.` },
     { title:"Damages/returns", body:"Report issues quickly with photos. Policies vary by order type." },
     { title:"Need help?", body:"Email premier@premierkm.com and we’ll guide you through finish + SKU list." },
   ];
@@ -582,7 +638,11 @@ function Gallery(){
 }
 
 function Cart({ cart, onRemove, onClear }){
-  const subtotal = cart.reduce((s,it)=> s + it.unitPrice * it.qty, 0);
+  const subtotal = cart.reduce((s,it)=> {
+    const assemblyFee = (it.assemblyFeeEach || 0) * it.qty;
+    return s + (it.unitPrice * it.qty) + assemblyFee;
+  }, 0);
+
   const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
 
   return (
@@ -602,26 +662,36 @@ function Cart({ cart, onRemove, onClear }){
                 <thead>
                   <tr>
                     <th>Finish</th>
+                    <th>Type</th>
                     <th>SKU</th>
                     <th>Qty</th>
                     <th>Unit</th>
+                    <th>Assembly</th>
                     <th>Total</th>
                     <th></th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {cart.map(it=>(
-                    <tr key={it.key}>
-                      <td>{it.finishName}</td>
-                      <td>{it.sku}</td>
-                      <td>{it.qty}</td>
-                      <td>{usd(it.unitPrice)}</td>
-                      <td>{usd(it.unitPrice * it.qty)}</td>
-                      <td>
-                        <button className="btn btn-outline" type="button" onClick={()=>onRemove(it.key)}>Remove</button>
-                      </td>
-                    </tr>
-                  ))}
+                  {cart.map(it=>{
+                    const assemblyFeeLine = (it.assemblyFeeEach || 0) * it.qty;
+                    const lineTotal = (it.unitPrice * it.qty) + assemblyFeeLine;
+
+                    return (
+                      <tr key={it.key}>
+                        <td>{it.finishName}</td>
+                        <td>{it.cabinetTypeLabel || it.cabinetType || "-"}</td>
+                        <td>{it.sku}</td>
+                        <td>{it.qty}</td>
+                        <td>{usd(it.unitPrice)}</td>
+                        <td>{it.assembly === "assembled" ? usd(it.assemblyFeeEach || 0) : usd(0)}</td>
+                        <td>{usd(lineTotal)}</td>
+                        <td>
+                          <button className="btn btn-outline" type="button" onClick={()=>onRemove(it.key)}>Remove</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -693,8 +763,8 @@ export default function App(){
 
   const { route, sub } = parseRouteFromHash(hash);
 
-  const addToCart = ({ finishId, finishName, sku, qty, unitPrice, assembly }) => {
-    const key = `${finishId}|${sku}|${assembly}`;
+  const addToCart = ({ finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach }) => {
+    const key = `${finishId}|${cabinetType}|${sku}|${assembly}`; // ✅ includes type now
     setCart(prev=>{
       const idx = prev.findIndex(x=>x.key===key);
       if (idx>=0){
@@ -702,7 +772,7 @@ export default function App(){
         copy[idx] = { ...copy[idx], qty: copy[idx].qty + qty };
         return copy;
       }
-      return [...prev, { key, finishId, finishName, sku, qty, unitPrice, assembly }];
+      return [...prev, { key, finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach }];
     });
     window.location.hash = "/cart";
   };
