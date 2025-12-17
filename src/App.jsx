@@ -12,8 +12,10 @@ const FINISH_IMAGES = {
   "hudson-hearthstone": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-788x1024.jpg",
   "hudson-white-rift-oak": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_7-788x1024.jpg",
   "hudson-cashew": "https://tribecacabinetry.com/wp-content/uploads/2025/05/HD-CA-4-788x1024.jpg",
+
   "soho-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_4-788x1024.jpg",
   "soho-empire-blue": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_EP-rev-788x1024.jpg",
+
   "southampton-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_7-1-788x1024.jpg",
   "southampton-white-rift-oak": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_6-788x1024.jpg",
   "southampton-carbon-black-oak": "https://tribecacabinetry.com/wp-content/uploads/2025/03/STH-CBO-2-788x1024.jpg",
@@ -23,39 +25,39 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
-   GLOBAL STYLES (old money luxury)
+   GLOBAL STYLES (light luxury)
    ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
-        /* old-money dark: warm charcoal + deep burgundy */
-        --bg:#1d1e22;
-        --bg2:#23242a;
-        --subtle:#202128;
+        /* light luxury palette */
+        --bg: #fbfaf7;          /* warm off-white */
+        --bg2:#f4f1ea;          /* soft stone */
+        --card:#ffffff;
+        --card2:#faf8f3;
+        --text:#141414;
+        --muted:#3e3e3e;
+        --muted2:#6f6f6f;
 
-        --card:#262730;
-        --card2:#2b2d38;
+        --primary:#0f2a44;      /* deep navy */
+        --primary2:#0b2035;
+        --accent:#b08d57;       /* champagne gold */
+        --accent2:#8d6a3c;
 
-        --text:#f4f2ee;
-        --muted:#d6d1c9;
-        --muted2:#a9a39a;
+        --border: rgba(20,20,20,.10);
+        --ring: rgba(15,42,68,.20);
 
-        --primary:#8b1d2c; /* deep burgundy */
-        --primary2:#6f1522;
-
-        --border: rgba(255,255,255,.10);
-        --ring: rgba(139,29,44,.22);
-
-        /* less “cartoon” shadow */
-        --shadow: 0 14px 40px rgba(0,0,0,.30);
+        --shadow: 0 16px 40px rgba(0,0,0,.08);
+        --shadow2: 0 10px 24px rgba(0,0,0,.07);
       }
 
       html,body{
         margin:0;
-        background:radial-gradient(1200px 700px at 30% -20%, rgba(139,29,44,.10), transparent 55%),
-                   radial-gradient(900px 600px at 80% 10%, rgba(255,255,255,.05), transparent 60%),
-                   var(--bg);
+        background:
+          radial-gradient(1000px 600px at 20% 0%, rgba(176,141,87,.12), transparent 55%),
+          radial-gradient(900px 600px at 80% 10%, rgba(15,42,68,.08), transparent 60%),
+          var(--bg);
         color:var(--text);
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -68,29 +70,47 @@ function GlobalStyles() {
       h1,h2,h3{
         margin:0 0 10px;
         font-family: Georgia, "Times New Roman", serif;
-        font-weight:600;
+        font-weight:650;
         letter-spacing:-0.02em;
         line-height:1.18;
+        color:var(--text);
       }
       p{
         margin:10px 0;
-        line-height:1.65;
+        line-height:1.7;
         color:var(--muted);
-        font-weight:400;
       }
 
       .container{ max-width:1200px; margin:0 auto; padding:0 22px; }
-      section.section{ padding:56px 0; }
-      @media(max-width:900px){ section.section{ padding:38px 0; } }
+      section.section{ padding:54px 0; }
+      @media(max-width:900px){ section.section{ padding:36px 0; } }
 
       header.sticky{
         position:sticky;
         top:0;
         z-index:40;
-        background:rgba(29,30,34,.82);
+        background:rgba(251,250,247,.86);
         backdrop-filter: blur(12px);
         border-bottom:1px solid var(--border);
       }
+
+      .announce{
+        background: linear-gradient(90deg, rgba(15,42,68,.92), rgba(15,42,68,.92));
+        color:#fff;
+        border-bottom:1px solid rgba(255,255,255,.18);
+      }
+      .announce .container{
+        display:flex;
+        gap:12px;
+        align-items:center;
+        justify-content:space-between;
+        padding:10px 22px;
+        font-size:12px;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        opacity:.95;
+      }
+      .announce a{ text-decoration:underline; text-underline-offset:3px; }
 
       nav a{
         font-size:11px;
@@ -99,35 +119,37 @@ function GlobalStyles() {
         padding:8px 10px;
         border-radius:10px;
         font-weight:650;
-        opacity:.90;
+        color: rgba(20,20,20,.82);
       }
-      nav a:hover{ background:rgba(255,255,255,.05); opacity:1; }
+      nav a:hover{
+        background: rgba(15,42,68,.06);
+        color: rgba(20,20,20,.95);
+      }
 
       .kicker{
         font-size:11px;
         letter-spacing:.22em;
         text-transform:uppercase;
         color:var(--muted2);
-        font-weight:650;
+        font-weight:750;
       }
 
       .card{
-        background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
-        background-color:var(--card);
+        background:var(--card);
         border:1px solid var(--border);
-        border-radius:16px;
+        border-radius:18px;
         padding:18px;
+        box-shadow: var(--shadow2);
       }
       .card.soft{
-        background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.012));
-        background-color:var(--card2);
+        background:var(--card2);
       }
 
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns:1fr 1fr; }
       .three{ grid-template-columns:repeat(3,1fr); }
       .four{ grid-template-columns:repeat(4,1fr); }
-      @media(max-width:1000px){ .four{ grid-template-columns:repeat(2,1fr); } }
+      @media(max-width:1100px){ .four{ grid-template-columns:repeat(2,1fr); } }
       @media(max-width:900px){ .two,.three,.four{ grid-template-columns:1fr; } }
 
       .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
@@ -136,11 +158,21 @@ function GlobalStyles() {
         padding:7px 12px;
         border-radius:999px;
         border:1px solid var(--border);
-        background: rgba(255,255,255,.03);
+        background: rgba(255,255,255,.7);
         font-size:12px;
-        font-weight:650;
+        font-weight:700;
+        color: rgba(20,20,20,.84);
       }
-      .pill.red{ background:linear-gradient(180deg, var(--primary), var(--primary2)); border-color:transparent; color:#fff; }
+      .pill.primary{
+        background: rgba(15,42,68,.08);
+        border-color: rgba(15,42,68,.18);
+        color: var(--primary);
+      }
+      .pill.gold{
+        background: rgba(176,141,87,.14);
+        border-color: rgba(176,141,87,.28);
+        color: #6c4f24;
+      }
 
       .btn{
         display:inline-flex;
@@ -149,56 +181,74 @@ function GlobalStyles() {
         padding:11px 16px;
         border-radius:12px;
         border:1px solid transparent;
-        font-weight:650;
+        font-weight:750;
         cursor:pointer;
         background:transparent;
-        transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease, background .12s ease;
+        transition: transform .12s ease, box-shadow .12s ease, background .12s ease, opacity .12s ease;
       }
       .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
       .btn:active{ transform: translateY(0px); box-shadow:none; }
       .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
 
-      .btn-primary{ background:linear-gradient(180deg, var(--primary), var(--primary2)); color:#fff; }
-      .btn-outline{ border-color:var(--border); color:var(--text); background: rgba(255,255,255,.02); }
-      .btn-ghost{ border-color:transparent; background: rgba(255,255,255,.05); }
+      .btn-primary{
+        background: linear-gradient(180deg, var(--primary), var(--primary2));
+        color:#fff;
+      }
+      .btn-outline{
+        border-color: var(--border);
+        background: rgba(255,255,255,.7);
+        color: var(--text);
+      }
+      .btn-ghost{
+        border-color: transparent;
+        background: rgba(15,42,68,.06);
+        color: var(--primary);
+      }
 
       label{
         font-size:11px;
         letter-spacing:.18em;
         text-transform:uppercase;
         color:var(--muted2);
-        font-weight:650;
+        font-weight:750;
         display:block;
         margin:12px 0 6px;
       }
+
       input,select,textarea{
         width:100%;
         padding:11px 12px;
         border-radius:12px;
         border:1px solid var(--border);
-        background: rgba(255,255,255,.04);
-        color:var(--text);
+        background: rgba(255,255,255,.9);
+        color: var(--text);
         outline:none;
       }
       input:focus,select:focus,textarea:focus{
-        border-color:var(--primary);
+        border-color: var(--primary);
         box-shadow:0 0 0 4px var(--ring);
       }
 
-      /* ✅ Fix: dropdown options visible (black on white) */
+      /* ✅ Dropdown readability everywhere */
       select option{ color:#111; background:#fff; }
 
       table{ width:100%; border-collapse:collapse; }
       th,td{ padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
-      th{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted2); font-weight:650; }
+      th{
+        font-size:11px;
+        letter-spacing:.18em;
+        text-transform:uppercase;
+        color: var(--muted2);
+        font-weight:750;
+      }
 
-      .mini{ font-size:13px; color:var(--muted2); line-height:1.6; }
+      .mini{ font-size:13px; color:var(--muted2); line-height:1.65; }
 
       .finish-img{
-        border-radius:14px;
+        border-radius:16px;
         overflow:hidden;
         border:1px solid var(--border);
-        background: rgba(255,255,255,.02);
+        background: rgba(0,0,0,.02);
       }
       .finish-img img{ width:100%; height:180px; object-fit:cover; }
 
@@ -209,26 +259,26 @@ function GlobalStyles() {
 
       .hero{
         border:1px solid var(--border);
-        border-radius:18px;
+        border-radius:20px;
         overflow:hidden;
         position:relative;
         min-height: 520px;
-        background: #000;
+        background:#eee;
+        box-shadow: var(--shadow);
       }
       .hero img{
         width:100%;
         height:100%;
         object-fit:cover;
-        opacity:.86;
-        transform: scale(1.02);
+        filter: saturate(1.02) contrast(1.02);
       }
       .hero::after{
         content:"";
         position:absolute;
         inset:0;
         background:
-          linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.35) 52%, rgba(0,0,0,.55) 100%),
-          radial-gradient(900px 500px at 18% 45%, rgba(139,29,44,.20), transparent 60%);
+          linear-gradient(90deg, rgba(251,250,247,.92) 0%, rgba(251,250,247,.55) 45%, rgba(251,250,247,.25) 100%),
+          radial-gradient(900px 600px at 28% 50%, rgba(176,141,87,.14), transparent 60%);
         pointer-events:none;
       }
       .heroInner{
@@ -238,12 +288,15 @@ function GlobalStyles() {
         align-items:center;
       }
       .heroContent{
-        max-width: 560px;
+        max-width: 580px;
         padding: 26px;
       }
       .heroTitle{
         font-size: 48px;
         margin-top: 10px;
+      }
+      .heroSub{
+        color: rgba(20,20,20,.74);
       }
       @media(max-width:900px){
         .hero{ min-height: 520px; }
@@ -255,25 +308,57 @@ function GlobalStyles() {
         border:1px solid var(--border);
         border-radius:14px;
         padding:12px 14px;
-        background: rgba(255,255,255,.02);
+        background: rgba(255,255,255,.75);
       }
       details.faq summary{
         cursor:pointer;
         list-style:none;
-        font-weight:650;
-        color:var(--text);
+        font-weight:750;
+        color: var(--text);
       }
       details.faq summary::-webkit-details-marker{ display:none; }
-      details.faq p{ margin:10px 0 0; color:var(--muted); }
+      details.faq p{ margin:10px 0 0; color: var(--muted); }
 
       .smallLink{
         font-size:12px;
         letter-spacing:.12em;
         text-transform:uppercase;
-        color:var(--muted2);
+        color: rgba(15,42,68,.78);
+        text-decoration: underline;
+        text-underline-offset: 4px;
       }
-      .smallLink:hover{ color:var(--text); }
+      .smallLink:hover{ color: var(--primary); }
 
+      .floatingHelp{
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 60;
+      }
+      .floatingPanel{
+        width: 290px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,.96);
+        box-shadow: var(--shadow);
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+      .toast{
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 18px;
+        z-index: 80;
+        background: rgba(255,255,255,.96);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 10px 14px;
+        box-shadow: var(--shadow);
+        font-size: 13px;
+        font-weight: 700;
+        color: rgba(20,20,20,.85);
+      }
     `}</style>
   );
 }
@@ -342,18 +427,14 @@ const FINISH_GROUPS = [
 ];
 
 function getFinishById(id) {
-  for (const g of FINISH_GROUPS) {
-    for (const f of g.finishes) {
-      if (f.id === id) return f;
-    }
-  }
+  for (const g of FINISH_GROUPS) for (const f of g.finishes) if (f.id === id) return f;
   return FINISH_GROUPS[0].finishes[0];
 }
 
-/* ✅ Real pricing: assembly upcharge */
+/* Pricing */
 const ASSEMBLY_UPCHARGE_PER_CABINET = 99; // change to your real number
 
-/* ✅ Catalog (replace wall/tall placeholders with your real SKUs/prices) */
+/* Catalog (replace wall/tall placeholders with real SKUs/prices when ready) */
 const CABINET_CATALOG = {
   base: {
     label: "Base Cabinets",
@@ -419,17 +500,11 @@ const TESTIMONIALS = [
 ];
 
 const FAQS = [
-  { q: "RTA vs Assembled — what’s the difference?", a: "RTA ships flat-packed (easier to deliver/handle). Assembled arrives built. Assembly pricing shows per cabinet in the cart." },
-  { q: "How does freight shipping work?", a: "Most orders ship LTL freight. We confirm the freight cost based on destination and order size. Inspect boxes before signing delivery." },
+  { q: "RTA vs Assembled — what’s the difference?", a: "RTA ships flat-packed. Assembled arrives built. Assembly pricing shows per cabinet in the cart." },
+  { q: "How does freight shipping work?", a: "Most orders ship LTL freight. We confirm freight cost based on destination and order size. Inspect boxes before signing." },
   { q: "What should I measure?", a: "Wall lengths, ceiling height, window/door locations, and appliance sizes. Photos from each corner help a lot." },
-  { q: "What if something arrives damaged?", a: "Report issues quickly with photos. Policies vary by order type and timing, but we’ll guide you through the process." },
+  { q: "What if something arrives damaged?", a: "Report issues quickly with photos. Policies vary by order type and timing, but we’ll guide you." },
   { q: "Not sure what cabinets I need?", a: "Use the Design Center. We’ll create a 3D layout and itemized list before you buy." },
-];
-
-const BUNDLES = [
-  { title: "10×10 Starter (Estimate)", body: "A clean starting point for pricing + layout discussion.", cta: "Request Design", href: "#/design" },
-  { title: "Pantry Wall Set", body: "Tall pantry + matching uppers to anchor a wall.", cta: "Shop Finishes", href: "#/shop" },
-  { title: "Vanity Starter", body: "Great for bath projects — fast, simple, refined.", cta: "Shop Finishes", href: "#/shop" },
 ];
 
 /* ============================
@@ -453,14 +528,77 @@ function parseRouteFromHash(hash) {
 }
 
 /* ============================
+   UI bits
+   ============================ */
+function AnnouncementBar() {
+  return (
+    <div className="announce">
+      <div className="container">
+        <div>
+          Free 3D Design • Nationwide Shipping • Secure Checkout
+        </div>
+        <div>
+          <a href="#/design">Request Design</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Toast({ text }) {
+  if (!text) return null;
+  return <div className="toast">{text}</div>;
+}
+
+function FloatingHelp() {
+  const [open, setOpen] = useState(false);
+  const mailto = `mailto:premier@premierkm.com?subject=${encodeURIComponent("Quick Question — Premier RTA Cabinetry")}&body=${encodeURIComponent(
+    "Hi Premier team,\n\nI have a question about:\n- Finish:\n- Cabinets/SKUs:\n- Measurements:\n\nThanks!"
+  )}`;
+
+  return (
+    <div className="floatingHelp">
+      {open && (
+        <div className="floatingPanel">
+          <div className="kicker">Need help?</div>
+          <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 700, marginTop: 6 }}>
+            Quick Support
+          </div>
+          <p className="mini" style={{ marginTop: 8 }}>
+            Email us your measurements/photos and we’ll guide your cabinet list.
+          </p>
+          <div className="row" style={{ marginTop: 10 }}>
+            <a className="btn btn-primary" href={mailto}>Email</a>
+            <a className="btn btn-outline" href="#/design">Free Design</a>
+          </div>
+          <div className="row" style={{ marginTop: 8 }}>
+            <a className="btn btn-ghost" href="#/learn">Learning</a>
+            <a className="btn btn-ghost" href="#/shop">Shop</a>
+          </div>
+        </div>
+      )}
+
+      <button
+        className="btn btn-primary"
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        aria-label="Help"
+      >
+        {open ? "Close" : "Need help?"}
+      </button>
+    </div>
+  );
+}
+
+/* ============================
    HEADER
    ============================ */
 function Logo() {
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 8, lineHeight: 1 }}>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 650, fontSize: 20 }}>Premier</span>
-      <span style={{ fontWeight: 750, fontSize: 15, color: "var(--primary)", letterSpacing: ".18em" }}>RTA</span>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 550, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 750, fontSize: 20 }}>Premier</span>
+      <span style={{ fontWeight: 850, fontSize: 14, color: "var(--accent2)", letterSpacing: ".20em" }}>RTA</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 600, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
     </div>
   );
 }
@@ -477,6 +615,7 @@ function Header({ cartCount }) {
   ];
   return (
     <header className="sticky">
+      <AnnouncementBar />
       <div className="container" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", flexWrap: "wrap" }}>
         <a href="#/home"><Logo /></a>
         <nav style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -494,53 +633,47 @@ function Header({ cartCount }) {
 }
 
 /* ============================
-   HOME (upgraded)
+   HOME
    ============================ */
 function Home() {
-  // finish preview (first 6)
-  const previewFinishes = useMemo(() => {
-    const all = FINISH_GROUPS.flatMap(g => g.finishes);
-    return all.slice(0, 6);
-  }, []);
+  const previewFinishes = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes).slice(0, 6), []);
 
   return (
     <>
-      {/* HERO */}
       <section className="section">
         <div className="container">
           <div className="hero">
             <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
             <div className="heroInner">
               <div className="heroContent">
-                <div className="pill red">Classic Luxury • Designer Led</div>
-                <h1 className="heroTitle">A quieter way to buy a kitchen.</h1>
-                <p>
+                <div className="pill gold">Luxury • Clean • Designer-Led</div>
+                <h1 className="heroTitle">A refined way to buy a kitchen.</h1>
+                <p className="heroSub">
                   Choose a finish, add base/wall/tall cabinets by SKU, and checkout with confidence.
-                  If you want a full plan first, we’ll create a free 3D layout + cabinet list.
+                  Or request a free 3D layout + cabinet list before you buy.
                 </p>
                 <div className="row" style={{ marginTop: 14 }}>
                   <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
                   <a className="btn btn-outline" href="#/design">Request Free 3D Design</a>
                 </div>
                 <div className="row" style={{ marginTop: 14 }}>
-                  <span className="pill">Nationwide Shipping</span>
-                  <span className="pill">Warehouse Pickup</span>
-                  <span className="pill">20+ Years</span>
+                  <span className="pill primary">Nationwide Shipping</span>
+                  <span className="pill primary">Warehouse Pickup</span>
+                  <span className="pill primary">Secure Checkout</span>
                 </div>
                 <div style={{ marginTop: 10 }}>
-                  <a className="smallLink" href="#/learn">Learn how ordering works →</a>
+                  <a className="smallLink" href="#/learn">How ordering works →</a>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* TRUST BAR */}
           <div className="grid four" style={{ marginTop: 18 }}>
             {[
-              ["Designer Support", "Layout help + cabinet list before you buy."],
-              ["Secure Checkout", "Stripe link (Apple Pay + card)."],
+              ["Designer Support", "Get a layout + cabinet list before you spend."],
+              ["Shop by SKU", "Search SKUs, set heights/depths, add to cart."],
               ["Freight Shipping", "LTL freight with inspection guidance."],
-              ["Finish Options", "Tribeca lines curated for timeless kitchens."],
+              ["Finish Options", "Tribeca finishes curated for timeless kitchens."],
             ].map(([title, body]) => (
               <div key={title} className="card soft">
                 <div className="kicker">{title}</div>
@@ -551,17 +684,16 @@ function Home() {
         </div>
       </section>
 
-      {/* SHOP BY TYPE */}
-      <section className="section" style={{ background: "var(--subtle)" }}>
+      <section className="section" style={{ background: "var(--bg2)" }}>
         <div className="container">
           <div className="kicker">Shop Faster</div>
           <h2 style={{ fontSize: 30, marginTop: 10 }}>Shop by Cabinet Type</h2>
-          <p>Start with the core pieces. Add more categories as you grow (fillers, panels, crown).</p>
+          <p>Start with the core pieces. Add panels, crown, toe kick, fillers next.</p>
 
           <div className="grid three" style={{ marginTop: 14 }}>
             {[
-              { title: "Base Cabinets", body: "The foundation of every layout.", href: "#/shop" },
-              { title: "Wall Cabinets", body: "Storage above — clean lines.", href: "#/shop" },
+              { title: "Base Cabinets", body: "The foundation of the layout.", href: "#/shop" },
+              { title: "Wall Cabinets", body: "Upper storage with clean lines.", href: "#/shop" },
               { title: "Tall / Pantry", body: "Anchor walls with vertical storage.", href: "#/shop" },
             ].map((x) => (
               <div key={x.title} className="card">
@@ -574,61 +706,11 @@ function Home() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
       <section className="section">
         <div className="container">
-          <div className="kicker">Simple Process</div>
-          <h2 style={{ fontSize: 30, marginTop: 10 }}>How It Works</h2>
-          <p>Clear steps so customers don’t feel lost.</p>
-
-          <div className="grid three" style={{ marginTop: 14 }}>
-            {[
-              { n: "01", t: "Pick a finish", b: "Choose a Tribeca finish to match your style." },
-              { n: "02", t: "Add cabinets by SKU", b: "Select base/wall/tall, search SKUs, choose sizes." },
-              { n: "03", t: "Checkout confidently", b: "Freight is quoted after order. We’ll confirm delivery details." },
-            ].map((s) => (
-              <div key={s.n} className="card soft">
-                <div className="row" style={{ justifyContent: "space-between" }}>
-                  <span className="pill">{s.n}</span>
-                  <span className="pill red">Premier</span>
-                </div>
-                <h3 style={{ fontSize: 18, marginTop: 12 }}>{s.t}</h3>
-                <p className="mini">{s.b}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* BEST SELLERS / BUNDLES */}
-      <section className="section" style={{ background: "var(--subtle)" }}>
-        <div className="container">
-          <div className="kicker">Popular</div>
-          <h2 style={{ fontSize: 30, marginTop: 10 }}>Best-Seller Starting Points</h2>
-          <p>These are simple entry points that feel “real store” without overcomplicating.</p>
-
-          <div className="grid three" style={{ marginTop: 14 }}>
-            {BUNDLES.map((b) => (
-              <div key={b.title} className="card">
-                <h3 style={{ fontSize: 18 }}>{b.title}</h3>
-                <p className="mini">{b.body}</p>
-                <a className="btn btn-primary" href={b.href}>{b.cta}</a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FINISH PREVIEW STRIP */}
-      <section className="section">
-        <div className="container">
-          <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-            <div>
-              <div className="kicker">Finishes</div>
-              <h2 style={{ fontSize: 30, marginTop: 10 }}>A few customer favorites</h2>
-            </div>
-            <a className="smallLink" href="#/shop">Shop all finishes →</a>
-          </div>
+          <div className="kicker">Finishes</div>
+          <h2 style={{ fontSize: 30, marginTop: 10 }}>Customer favorites</h2>
+          <p>Click a finish to configure cabinets and add to cart.</p>
 
           <div className="grid three" style={{ marginTop: 14 }}>
             {previewFinishes.map((f) => (
@@ -637,22 +719,21 @@ function Home() {
                   <img src={imgForFinish(f.id)} alt={f.name} />
                 </div>
                 <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
-                  <div style={{ fontWeight: 700 }}>{f.name}</div>
-                  <span className="pill">Configure</span>
+                  <div style={{ fontWeight: 800 }}>{f.name}</div>
+                  <span className="pill gold">Configure</span>
                 </div>
-                <p className="mini">Click to add cabinets in this finish.</p>
+                <p className="mini">Add base/wall/tall cabinets in this finish.</p>
               </a>
             ))}
           </div>
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="section" style={{ background: "var(--subtle)" }}>
+      <section className="section" style={{ background: "var(--bg2)" }}>
         <div className="container">
           <div className="kicker">Reviews</div>
           <h2 style={{ fontSize: 30, marginTop: 10 }}>Trusted by homeowners & contractors</h2>
-          <p>Swap these with real reviews as you collect them.</p>
+          <p>Replace these with real reviews as you collect them.</p>
 
           <div className="grid three" style={{ marginTop: 14 }}>
             {TESTIMONIALS.map((t) => (
@@ -665,12 +746,11 @@ function Home() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="section">
         <div className="container">
           <div className="kicker">FAQ</div>
           <h2 style={{ fontSize: 30, marginTop: 10 }}>Quick answers</h2>
-          <p>Clear FAQs reduce customer hesitation.</p>
+          <p>Clear FAQs reduce hesitation.</p>
 
           <div className="grid two" style={{ marginTop: 14 }}>
             {FAQS.map((f) => (
@@ -683,8 +763,7 @@ function Home() {
         </div>
       </section>
 
-      {/* BOTTOM CTA */}
-      <section className="section" style={{ background: "var(--subtle)" }}>
+      <section className="section" style={{ background: "var(--bg2)" }}>
         <div className="container">
           <div className="card" style={{ padding: 22 }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
@@ -708,7 +787,7 @@ function Home() {
 }
 
 /* ============================
-   SHOP
+   SHOP LIST
    ============================ */
 function ShopList() {
   return (
@@ -722,7 +801,7 @@ function ShopList() {
           <div key={g.group} style={{ marginTop: 22 }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
               <h3 style={{ margin: 0 }}>{g.group}</h3>
-              <span className="pill">Tribeca</span>
+              <span className="pill gold">Tribeca</span>
             </div>
 
             <div className="grid three" style={{ marginTop: 12 }}>
@@ -732,8 +811,8 @@ function ShopList() {
                     <img src={imgForFinish(f.id)} alt={f.name} />
                   </div>
                   <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
-                    <div style={{ fontWeight: 700 }}>{f.name}</div>
-                    <span className="pill red">Finish</span>
+                    <div style={{ fontWeight: 800 }}>{f.name}</div>
+                    <span className="pill primary">Finish</span>
                   </div>
                   <p className="mini">Configure base/wall/tall cabinets in this finish.</p>
                   <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
@@ -750,7 +829,7 @@ function ShopList() {
 /* ============================
    CONFIGURATOR
    ============================ */
-function Configurator({ finishId, cart, onAddToCart, onExportCartCSV }) {
+function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast }) {
   const finish = getFinishById(finishId);
 
   const [assembly, setAssembly] = useState("rta");
@@ -802,11 +881,10 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV }) {
   }, [cart]);
 
   const cartCount = useMemo(() => cart.reduce((s, it) => s + it.qty, 0), [cart]);
-
   const dimsLabel = `${chosen?.width ?? "-"}" W × ${height}" H × ${depth}" D`;
 
   return (
-    <section className="section">
+    <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container grid two" style={{ alignItems: "start" }}>
         <div className="card" style={{ padding: 0, overflow: "hidden" }}>
           <img
@@ -817,13 +895,13 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV }) {
           <div style={{ padding: 18 }}>
             <div className="kicker">Tribeca Finish</div>
             <h2 style={{ fontSize: 28, marginTop: 10 }}>{finish.name}</h2>
-            <p className="mini">Choose cabinet type + SKU. Search SKUs, set height/depth, add to cart.</p>
+            <p className="mini">Choose cabinet type + SKU. Search, set height/depth, and add to cart.</p>
 
             <div className="divider" />
 
-            <div className="row" style={{ justifyContent: "space-between" }}>
-              <span className="pill">Lead time: 2–5 weeks (typical)</span>
-              <span className="pill">Warranty: Limited</span>
+            <div className="row">
+              <span className="pill primary">Lead time: 2–5 weeks (typical)</span>
+              <span className="pill gold">Warranty: Limited</span>
             </div>
           </div>
         </div>
@@ -831,7 +909,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV }) {
         <div className="stickySide" style={{ display: "grid", gap: 16 }}>
           <div className="card soft">
             <div className="row" style={{ justifyContent: "space-between" }}>
-              <div style={{ fontWeight: 750 }}>Mini Cart</div>
+              <div style={{ fontWeight: 900 }}>Mini Cart</div>
               <span className="pill">{cartCount} items</span>
             </div>
             <div className="mini" style={{ marginTop: 8 }}>
@@ -839,10 +917,13 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV }) {
             </div>
             <div className="row" style={{ marginTop: 12 }}>
               <a className="btn btn-primary" href="#/cart">Go to cart</a>
-              <button className="btn btn-outline" type="button" onClick={onExportCartCSV}>Export CSV</button>
-            </div>
-            <div className="mini" style={{ marginTop: 10 }}>
-              Tip: Use “Share Cart” in checkout to send customers their exact list.
+              <button
+                className="btn btn-outline"
+                type="button"
+                onClick={() => { onExportCartCSV(); onToast("CSV exported"); }}
+              >
+                Export CSV
+              </button>
             </div>
           </div>
 
@@ -932,12 +1013,13 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV }) {
                     height,
                     depth,
                   });
+                  onToast("Added to cart");
                 }}
               >
                 Add to cart
               </button>
               <a className="btn btn-outline" href="#/shop">Back</a>
-              <a className="btn btn-outline" href="#/cart">Checkout</a>
+              <a className="btn btn-ghost" href="#/cart">Checkout</a>
             </div>
 
             <div className="card soft" style={{ marginTop: 14 }}>
@@ -985,7 +1067,7 @@ function DesignCenter() {
   }, [path, budget, contact, notes, files]);
 
   return (
-    <section className="section" style={{ background: "var(--subtle)" }}>
+    <section className="section">
       <div className="container grid two">
         <div>
           <div className="kicker">Design Center</div>
@@ -1007,19 +1089,13 @@ function DesignCenter() {
 
           <div className="grid two" style={{ marginTop: 14 }}>
             <div className="card soft">
-              <div className="kicker">Lead time</div>
-              <p className="mini" style={{ margin: 0 }}>Typical 2–5 weeks (varies by finish + order size).</p>
+              <div className="kicker">What you get</div>
+              <p className="mini" style={{ margin: 0 }}>3D layout + cabinet placement + itemized list.</p>
             </div>
             <div className="card soft">
-              <div className="kicker">Warranty</div>
-              <p className="mini" style={{ margin: 0 }}>Limited. Ask us for the full warranty sheet.</p>
+              <div className="kicker">What to send</div>
+              <p className="mini" style={{ margin: 0 }}>Wall lengths, ceiling height, photos, appliances.</p>
             </div>
-          </div>
-
-          <div className="card soft" style={{ marginTop: 14 }}>
-            <p className="mini" style={{ margin: 0 }}>
-              No backend needed: this opens an email with everything prefilled. Attach your photos and send.
-            </p>
           </div>
         </div>
 
@@ -1079,7 +1155,7 @@ function Learning() {
   ];
 
   return (
-    <section className="section">
+    <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Learning</div>
         <h2 style={{ fontSize: 30, marginTop: 10 }}>Learning Center</h2>
@@ -1103,7 +1179,7 @@ function Learning() {
    ============================ */
 function Gallery() {
   return (
-    <section className="section" style={{ background: "var(--subtle)" }}>
+    <section className="section">
       <div className="container">
         <div className="kicker">Gallery</div>
         <h2 style={{ fontSize: 30, marginTop: 10 }}>Project Inspiration</h2>
@@ -1124,7 +1200,7 @@ function Gallery() {
 /* ============================
    CART
    ============================ */
-function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink }) {
+function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
   const subtotal = useMemo(() => {
     return cart.reduce((s, it) => {
       const assemblyFee = (it.assemblyFeeEach || 0) * it.qty;
@@ -1138,7 +1214,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink }) {
   const canPay = checkoutOk && cart.length > 0 && freightOk;
 
   return (
-    <section className="section">
+    <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Cart</div>
         <h2 style={{ fontSize: 30, marginTop: 10 }}>Checkout</h2>
@@ -1151,8 +1227,8 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink }) {
           <>
             <div className="card soft" style={{ marginTop: 14 }}>
               <div className="row" style={{ justifyContent: "space-between" }}>
-                <span className="pill">Freight shipping is quoted after order</span>
-                <span className="pill">Export + share tools below</span>
+                <span className="pill primary">Freight shipping is quoted after order</span>
+                <span className="pill gold">Export + share tools below</span>
               </div>
               <div className="mini" style={{ marginTop: 10 }}>
                 Most orders ship LTL freight. We confirm freight cost based on destination and order size.
@@ -1214,14 +1290,26 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink }) {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, fontSize: 18 }}>
-              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif' }}>{usd(subtotal)}</span>
+              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 700 }}>{usd(subtotal)}</span>
             </div>
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
               <div className="row">
                 <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
-                <button className="btn btn-outline" type="button" onClick={onExportCSV}>Export CSV</button>
-                <button className="btn btn-ghost" type="button" onClick={onShareLink}>Share Cart</button>
+                <button
+                  className="btn btn-outline"
+                  type="button"
+                  onClick={() => { onExportCSV(); onToast("CSV exported"); }}
+                >
+                  Export CSV
+                </button>
+                <button
+                  className="btn btn-ghost"
+                  type="button"
+                  onClick={async () => { await onShareLink(); onToast("Share link copied"); }}
+                >
+                  Share Cart
+                </button>
               </div>
 
               {checkoutOk ? (
@@ -1283,11 +1371,14 @@ function Contact() {
    ============================ */
 export default function App() {
   const [hash, setHash] = useState(typeof window !== "undefined" ? (window.location.hash || "#/home") : "#/home");
+  const [toast, setToast] = useState("");
 
   const [cart, setCart] = useState(() => {
     if (typeof window === "undefined") return [];
     try { return JSON.parse(localStorage.getItem("premier_cart") || "[]"); } catch { return []; }
   });
+
+  const { route, sub, params } = parseRouteFromHash(hash);
 
   useEffect(() => {
     const onHash = () => setHash(window.location.hash || "#/home");
@@ -1299,7 +1390,14 @@ export default function App() {
 
   useEffect(() => { localStorage.setItem("premier_cart", JSON.stringify(cart)); }, [cart]);
 
-  const { route, sub, params } = parseRouteFromHash(hash);
+  // Toast auto-clear
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(""), 1800);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const onToast = (msg) => setToast(msg);
 
   // ✅ Auto-load shared cart links: #/cart?data=XXXX
   useEffect(() => {
@@ -1312,6 +1410,7 @@ export default function App() {
       if (Array.isArray(parsed)) {
         setCart(parsed);
         window.location.hash = "/cart"; // clean URL
+        setToast("Cart loaded");
       }
     } catch {
       // ignore
@@ -1367,8 +1466,8 @@ export default function App() {
 
     try {
       await navigator.clipboard.writeText(url);
-      alert("Share link copied to clipboard!");
     } catch {
+      // fallback
       prompt("Copy this share link:", url);
     }
   };
@@ -1385,6 +1484,7 @@ export default function App() {
           cart={cart}
           onAddToCart={addToCart}
           onExportCartCSV={exportCartCSV}
+          onToast={onToast}
         />
       ))}
       {route === "design" && <DesignCenter />}
@@ -1397,9 +1497,13 @@ export default function App() {
           onClear={clearCart}
           onExportCSV={exportCartCSV}
           onShareLink={shareCartLink}
+          onToast={onToast}
         />
       )}
       {route === "contact" && <Contact />}
+
+      <FloatingHelp />
+      <Toast text={toast} />
     </div>
   );
 }
