@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 /* ============================
    CONFIG (edit these)
    ============================ */
 const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_PAYMENT_LINK_HERE"; // Apple Pay + card
-
 const SUPPORT_EMAIL = "premier@premierkm.com";
+const SUPPORT_PHONE = "800-PREMIER";
+const WAREHOUSE_LOCATION = "Staten Island, NY";
 
+/* Finish images (optional) */
 const FINISH_IMAGES = {
   "hudson-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-1-788x1024.jpg",
   "hudson-cloud-white": "https://tribecacabinetry.com/wp-content/uploads/2025/03/HD-CW-2-788x1024.jpg",
@@ -33,21 +35,22 @@ function GlobalStyles() {
     <style>{`
       :root{
         --bg:#ffffff;
-        --bg2:#faf7f1;          /* warm stone */
+        --bg2:#faf7f1;
         --card:#ffffff;
         --card2:#fbf9f4;
 
-        --text:#0f0f10;         /* near-black */
+        --text:#0f0f10;
         --muted:#2f2f34;
         --muted2:#6a6a72;
 
-        --primary:#c0182a;      /* red */
-        --primary2:#9f1322;     /* deeper red */
+        --primary:#c0182a;
+        --primary2:#9f1322;
+
         --gold:#b08d57;
         --gold2:#8d6a3c;
 
         --border: rgba(15,15,16,.12);
-        --ring: rgba(192,24,42,.20);
+        --ring: rgba(192,24,42,.18);
 
         --shadow: 0 16px 34px rgba(0,0,0,.10);
         --shadow2: 0 10px 22px rgba(0,0,0,.08);
@@ -257,32 +260,23 @@ function GlobalStyles() {
       .stickySide{ position: sticky; top: 92px; align-self:start; }
       @media(max-width:900px){ .stickySide{ position: static; } }
 
-      /* Hero */
-      .heroWrap{
-        border:1px solid var(--border);
+      /* Home hero */
+      .heroGrid{
+        display:grid;
+        grid-template-columns: 1.2fr .8fr;
+        gap:16px;
+        align-items:stretch;
+      }
+      @media(max-width:900px){ .heroGrid{ grid-template-columns:1fr; } }
+
+      .heroImage{
         border-radius:20px;
         overflow:hidden;
+        border:1px solid var(--border);
         box-shadow: var(--shadow);
-        background:#eee;
+        min-height: 360px;
       }
-      .heroWrap img{ width:100%; height:360px; object-fit:cover; }
-      @media(max-width:900px){ .heroWrap img{ height:280px; } }
-
-      /* “Store” blocks */
-      .storeStrip{
-        display:flex;
-        gap:10px;
-        flex-wrap:wrap;
-        align-items:center;
-      }
-      .storeStrip .pill{ background:#fff; }
-
-      .reviewBox{
-        min-height: 118px;
-        display:flex;
-        flex-direction:column;
-        justify-content:space-between;
-      }
+      .heroImage img{ width:100%; height:100%; object-fit:cover; }
 
       /* Learning accordions */
       details.lux{
@@ -347,6 +341,17 @@ function GlobalStyles() {
         font-weight: 900;
         color: rgba(15,15,16,.88);
       }
+
+      /* Small helpers */
+      .mutedLink{
+        font-size:12px;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+        color: rgba(15,15,16,.70);
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+      .mutedLink:hover{ color: var(--primary); }
     `}</style>
   );
 }
@@ -410,10 +415,9 @@ function getFinishById(id) {
   return FINISH_GROUPS[0].finishes[0];
 }
 
-/* Pricing */
-const ASSEMBLY_UPCHARGE_PER_CABINET = 99; // change to your real number
+const ASSEMBLY_UPCHARGE_PER_CABINET = 99;
 
-/* Catalog (replace wall/tall placeholders with real SKUs/prices) */
+/* Catalog (placeholder wall/tall prices — replace later) */
 const CABINET_CATALOG = {
   base: {
     label: "Base Cabinets",
@@ -462,6 +466,17 @@ const CABINET_CATALOG = {
   },
 };
 
+/* NEW: “Accessories” category placeholder to make the store feel bigger */
+const ACCESSORIES = [
+  { sku: "TK96", name: "Toe Kick (96\")", price: 89 },
+  { sku: "F3", name: "Filler (3\")", price: 35 },
+  { sku: "F6", name: "Filler (6\")", price: 49 },
+  { sku: "PANEL24", name: "Side Panel (24\")", price: 120 },
+  { sku: "CROWN96", name: "Crown Molding (96\")", price: 95 },
+  { sku: "LR96", name: "Light Rail (96\")", price: 85 },
+];
+
+/* Gallery placeholders */
 const GALLERY = [
   "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1556909172-8c2f041fca1f?q=80&w=1400&auto=format&fit=crop",
@@ -471,38 +486,21 @@ const GALLERY = [
   "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
 ];
 
+/* Reviews */
 const REVIEWS = [
   { name: "M. R.", text: "Cabinet list was spot on. Finish looked even better in person.", meta: "Homeowner • NY" },
   { name: "S. D.", text: "Smooth delivery and easy ordering. Great support when I had questions.", meta: "Contractor • NJ" },
-  { name: "K. L.", text: "The design help saved us time. Shopping by SKU was way easier than showrooms.", meta: "Homeowner • PA" },
+  { name: "K. L.", text: "Design help saved us time. Shopping by SKU was way easier than showrooms.", meta: "Homeowner • PA" },
 ];
 
+/* Learning guide (expanded) */
 const LEARNING_TOPICS = [
-  {
-    tag: "Ordering",
-    title: "RTA vs Assembled",
-    body: `RTA ships flat-packed (easier to deliver and handle). Assembled arrives built. Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet and shows in your cart.`,
-  },
-  {
-    tag: "Measuring",
-    title: "What to measure for a quote & 3D design",
-    body: "Wall lengths, ceiling height, window/door positions, and appliance sizes. Photos from each corner help. If you have a sketch, upload it in Design Center.",
-  },
-  {
-    tag: "Shipping",
-    title: "Freight shipping (LTL) & delivery day",
-    body: "Most cabinet orders ship LTL freight. Freight is quoted after order based on destination and order size. Inspect packaging before signing and take photos of any damage.",
-  },
-  {
-    tag: "Support",
-    title: "Damages & replacements",
-    body: "Report issues quickly with photos. Policies vary by order type and timing — email us and we’ll guide you through the fastest resolution path.",
-  },
-  {
-    tag: "Help",
-    title: "Not sure what to buy?",
-    body: "Use Design Center. We’ll create a 3D layout and itemized cabinet list before you purchase so you can order confidently.",
-  },
+  { tag: "Ordering", title: "RTA vs Assembled", body: `RTA ships flat-packed. Assembled arrives built. Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet and shows in your cart.` },
+  { tag: "Measuring", title: "What to measure for a quote & 3D design", body: "Wall lengths, ceiling height, window/door positions, and appliance sizes. Photos from each corner help. Upload sketches/photos in Design Center." },
+  { tag: "Shipping", title: "Freight shipping (LTL) & delivery day", body: "Most orders ship LTL freight. Freight is quoted after order based on destination and order size. Inspect packaging before signing and take photos of any damage." },
+  { tag: "Support", title: "Damages & replacements", body: "Report issues quickly with photos. Policies vary by order type and timing — email us and we’ll guide you through the fastest resolution path." },
+  { tag: "Planning", title: "A simple cabinet planning checklist", body: "Base run + sink location, wall cabinet heights, tall pantry location, fillers/panels, crown/light rail. If you’re unsure, request a free 3D plan." },
+  { tag: "Install", title: "Basic install notes", body: "Start level, mark studs, hang uppers first, then bases. Use shims and a long level. Ask for install recommendations if you need them." },
 ];
 
 /* ============================
@@ -566,8 +564,9 @@ function FloatingHelp() {
             <a className="btn btn-outline" href="#/design">Free Design</a>
           </div>
           <div className="row" style={{ marginTop: 8 }}>
-            <a className="btn btn-ghost" href="#/learn">Learning</a>
+            <a className="btn btn-ghost" href="#/learn">Guide</a>
             <a className="btn btn-ghost" href="#/shop">Shop</a>
+            <a className="btn btn-ghost" href="#/contact">Contact</a>
           </div>
         </div>
       )}
@@ -622,297 +621,200 @@ function Header({ cartCount }) {
 }
 
 /* ============================
-   HOME (more “store”, more going on)
+   HOME (NEATER, not too much)
    ============================ */
 function Home() {
   const finishesFlat = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes), []);
   const [finishId, setFinishId] = useState(finishesFlat[0]?.id || "");
   const selectedFinish = finishesFlat.find(f => f.id === finishId) || finishesFlat[0];
 
-  const [estCabCount, setEstCabCount] = useState(12);
-  const [estAssembly, setEstAssembly] = useState(false);
-
-  // simple “average cabinet price” estimate from catalog
-  const avgPrice = useMemo(() => {
-    const all = Object.values(CABINET_CATALOG).flatMap(c => c.items);
-    const sum = all.reduce((s, x) => s + x.price, 0);
-    return all.length ? sum / all.length : 0;
-  }, []);
-  const estSubtotal = useMemo(() => {
-    const base = estCabCount * avgPrice;
-    const assembly = estAssembly ? estCabCount * ASSEMBLY_UPCHARGE_PER_CABINET : 0;
-    return base + assembly;
-  }, [estCabCount, estAssembly, avgPrice]);
-
-  // reviews carousel
+  // Reviews (small, not overwhelming)
   const [reviewIdx, setReviewIdx] = useState(0);
   const review = REVIEWS[reviewIdx % REVIEWS.length];
 
   return (
-    <>
-      <section className="section">
-        <div className="container">
-          <div className="heroWrap">
+    <section className="section">
+      <div className="container">
+        {/* neat hero */}
+        <div className="heroGrid">
+          <div className="card">
+            <div className="kicker">Premier RTA Cabinetry</div>
+            <h1 style={{ fontSize: 44, marginTop: 8 }}>A calmer way to buy cabinets.</h1>
+            <p style={{ color: "rgba(15,15,16,.78)" }}>
+              Choose a finish, add cabinets by SKU, and checkout. Want a full plan first? We’ll create a free 3D layout + itemized list.
+            </p>
+            <div className="row" style={{ marginTop: 14 }}>
+              <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
+              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+              <a className="btn btn-ghost" href="#/learn">Customer Guide</a>
+            </div>
+
+            <div className="row" style={{ marginTop: 14 }}>
+              <span className="pill">Nationwide Shipping</span>
+              <span className="pill">Warehouse Pickup</span>
+              <span className="pill gold">Gold accents</span>
+            </div>
+
+            <div className="divider" />
+
+            <div className="mini" style={{ marginTop: 0 }}>
+              <b style={{ color: "var(--text)" }}>Customer review:</b> “{review.text}” — {review.name}
+              <div className="row" style={{ marginTop: 10 }}>
+                <button className="btn btn-outline" type="button" onClick={()=>setReviewIdx(i=>Math.max(0,i-1))}>Prev</button>
+                <button className="btn btn-primary" type="button" onClick={()=>setReviewIdx(i=>i+1)}>Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="heroImage">
             <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
           </div>
-
-          <div className="grid two" style={{ marginTop: 16, alignItems: "start" }}>
-            <div className="card">
-              <div className="kicker">Premier RTA Cabinetry</div>
-              <h1 style={{ fontSize: 46, marginTop: 8 }}>Build a kitchen online—clean and confident.</h1>
-              <p style={{ color: "rgba(15,15,16,.78)" }}>
-                Choose a finish, add base/wall/tall cabinets by SKU, and checkout. If you want a full plan first,
-                request a free 3D layout + itemized cabinet list.
-              </p>
-
-              <div className="row" style={{ marginTop: 14 }}>
-                <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
-                <a className="btn btn-outline" href="#/design">Free 3D Design</a>
-                <a className="btn btn-ghost" href="#/learn">Customer Guide</a>
-              </div>
-
-              <div className="storeStrip" style={{ marginTop: 14 }}>
-                <span className="pill">Nationwide Shipping</span>
-                <span className="pill">Warehouse Pickup</span>
-                <span className="pill gold">Premium finishes</span>
-                <span className="pill red">Assembly optional</span>
-              </div>
-            </div>
-
-            <div className="card soft">
-              <div className="kicker">Quick Start</div>
-              <h3 style={{ fontSize: 22, marginTop: 8 }}>Pick a finish → start building</h3>
-
-              <label>Finish</label>
-              <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
-                {FINISH_GROUPS.map(g => (
-                  <optgroup key={g.group} label={g.group}>
-                    {g.finishes.map(f => (
-                      <option key={f.id} value={f.id}>{f.name}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-
-              <div className="finish-img" style={{ marginTop: 12 }}>
-                <img src={imgForFinish(selectedFinish?.id)} alt={selectedFinish?.name || "Finish"} style={{ height: 180 }} />
-              </div>
-
-              <div className="row" style={{ marginTop: 12 }}>
-                <a className="btn btn-primary" href={`#/shop/${finishId}`}>Configure</a>
-                <a className="btn btn-outline" href="#/shop">Browse all</a>
-              </div>
-
-              <div className="divider" />
-              <div className="mini">
-                Tip: If you’re not sure what to buy, use <b>Design Center</b> and we’ll build your list.
-              </div>
-            </div>
-          </div>
-
-          {/* Shop by category */}
-          <div className="card" style={{ marginTop: 16 }}>
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-              <div>
-                <div className="kicker">Shop</div>
-                <h2 style={{ fontSize: 28, marginTop: 10 }}>Shop by Category</h2>
-              </div>
-              <a className="btn btn-ghost" href="#/shop">Go to finishes</a>
-            </div>
-
-            <div className="grid three" style={{ marginTop: 14 }}>
-              {[
-                { t: "Base Cabinets", b: "Foundation of the kitchen", href: "#/shop" },
-                { t: "Wall Cabinets", b: "Upper storage & symmetry", href: "#/shop" },
-                { t: "Tall / Pantry", b: "Anchor walls with vertical storage", href: "#/shop" },
-              ].map(x => (
-                <div key={x.t} className="card soft">
-                  <div style={{ fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700, fontSize:18 }}>{x.t}</div>
-                  <p className="mini" style={{ marginTop: 6 }}>{x.b}</p>
-                  <a className="btn btn-outline" href={x.href}>Choose finish</a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Comparison block */}
-          <div className="grid two" style={{ marginTop: 16 }}>
-            <div className="card">
-              <div className="kicker">Compare</div>
-              <h2 style={{ fontSize: 28, marginTop: 10 }}>RTA vs Assembled</h2>
-              <div className="grid two" style={{ marginTop: 12 }}>
-                <div className="card soft">
-                  <div className="pill red" style={{ display: "inline-flex" }}>RTA</div>
-                  <p className="mini">
-                    Ships flat-packed. Easier to carry inside. Great for tighter deliveries.
-                  </p>
-                </div>
-                <div className="card soft">
-                  <div className="pill gold" style={{ display: "inline-flex" }}>Assembled</div>
-                  <p className="mini">
-                    Arrives built. Saves time on installation day. Adds {usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet.
-                  </p>
-                </div>
-              </div>
-              <div className="row" style={{ marginTop: 12 }}>
-                <a className="btn btn-primary" href="#/learn">Read the guide</a>
-                <a className="btn btn-outline" href="#/shop">Start shopping</a>
-              </div>
-            </div>
-
-            {/* Quick estimate widget */}
-            <div className="card soft">
-              <div className="kicker">Quick Estimate</div>
-              <h2 style={{ fontSize: 28, marginTop: 10 }}>Rough kitchen subtotal</h2>
-              <p className="mini">This is a quick ballpark, not a quote. Freight/tax not included.</p>
-
-              <label>Estimated cabinet count</label>
-              <input
-                type="number"
-                min={1}
-                value={estCabCount}
-                onChange={(e)=>setEstCabCount(Math.max(1, parseInt(e.target.value || "1")))}
-              />
-
-              <div className="row" style={{ marginTop: 10 }}>
-                <input
-                  id="est-assembly"
-                  type="checkbox"
-                  checked={estAssembly}
-                  onChange={(e)=>setEstAssembly(e.target.checked)}
-                  style={{ width: 18, height: 18 }}
-                />
-                <label htmlFor="est-assembly" style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>
-                  Include assembled ({usd(ASSEMBLY_UPCHARGE_PER_CABINET)} each)
-                </label>
-              </div>
-
-              <div className="divider" />
-              <div style={{ fontSize: 18, fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700 }}>
-                Estimated subtotal: {usd(Math.round(estSubtotal))}
-              </div>
-              <div className="mini" style={{ marginTop: 8 }}>
-                For an exact list, use Design Center.
-              </div>
-
-              <div className="row" style={{ marginTop: 12 }}>
-                <a className="btn btn-primary" href="#/design">Free 3D Design</a>
-                <a className="btn btn-outline" href="#/shop">Shop finishes</a>
-              </div>
-            </div>
-          </div>
-
-          {/* Featured finishes */}
-          <div className="card" style={{ marginTop: 16 }}>
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-              <div>
-                <div className="kicker">Featured</div>
-                <h2 style={{ fontSize: 28, marginTop: 10 }}>Popular finishes</h2>
-              </div>
-              <a className="btn btn-ghost" href="#/shop">All finishes</a>
-            </div>
-
-            <div className="grid four" style={{ marginTop: 14 }}>
-              {finishesFlat.slice(0, 4).map(f => (
-                <a key={f.id} href={`#/shop/${f.id}`} className="card soft" style={{ display: "block" }}>
-                  <div className="finish-img">
-                    <img src={imgForFinish(f.id)} alt={f.name} style={{ height: 150 }} />
-                  </div>
-                  <div style={{ marginTop: 10, fontWeight: 900 }}>{f.name}</div>
-                  <div className="mini">Click to configure</div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Reviews */}
-          <div className="grid two" style={{ marginTop: 16 }}>
-            <div className="card soft reviewBox">
-              <div>
-                <div className="kicker">Reviews</div>
-                <h2 style={{ fontSize: 28, marginTop: 10 }}>Customers love the calm process</h2>
-                <p>"{review.text}"</p>
-              </div>
-              <div className="row" style={{ justifyContent: "space-between" }}>
-                <div className="mini">
-                  — <b style={{ color: "var(--text)" }}>{review.name}</b> • {review.meta}
-                </div>
-                <div className="row">
-                  <button className="btn btn-outline" type="button" onClick={()=>setReviewIdx(i=>Math.max(0, i-1))}>Prev</button>
-                  <button className="btn btn-primary" type="button" onClick={()=>setReviewIdx(i=>i+1)}>Next</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="card">
-              <div className="kicker">Need guidance?</div>
-              <h2 style={{ fontSize: 28, marginTop: 10 }}>We’ll build your list for free</h2>
-              <p className="mini">
-                Send measurements/photos and we return a 3D layout + itemized cabinet list so you can order confidently.
-              </p>
-              <div className="row" style={{ marginTop: 12 }}>
-                <a className="btn btn-primary" href="#/design">Request Free Design</a>
-                <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email</a>
-              </div>
-              <div className="divider" />
-              <div className="mini">Prefer to shop yourself? Start with finishes → configure by SKU.</div>
-              <div className="row" style={{ marginTop: 10 }}>
-                <a className="btn btn-ghost" href="#/shop">Shop</a>
-                <a className="btn btn-ghost" href="#/learn">Guide</a>
-              </div>
-            </div>
-          </div>
-
         </div>
-      </section>
-    </>
+
+        {/* Quick Start (simple) */}
+        <div className="grid two" style={{ marginTop: 16 }}>
+          <div className="card soft">
+            <div className="kicker">Quick Start</div>
+            <h2 style={{ fontSize: 28, marginTop: 10 }}>Pick a finish → start building</h2>
+            <label>Finish</label>
+            <select value={finishId} onChange={(e)=>setFinishId(e.target.value)}>
+              {FINISH_GROUPS.map(g => (
+                <optgroup key={g.group} label={g.group}>
+                  {g.finishes.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </optgroup>
+              ))}
+            </select>
+
+            <div className="finish-img" style={{ marginTop: 12 }}>
+              <img src={imgForFinish(selectedFinish?.id)} alt={selectedFinish?.name || "Finish"} style={{ height: 170 }} />
+            </div>
+
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href={`#/shop/${finishId}`}>Configure</a>
+              <a className="btn btn-outline" href="#/shop">Browse all</a>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="kicker">What we do</div>
+            <h2 style={{ fontSize: 28, marginTop: 10 }}>Two ways to buy</h2>
+
+            <div className="grid two" style={{ marginTop: 12 }}>
+              <div className="card soft">
+                <div className="pill red" style={{ display:"inline-flex" }}>DIY</div>
+                <p className="mini">Shop finishes → add base/wall/tall by SKU → checkout.</p>
+                <a className="mutedLink" href="#/shop">Start shopping</a>
+              </div>
+              <div className="card soft">
+                <div className="pill gold" style={{ display:"inline-flex" }}>Designer-led</div>
+                <p className="mini">Submit measurements/photos → get a 3D plan + itemized list.</p>
+                <a className="mutedLink" href="#/design">Request design</a>
+              </div>
+            </div>
+
+            <div className="divider" />
+            <div className="mini">
+              Want the site to feel bigger? We now also sell accessories like toe kicks, panels, and crown.
+              <div className="row" style={{ marginTop: 10 }}>
+                <a className="btn btn-ghost" href="#/learn">See accessories</a>
+                <a className="btn btn-ghost" href="#/gallery">View installs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
   );
 }
 
 /* ============================
-   SHOP LIST (upgraded: search + filter)
+   SHOP (bigger: search + sort + filters + featured)
    ============================ */
-function ShopList() {
+function ShopList(){
   const [group, setGroup] = useState("all");
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState("az"); // az | za
 
-  const filtered = useMemo(() => {
+  const results = useMemo(() => {
     const query = q.trim().toLowerCase();
-    return FINISH_GROUPS
+
+    const groups = FINISH_GROUPS
       .filter(g => group === "all" ? true : g.group.toLowerCase() === group)
       .map(g => ({
         group: g.group,
-        finishes: g.finishes.filter(f => !query ? true : f.name.toLowerCase().includes(query) || f.id.toLowerCase().includes(query))
+        finishes: g.finishes
+          .filter(f => !query ? true : (f.name.toLowerCase().includes(query) || f.id.toLowerCase().includes(query)))
+          .slice()
+          .sort((a,b)=>{
+            const A = a.name.toLowerCase();
+            const B = b.name.toLowerCase();
+            return sort === "az" ? A.localeCompare(B) : B.localeCompare(A);
+          })
       }))
       .filter(g => g.finishes.length > 0);
-  }, [group, q]);
+
+    return groups;
+  }, [group, q, sort]);
+
+  const featured = useMemo(() => FINISH_GROUPS.flatMap(g=>g.finishes).slice(0,4), []);
 
   return (
     <section className="section">
       <div className="container">
         <div className="kicker">Shop</div>
         <h2 style={{ fontSize: 30, marginTop: 10 }}>Tribeca Finishes</h2>
-        <p>Search finishes, then click Configure to add cabinets by SKU.</p>
+        <p>Search finishes, filter collections, then configure cabinets by SKU.</p>
 
+        {/* Filters */}
         <div className="card soft" style={{ marginTop: 14 }}>
-          <div className="grid two">
+          <div className="grid three">
             <div>
-              <label>Search finishes</label>
+              <label>Search</label>
               <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Snow White, Rift Oak, Hudson…" />
             </div>
             <div>
               <label>Collection</label>
               <select value={group} onChange={(e)=>setGroup(e.target.value)}>
                 <option value="all">All</option>
-                {FINISH_GROUPS.map(g => (
-                  <option key={g.group} value={g.group.toLowerCase()}>{g.group}</option>
-                ))}
+                {FINISH_GROUPS.map(g => <option key={g.group} value={g.group.toLowerCase()}>{g.group}</option>)}
+              </select>
+            </div>
+            <div>
+              <label>Sort</label>
+              <select value={sort} onChange={(e)=>setSort(e.target.value)}>
+                <option value="az">Name (A–Z)</option>
+                <option value="za">Name (Z–A)</option>
               </select>
             </div>
           </div>
         </div>
 
-        {filtered.map(g=>(
+        {/* Featured finishes */}
+        <div className="card" style={{ marginTop: 16 }}>
+          <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
+            <div>
+              <div className="kicker">Featured</div>
+              <h3 style={{ fontSize: 22, marginTop: 8 }}>Popular finishes</h3>
+            </div>
+            <span className="pill gold">Fast start</span>
+          </div>
+
+          <div className="grid four" style={{ marginTop: 14 }}>
+            {featured.map(f=>(
+              <a key={f.id} href={`#/shop/${f.id}`} className="card soft" style={{ display:"block" }}>
+                <div className="finish-img">
+                  <img src={imgForFinish(f.id)} alt={f.name} style={{ height:150 }} />
+                </div>
+                <div style={{ marginTop:10, fontWeight:900 }}>{f.name}</div>
+                <div className="mini">Click to configure</div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Full lists */}
+        {results.map(g=>(
           <div key={g.group} style={{ marginTop: 22 }}>
             <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
               <h3 style={{ margin:0 }}>{g.group}</h3>
@@ -926,7 +828,7 @@ function ShopList() {
                     <img src={imgForFinish(f.id)} alt={f.name} />
                   </div>
                   <div className="row" style={{ justifyContent:"space-between", marginTop:10 }}>
-                    <div style={{ fontWeight: 900 }}>{f.name}</div>
+                    <div style={{ fontWeight:900 }}>{f.name}</div>
                     <span className="pill red">Finish</span>
                   </div>
                   <p className="mini">Configure base/wall/tall cabinets in this finish.</p>
@@ -936,15 +838,16 @@ function ShopList() {
             </div>
           </div>
         ))}
+
       </div>
     </section>
   );
 }
 
 /* ============================
-   CONFIGURATOR
+   CONFIGURATOR (bigger: accessories + recent adds)
    ============================ */
-function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast }) {
+function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast }){
   const finish = getFinishById(finishId);
 
   const [assembly, setAssembly] = useState("rta");
@@ -955,6 +858,10 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
   const [depth, setDepth] = useState(CABINET_CATALOG.base.depthOptions[0]);
   const [height, setHeight] = useState(CABINET_CATALOG.base.heightOptions[0]);
   const [qty, setQty] = useState(1);
+
+  // accessories quick add
+  const [accSku, setAccSku] = useState(ACCESSORIES[0]?.sku || "");
+  const [accQty, setAccQty] = useState(1);
 
   useEffect(() => {
     const cat = CABINET_CATALOG[cabType];
@@ -998,6 +905,10 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
   const cartCount = useMemo(() => cart.reduce((s, it) => s + it.qty, 0), [cart]);
   const dimsLabel = `${chosen?.width ?? "-"}" W × ${height}" H × ${depth}" D`;
 
+  const recent = useMemo(() => cart.slice(-4).reverse(), [cart]);
+
+  const accItem = ACCESSORIES.find(a => a.sku === accSku) || ACCESSORIES[0];
+
   return (
     <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container grid two" style={{ alignItems: "start" }}>
@@ -1010,18 +921,19 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
           <div style={{ padding: 18 }}>
             <div className="kicker">Tribeca Finish</div>
             <h2 style={{ fontSize: 28, marginTop: 10 }}>{finish.name}</h2>
-            <p className="mini">Choose cabinet type + SKU. Search, set height/depth, and add to cart.</p>
+            <p className="mini">Choose cabinet type + SKU. Search, set height/depth, add quantities. Add accessories too.</p>
 
             <div className="divider" />
-
             <div className="row">
               <span className="pill red">Lead time: 2–5 weeks (typical)</span>
               <span className="pill gold">Warranty: Limited</span>
+              <span className="pill">Accessories available</span>
             </div>
           </div>
         </div>
 
         <div className="stickySide" style={{ display: "grid", gap: 16 }}>
+          {/* mini cart */}
           <div className="card soft">
             <div className="row" style={{ justifyContent: "space-between" }}>
               <div style={{ fontWeight: 900 }}>Mini Cart</div>
@@ -1042,6 +954,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
             </div>
           </div>
 
+          {/* add cabinets */}
           <div className="card">
             <h3 style={{ fontSize: 22 }}>Add Cabinets</h3>
 
@@ -1104,7 +1017,6 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
                   <b style={{ color: "var(--text)" }}>Unit:</b> {usd(chosen.price)}
                   {assembly === "assembled" ? ` + ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} assembly` : ""}
                 </div>
-                <div><b style={{ color: "var(--text)" }}>Unit Total:</b> {usd(unitTotal)}</div>
                 <div><b style={{ color: "var(--text)" }}>Line Total:</b> {usd(lineTotal)}</div>
               </div>
             </div>
@@ -1137,119 +1049,73 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
               <a className="btn btn-ghost" href="#/cart">Checkout</a>
             </div>
 
-            <div className="card soft" style={{ marginTop: 14 }}>
-              <p className="mini" style={{ margin: 0 }}>
-                Want fillers/panels/crown or a full layout? Email <b style={{ color: "var(--text)" }}>{SUPPORT_EMAIL}</b>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+            <div className="divider" />
 
-/* ============================
-   DESIGN CENTER
-   ============================ */
-function DesignCenter() {
-  const [path, setPath] = useState("Design It For Me");
-  const [budget, setBudget] = useState(25000);
-  const [notes, setNotes] = useState("");
-  const [contact, setContact] = useState({ name: "", email: "", phone: "" });
-  const [files, setFiles] = useState([]);
+            {/* accessories */}
+            <h3 style={{ fontSize: 18, margin: "0 0 6px" }}>Accessories</h3>
+            <div className="mini">Toe kick, panels, fillers, crown. Add to cart.</div>
 
-  const mailtoHref = useMemo(() => {
-    const subject = encodeURIComponent("Free 3D Design Request — Premier RTA Cabinetry");
-    const bodyLines = [
-      `Path: ${path}`,
-      `Budget: ${usd(budget)}`,
-      ``,
-      `Name: ${contact.name}`,
-      `Email: ${contact.email}`,
-      `Phone: ${contact.phone}`,
-      ``,
-      `Notes:`,
-      notes || "(none)",
-      ``,
-      `Uploads (attach these to this email):`,
-      files.length ? files.map((f) => `- ${f.name}`).join("\n") : "- (none)",
-      ``,
-      `Photos/Measurements to include: wall lengths, ceiling height, windows/doors, appliance sizes.`,
-    ];
-    const body = encodeURIComponent(bodyLines.join("\n"));
-    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [path, budget, contact, notes, files]);
+            <label style={{ marginTop: 10 }}>Accessory</label>
+            <select value={accSku} onChange={(e)=>setAccSku(e.target.value)}>
+              {ACCESSORIES.map(a => (
+                <option key={a.sku} value={a.sku}>
+                  {a.sku} — {a.name} — {usd(a.price)}
+                </option>
+              ))}
+            </select>
 
-  return (
-    <section className="section">
-      <div className="container grid two">
-        <div>
-          <div className="kicker">Design Center</div>
-          <h2 style={{ fontSize: 30, marginTop: 10 }}>Free 3D Design</h2>
-          <p>Pick a path. We deliver a 3D layout + cabinet list before you buy.</p>
+            <label>Qty</label>
+            <input
+              type="number"
+              min={1}
+              value={accQty}
+              onChange={(e)=>setAccQty(Math.max(1, parseInt(e.target.value || "1")))}
+            />
 
-          <div className="row" style={{ marginTop: 12 }}>
-            {["Design It For Me", "I Have Measurements", "I Just Want Advice"].map((p) => (
+            <div className="row" style={{ marginTop: 12 }}>
               <button
-                key={p}
+                className="btn btn-primary"
                 type="button"
-                className={path === p ? "btn btn-primary" : "btn btn-outline"}
-                onClick={() => setPath(p)}
+                onClick={()=>{
+                  onAddToCart({
+                    finishId: finish.id,
+                    finishName: finish.name,
+                    cabinetType: "accessory",
+                    cabinetTypeLabel: "Accessories",
+                    sku: accItem.sku,
+                    qty: accQty,
+                    unitPrice: accItem.price,
+                    assembly: "rta",
+                    assemblyFeeEach: 0,
+                    width: 0,
+                    height: 0,
+                    depth: 0,
+                  });
+                  onToast("Accessory added");
+                }}
               >
-                {p}
+                Add accessory
               </button>
-            ))}
+              <a className="btn btn-outline" href="#/learn">How these work</a>
+            </div>
           </div>
 
-          <div className="grid two" style={{ marginTop: 14 }}>
+          {/* recent adds */}
+          {recent.length > 0 && (
             <div className="card soft">
-              <div className="kicker">What you get</div>
-              <p className="mini" style={{ margin: 0 }}>3D layout + cabinet placement + itemized list.</p>
+              <div className="kicker">Recently added</div>
+              <div style={{ marginTop: 10, display:"grid", gap:10 }}>
+                {recent.map(it=>(
+                  <div key={it.key} className="mini">
+                    <b style={{ color:"var(--text)" }}>{it.sku}</b> • {it.cabinetTypeLabel} • Qty {it.qty}
+                  </div>
+                ))}
+              </div>
+              <div className="divider" />
+              <a className="mutedLink" href="#/cart">Review cart →</a>
             </div>
-            <div className="card soft">
-              <div className="kicker">What to send</div>
-              <p className="mini" style={{ margin: 0 }}>Wall lengths, ceiling height, photos, appliances.</p>
-            </div>
-          </div>
-        </div>
+          )}
 
-        <div className="card">
-          <h3 style={{ fontSize: 20 }}>Request (Free)</h3>
-
-          <label>Budget comfort</label>
-          <input
-            type="range"
-            min={8000}
-            max={80000}
-            step={1000}
-            value={budget}
-            onChange={(e) => setBudget(parseInt(e.target.value || "25000"))}
-          />
-          <div className="mini">Target: <b style={{ color: "var(--text)" }}>{usd(budget)}</b></div>
-
-          <label>Name</label>
-          <input value={contact.name} onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))} />
-
-          <label>Email</label>
-          <input value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} />
-
-          <label>Phone</label>
-          <input value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} />
-
-          <label>Upload measurements/photos</label>
-          <input type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files || []))} />
-          <div className="mini" style={{ marginTop: 6 }}>
-            {files.length ? `Selected: ${files.map((f) => f.name).join(", ")}` : "Add photos/sketches. (Attach them when your email opens.)"}
-          </div>
-
-          <label>Notes</label>
-          <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Walls/windows, appliances, timeline…" />
-
-          <div className="row" style={{ marginTop: 14 }}>
-            <a className="btn btn-primary" href={mailtoHref}>Request Free Design (Email)</a>
-            <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email</a>
-          </div>
         </div>
       </div>
     </section>
@@ -1257,71 +1123,9 @@ function DesignCenter() {
 }
 
 /* ============================
-   LEARNING
+   CART (bigger: notes + email quote)
    ============================ */
-function Learning() {
-  return (
-    <section className="section" style={{ background: "var(--bg2)" }}>
-      <div className="container">
-        <div className="kicker">Learning</div>
-        <h2 style={{ fontSize: 30, marginTop: 10 }}>Customer Guide</h2>
-        <p>Everything customers usually ask — in one clean place.</p>
-
-        <div className="grid two" style={{ marginTop: 14 }}>
-          {LEARNING_TOPICS.map((t) => (
-            <details key={t.title} className="lux">
-              <summary>
-                <span>{t.title}</span>
-                <span className="luxTag">{t.tag}</span>
-              </summary>
-              <p className="mini">{t.body}</p>
-            </details>
-          ))}
-        </div>
-
-        <div className="card" style={{ marginTop: 16 }}>
-          <div className="kicker">Still unsure?</div>
-          <h3 style={{ fontSize: 20, marginTop: 8 }}>We’ll build your cabinet list for you</h3>
-          <p className="mini" style={{ marginTop: 6 }}>
-            Use Design Center for a free 3D layout + itemized list.
-          </p>
-          <div className="row" style={{ marginTop: 10 }}>
-            <a className="btn btn-primary" href="#/design">Request Free Design</a>
-            <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email Us</a>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================
-   GALLERY
-   ============================ */
-function Gallery() {
-  return (
-    <section className="section">
-      <div className="container">
-        <div className="kicker">Gallery</div>
-        <h2 style={{ fontSize: 30, marginTop: 10 }}>Project Inspiration</h2>
-        <p>Placeholders now — replace with your installs and tag the finish used.</p>
-
-        <div className="grid three" style={{ marginTop: 14 }}>
-          {GALLERY.map((src, i) => (
-            <div key={i} className="card" style={{ padding: 0, overflow: "hidden" }}>
-              <img src={src} alt="Gallery" style={{ width: "100%", height: 240, objectFit: "cover" }} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================
-   CART
-   ============================ */
-function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
+function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }){
   const subtotal = useMemo(() => {
     return cart.reduce((s, it) => {
       const assemblyFee = (it.assemblyFeeEach || 0) * it.qty;
@@ -1333,6 +1137,21 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
   const [freightOk, setFreightOk] = useState(false);
   const canPay = checkoutOk && cart.length > 0 && freightOk;
 
+  const [notes, setNotes] = useState("");
+
+  const emailQuoteHref = useMemo(() => {
+    const subject = encodeURIComponent("Cabinet Quote Request — Premier RTA Cabinetry");
+    const lines = cart.map(it => {
+      const size = `${it.width ?? "-"}W x ${it.height ?? "-"}H x ${it.depth ?? "-"}D`;
+      const assembly = it.assembly === "assembled" ? `Assembled (+${it.assemblyFeeEach || 0}/ea)` : "RTA";
+      return `- ${it.finishName} | ${it.cabinetTypeLabel} | ${it.sku} | ${size} | Qty ${it.qty} | ${assembly}`;
+    });
+    const body = encodeURIComponent(
+      `Hi Premier team,\n\nPlease review my cart / quote:\n\n${lines.join("\n")}\n\nCustomer notes:\n${notes || "(none)"}\n\nSubtotal shown: ${usd(subtotal)}\n\nThanks!`
+    );
+    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  }, [cart, notes, subtotal]);
+
   return (
     <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container">
@@ -1342,6 +1161,10 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
         {cart.length === 0 ? (
           <div className="card">
             <p>Your cart is empty.</p>
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href="#/shop">Shop finishes</a>
+              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+            </div>
           </div>
         ) : (
           <>
@@ -1413,48 +1236,61 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
               Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900 }}>{usd(subtotal)}</span>
             </div>
 
-            <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
-              <div className="row">
-                <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
-                <button className="btn btn-outline" type="button" onClick={() => { onExportCSV(); onToast("CSV exported"); }}>
-                  Export CSV
-                </button>
-                <button className="btn btn-ghost" type="button" onClick={async () => { await onShareLink(); onToast("Share link copied"); }}>
-                  Share Cart
-                </button>
+            <div className="grid two" style={{ marginTop: 16 }}>
+              <div className="card soft">
+                <div className="kicker">Order notes</div>
+                <h3 style={{ fontSize: 20, marginTop: 8 }}>Add notes for your quote</h3>
+                <textarea rows={5} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Apartment delivery? Stairs? Timeline? Any special instructions…" />
+                <div className="row" style={{ marginTop: 12 }}>
+                  <a className="btn btn-primary" href={emailQuoteHref} onClick={()=>onToast("Email draft opened")}>Email quote</a>
+                  <button className="btn btn-outline" type="button" onClick={()=>{ onExportCSV(); onToast("CSV exported"); }}>Export CSV</button>
+                </div>
+                <div className="mini" style={{ marginTop: 10 }}>
+                  This opens your email app with your cart formatted inside.
+                </div>
               </div>
 
-              {checkoutOk ? (
-                <a
-                  className="btn btn-primary"
-                  href={canPay ? STRIPE_PAYMENT_LINK : undefined}
-                  onClick={(e) => { if (!canPay) e.preventDefault(); }}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ opacity: canPay ? 1 : 0.55, pointerEvents: canPay ? "auto" : "none" }}
-                >
-                  Pay (Apple Pay / Card)
-                </a>
-              ) : (
-                <a className="btn btn-primary" href={`mailto:${SUPPORT_EMAIL}`}>Checkout Setup Needed</a>
-              )}
+              <div className="card">
+                <div className="kicker">Tools</div>
+                <h3 style={{ fontSize: 20, marginTop: 8 }}>Save & share your cart</h3>
+                <div className="row" style={{ marginTop: 12 }}>
+                  <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
+                  <button className="btn btn-ghost" type="button" onClick={async ()=>{ await onShareLink(); onToast("Share link copied"); }}>
+                    Share Cart
+                  </button>
+                </div>
+
+                <div className="divider" />
+
+                {checkoutOk ? (
+                  <a
+                    className="btn btn-primary"
+                    href={canPay ? STRIPE_PAYMENT_LINK : undefined}
+                    onClick={(e) => { if (!canPay) e.preventDefault(); }}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ opacity: canPay ? 1 : 0.55, pointerEvents: canPay ? "auto" : "none", width:"100%" }}
+                  >
+                    Pay (Apple Pay / Card)
+                  </a>
+                ) : (
+                  <a className="btn btn-primary" href={`mailto:${SUPPORT_EMAIL}`} style={{ width:"100%" }}>
+                    Checkout Setup Needed
+                  </a>
+                )}
+
+                {!checkoutOk && (
+                  <div className="mini" style={{ marginTop: 10 }}>
+                    Paste your Stripe payment link into STRIPE_PAYMENT_LINK at the top of this file.
+                  </div>
+                )}
+                {checkoutOk && !freightOk && (
+                  <div className="mini" style={{ marginTop: 10 }}>
+                    Check the freight acknowledgement to enable checkout.
+                  </div>
+                )}
+              </div>
             </div>
-
-            {!checkoutOk && (
-              <div className="card soft" style={{ marginTop: 14 }}>
-                <p className="mini" style={{ margin: 0 }}>
-                  Paste your Stripe payment link into STRIPE_PAYMENT_LINK at the top of this file.
-                </p>
-              </div>
-            )}
-
-            {checkoutOk && !freightOk && (
-              <div className="card soft" style={{ marginTop: 14 }}>
-                <p className="mini" style={{ margin: 0 }}>
-                  Check the freight acknowledgement above to enable checkout.
-                </p>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -1463,16 +1299,327 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
 }
 
 /* ============================
-   CONTACT
+   DESIGN CENTER (bigger: steps + tips)
    ============================ */
-function Contact() {
+function DesignCenter(){
+  const [path, setPath] = useState("Design It For Me");
+  const [budget, setBudget] = useState(25000);
+  const [notes, setNotes] = useState("");
+  const [contact, setContact] = useState({ name: "", email: "", phone: "" });
+  const [files, setFiles] = useState([]);
+
+  const mailtoHref = useMemo(() => {
+    const subject = encodeURIComponent("Free 3D Design Request — Premier RTA Cabinetry");
+    const bodyLines = [
+      `Path: ${path}`,
+      `Budget: ${usd(budget)}`,
+      ``,
+      `Name: ${contact.name}`,
+      `Email: ${contact.email}`,
+      `Phone: ${contact.phone}`,
+      ``,
+      `Notes:`,
+      notes || "(none)",
+      ``,
+      `Uploads (attach these to this email):`,
+      files.length ? files.map((f) => `- ${f.name}`).join("\n") : "- (none)",
+      ``,
+      `Measurements to include: wall lengths, ceiling height, windows/doors, appliances.`,
+    ];
+    const body = encodeURIComponent(bodyLines.join("\n"));
+    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  }, [path, budget, contact, notes, files]);
+
   return (
     <section className="section">
       <div className="container">
-        <div className="kicker">Contact</div>
-        <h2 style={{ fontSize: 30, marginTop: 10 }}>Premier RTA Cabinetry</h2>
-        <p>Email: <b style={{ color: "var(--text)" }}>{SUPPORT_EMAIL}</b></p>
-        <p>Phone: 800-PREMIER</p>
+        <div className="kicker">Design Center</div>
+        <h2 style={{ fontSize: 32, marginTop: 10 }}>Free 3D Design & Cabinet List</h2>
+        <p>Submit measurements/photos. We return a 3D layout and itemized list before you buy.</p>
+
+        <div className="grid three" style={{ marginTop: 14 }}>
+          {[
+            { t:"1) Send measurements", b:"Wall lengths, ceiling height, windows/doors, appliance sizes." },
+            { t:"2) We design & list", b:"You get a cabinet placement plan and itemized list." },
+            { t:"3) Order confidently", b:"Use your list to shop and checkout online." },
+          ].map(x=>(
+            <div key={x.t} className="card soft">
+              <div style={{ fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700, fontSize:18 }}>{x.t}</div>
+              <p className="mini" style={{ marginTop: 6 }}>{x.b}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid two" style={{ marginTop: 16 }}>
+          <div className="card">
+            <h3 style={{ fontSize: 22 }}>Request (Free)</h3>
+
+            <div className="row" style={{ marginTop: 10 }}>
+              {["Design It For Me","I Have Measurements","I Just Want Advice"].map(p=>(
+                <button
+                  key={p}
+                  type="button"
+                  className={path===p ? "btn btn-primary" : "btn btn-outline"}
+                  onClick={()=>setPath(p)}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            <label style={{ marginTop: 14 }}>Budget comfort</label>
+            <input type="range" min={8000} max={80000} step={1000} value={budget} onChange={(e)=>setBudget(parseInt(e.target.value||"25000"))} />
+            <div className="mini">Target: <b style={{ color:"var(--text)" }}>{usd(budget)}</b></div>
+
+            <div className="grid two" style={{ marginTop: 10 }}>
+              <div>
+                <label>Name</label>
+                <input value={contact.name} onChange={(e)=>setContact(c=>({ ...c, name:e.target.value }))} />
+              </div>
+              <div>
+                <label>Phone</label>
+                <input value={contact.phone} onChange={(e)=>setContact(c=>({ ...c, phone:e.target.value }))} />
+              </div>
+            </div>
+
+            <label>Email</label>
+            <input value={contact.email} onChange={(e)=>setContact(c=>({ ...c, email:e.target.value }))} />
+
+            <label>Upload measurements/photos</label>
+            <input type="file" multiple onChange={(e)=>setFiles(Array.from(e.target.files || []))} />
+            <div className="mini" style={{ marginTop: 6 }}>
+              {files.length ? `Selected: ${files.map(f=>f.name).join(", ")}` : "Add photos/sketches. Attach them after the email opens."}
+            </div>
+
+            <label>Notes</label>
+            <textarea rows={4} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Layout goals, appliances, timeline…" />
+
+            <div className="row" style={{ marginTop: 14 }}>
+              <a className="btn btn-primary" href={mailtoHref}>Request Free Design (Email)</a>
+              <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email</a>
+            </div>
+          </div>
+
+          <div className="card soft">
+            <div className="kicker">Tips</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>What makes the best design request</h3>
+            <ul className="mini" style={{ marginTop: 10, paddingLeft: 18, color:"var(--muted2)" }}>
+              <li>Photos from each corner of the room</li>
+              <li>Appliance sizes (range, fridge, dishwasher)</li>
+              <li>Ceiling height + window/door positions</li>
+              <li>Preferred style: shaker, slab, rift oak, etc.</li>
+              <li>Any “must-haves”: pantry, trash pullout, island</li>
+            </ul>
+
+            <div className="divider" />
+            <div className="kicker">Next</div>
+            <div className="mini">
+              After you get your list, go to <a className="mutedLink" href="#/shop">Shop</a> and add items by SKU.
+            </div>
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href="#/shop">Shop</a>
+              <a className="btn btn-outline" href="#/learn">Customer Guide</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================
+   LEARNING (bigger)
+   ============================ */
+function Learning(){
+  return (
+    <section className="section" style={{ background:"var(--bg2)" }}>
+      <div className="container">
+        <div className="kicker">Learning</div>
+        <h2 style={{ fontSize: 32, marginTop: 10 }}>Customer Guide</h2>
+        <p>Everything customers usually ask — in one clean place.</p>
+
+        <div className="grid two" style={{ marginTop: 14 }}>
+          {LEARNING_TOPICS.map((t) => (
+            <details key={t.title} className="lux">
+              <summary>
+                <span>{t.title}</span>
+                <span className="luxTag">{t.tag}</span>
+              </summary>
+              <p className="mini">{t.body}</p>
+            </details>
+          ))}
+        </div>
+
+        <div className="grid two" style={{ marginTop: 16 }}>
+          <div className="card">
+            <div className="kicker">Accessories</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Common add-ons</h3>
+            <p className="mini">Toe kick, crown, panels, fillers — available in Configurator.</p>
+            <div className="grid two" style={{ marginTop: 10 }}>
+              {ACCESSORIES.slice(0,4).map(a=>(
+                <div key={a.sku} className="card soft" style={{ padding: 14 }}>
+                  <div style={{ fontWeight: 900 }}>{a.sku}</div>
+                  <div className="mini">{a.name}</div>
+                  <div className="mini" style={{ marginTop: 6 }}><b style={{ color:"var(--text)" }}>{usd(a.price)}</b></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card soft">
+            <div className="kicker">Still unsure?</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>We’ll build your list for free</h3>
+            <p className="mini">Use Design Center for a free 3D layout + itemized list.</p>
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href="#/design">Request Free Design</a>
+              <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email Us</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================
+   GALLERY (bigger: filter + “submit your install”)
+   ============================ */
+function Gallery(){
+  const [tag, setTag] = useState("all");
+
+  // simple filter placeholder
+  const items = useMemo(() => {
+    const withTags = GALLERY.map((src, i) => ({
+      src,
+      tag: i % 3 === 0 ? "modern" : i % 3 === 1 ? "classic" : "bright",
+    }));
+    return tag === "all" ? withTags : withTags.filter(x => x.tag === tag);
+  }, [tag]);
+
+  const submitMailto = useMemo(() => {
+    const subject = encodeURIComponent("Install Photo Submission — Premier RTA Cabinetry");
+    const body = encodeURIComponent("Hi Premier team,\n\nHere are install photos to add to the gallery.\nFinish used:\nCity/State:\nNotes:\n\n(Attach photos)\n");
+    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  }, []);
+
+  return (
+    <section className="section">
+      <div className="container">
+        <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
+          <div>
+            <div className="kicker">Gallery</div>
+            <h2 style={{ fontSize: 32, marginTop: 10 }}>Project Inspiration</h2>
+            <p>Placeholders now — replace with your installs and tag the finish used.</p>
+          </div>
+          <a className="btn btn-primary" href={submitMailto}>Submit your install</a>
+        </div>
+
+        <div className="card soft" style={{ marginTop: 14 }}>
+          <div className="grid three">
+            <div>
+              <label>Filter style</label>
+              <select value={tag} onChange={(e)=>setTag(e.target.value)}>
+                <option value="all">All</option>
+                <option value="modern">Modern</option>
+                <option value="classic">Classic</option>
+                <option value="bright">Bright</option>
+              </select>
+            </div>
+            <div className="mini" style={{ alignSelf:"end" }}>
+              Tip: Add “Finish used” tags later to make this feel like a real store.
+            </div>
+            <div style={{ alignSelf:"end" }}>
+              <a className="btn btn-outline" href="#/shop">Shop finishes</a>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid three" style={{ marginTop: 14 }}>
+          {items.map((x,i)=>(
+            <div key={i} className="card" style={{ padding:0, overflow:"hidden" }}>
+              <img src={x.src} alt="Gallery" style={{ width:"100%", height:240, objectFit:"cover" }} />
+              <div style={{ padding: 14 }}>
+                <span className="pill gold" style={{ display:"inline-flex" }}>{x.tag}</span>
+                <div className="mini" style={{ marginTop: 8 }}>Replace with your install + finish tag.</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================
+   CONTACT (bigger: form + hours + location)
+   ============================ */
+function Contact(){
+  const [msg, setMsg] = useState({ name:"", email:"", phone:"", body:"" });
+
+  const mailtoHref = useMemo(() => {
+    const subject = encodeURIComponent("Website Inquiry — Premier RTA Cabinetry");
+    const body = encodeURIComponent(
+      `Name: ${msg.name}\nEmail: ${msg.email}\nPhone: ${msg.phone}\n\nMessage:\n${msg.body}\n`
+    );
+    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  }, [msg]);
+
+  return (
+    <section className="section" style={{ background:"var(--bg2)" }}>
+      <div className="container grid two">
+        <div className="card">
+          <div className="kicker">Contact</div>
+          <h2 style={{ fontSize: 32, marginTop: 10 }}>Premier RTA Cabinetry</h2>
+          <p className="mini">
+            Email: <b style={{ color:"var(--text)" }}>{SUPPORT_EMAIL}</b><br/>
+            Phone: <b style={{ color:"var(--text)" }}>{SUPPORT_PHONE}</b><br/>
+            Location: <b style={{ color:"var(--text)" }}>{WAREHOUSE_LOCATION}</b>
+          </p>
+
+          <div className="divider" />
+          <div className="kicker">Hours</div>
+          <p className="mini" style={{ marginTop: 8 }}>
+            Mon–Fri: 9am–6pm<br/>
+            Sat: 10am–3pm<br/>
+            Sun: Closed
+          </p>
+
+          <div className="row" style={{ marginTop: 12 }}>
+            <a className="btn btn-primary" href="#/design">Free 3D Design</a>
+            <a className="btn btn-outline" href="#/shop">Shop</a>
+          </div>
+        </div>
+
+        <div className="card soft">
+          <div className="kicker">Message</div>
+          <h3 style={{ fontSize: 22, marginTop: 8 }}>Send us a quick note</h3>
+
+          <div className="grid two" style={{ marginTop: 10 }}>
+            <div>
+              <label>Name</label>
+              <input value={msg.name} onChange={(e)=>setMsg(m=>({ ...m, name:e.target.value }))} />
+            </div>
+            <div>
+              <label>Phone</label>
+              <input value={msg.phone} onChange={(e)=>setMsg(m=>({ ...m, phone:e.target.value }))} />
+            </div>
+          </div>
+
+          <label>Email</label>
+          <input value={msg.email} onChange={(e)=>setMsg(m=>({ ...m, email:e.target.value }))} />
+
+          <label>Message</label>
+          <textarea rows={5} value={msg.body} onChange={(e)=>setMsg(m=>({ ...m, body:e.target.value }))} placeholder="Finish, SKUs, measurements, timeline…" />
+
+          <div className="row" style={{ marginTop: 12 }}>
+            <a className="btn btn-primary" href={mailtoHref}>Send Email</a>
+            <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Open Mail</a>
+          </div>
+
+          <div className="mini" style={{ marginTop: 10 }}>
+            This opens your email client with your message prefilled.
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -1481,7 +1628,7 @@ function Contact() {
 /* ============================
    APP
    ============================ */
-export default function App() {
+export default function App(){
   const [hash, setHash] = useState(typeof window !== "undefined" ? (window.location.hash || "#/home") : "#/home");
   const [toast, setToast] = useState("");
 
