@@ -5,7 +5,6 @@ import React, { useEffect, useMemo, useState } from "react";
    ============================ */
 const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_PAYMENT_LINK_HERE"; // Apple Pay + card
 
-// Finish images (optional)
 const FINISH_IMAGES = {
   "hudson-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-1-788x1024.jpg",
   "hudson-cloud-white": "https://tribecacabinetry.com/wp-content/uploads/2025/03/HD-CW-2-788x1024.jpg",
@@ -25,38 +24,38 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
-   GLOBAL STYLES (light luxury)
+   GLOBAL STYLES (Red / White / Black + Gold)
    ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
-        /* light luxury palette */
-        --bg: #fbfaf7;          /* warm off-white */
-        --bg2:#f4f1ea;          /* soft stone */
+        --bg:#ffffff;
+        --bg2:#faf7f1;          /* warm light stone */
         --card:#ffffff;
-        --card2:#faf8f3;
-        --text:#141414;
-        --muted:#3e3e3e;
-        --muted2:#6f6f6f;
+        --card2:#fbf9f4;
 
-        --primary:#0f2a44;      /* deep navy */
-        --primary2:#0b2035;
-        --accent:#b08d57;       /* champagne gold */
-        --accent2:#8d6a3c;
+        --text:#0f0f10;         /* near-black */
+        --muted:#2f2f34;
+        --muted2:#6a6a72;
 
-        --border: rgba(20,20,20,.10);
-        --ring: rgba(15,42,68,.20);
+        --primary:#c0182a;      /* red */
+        --primary2:#9f1322;     /* deeper red */
+        --gold:#b08d57;
+        --gold2:#8d6a3c;
 
-        --shadow: 0 16px 40px rgba(0,0,0,.08);
-        --shadow2: 0 10px 24px rgba(0,0,0,.07);
+        --border: rgba(15,15,16,.12);
+        --ring: rgba(192,24,42,.20);
+
+        --shadow: 0 18px 44px rgba(0,0,0,.10);
+        --shadow2: 0 10px 24px rgba(0,0,0,.08);
       }
 
       html,body{
         margin:0;
         background:
-          radial-gradient(1000px 600px at 20% 0%, rgba(176,141,87,.12), transparent 55%),
-          radial-gradient(900px 600px at 80% 10%, rgba(15,42,68,.08), transparent 60%),
+          radial-gradient(900px 520px at 15% 0%, rgba(176,141,87,.14), transparent 55%),
+          radial-gradient(900px 520px at 85% 10%, rgba(192,24,42,.10), transparent 60%),
           var(--bg);
         color:var(--text);
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -70,10 +69,9 @@ function GlobalStyles() {
       h1,h2,h3{
         margin:0 0 10px;
         font-family: Georgia, "Times New Roman", serif;
-        font-weight:650;
+        font-weight:750;
         letter-spacing:-0.02em;
-        line-height:1.18;
-        color:var(--text);
+        line-height:1.15;
       }
       p{
         margin:10px 0;
@@ -82,22 +80,22 @@ function GlobalStyles() {
       }
 
       .container{ max-width:1200px; margin:0 auto; padding:0 22px; }
-      section.section{ padding:54px 0; }
-      @media(max-width:900px){ section.section{ padding:36px 0; } }
+      section.section{ padding:48px 0; }
+      @media(max-width:900px){ section.section{ padding:32px 0; } }
 
       header.sticky{
         position:sticky;
         top:0;
         z-index:40;
-        background:rgba(251,250,247,.86);
+        background:rgba(255,255,255,.86);
         backdrop-filter: blur(12px);
         border-bottom:1px solid var(--border);
       }
 
       .announce{
-        background: linear-gradient(90deg, rgba(15,42,68,.92), rgba(15,42,68,.92));
+        background: linear-gradient(90deg, var(--text), rgba(15,15,16,.92));
         color:#fff;
-        border-bottom:1px solid rgba(255,255,255,.18);
+        border-bottom:1px solid rgba(255,255,255,.14);
       }
       .announce .container{
         display:flex;
@@ -110,7 +108,11 @@ function GlobalStyles() {
         text-transform:uppercase;
         opacity:.95;
       }
-      .announce a{ text-decoration:underline; text-underline-offset:3px; }
+      .announce a{
+        color:#fff;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
 
       nav a{
         font-size:11px;
@@ -118,12 +120,12 @@ function GlobalStyles() {
         text-transform:uppercase;
         padding:8px 10px;
         border-radius:10px;
-        font-weight:650;
-        color: rgba(20,20,20,.82);
+        font-weight:750;
+        color: rgba(15,15,16,.85);
       }
       nav a:hover{
-        background: rgba(15,42,68,.06);
-        color: rgba(20,20,20,.95);
+        background: rgba(192,24,42,.08);
+        color: rgba(15,15,16,.95);
       }
 
       .kicker{
@@ -131,7 +133,7 @@ function GlobalStyles() {
         letter-spacing:.22em;
         text-transform:uppercase;
         color:var(--muted2);
-        font-weight:750;
+        font-weight:850;
       }
 
       .card{
@@ -141,9 +143,7 @@ function GlobalStyles() {
         padding:18px;
         box-shadow: var(--shadow2);
       }
-      .card.soft{
-        background:var(--card2);
-      }
+      .card.soft{ background:var(--card2); }
 
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns:1fr 1fr; }
@@ -158,30 +158,30 @@ function GlobalStyles() {
         padding:7px 12px;
         border-radius:999px;
         border:1px solid var(--border);
-        background: rgba(255,255,255,.7);
+        background: rgba(255,255,255,.9);
         font-size:12px;
-        font-weight:700;
-        color: rgba(20,20,20,.84);
-      }
-      .pill.primary{
-        background: rgba(15,42,68,.08);
-        border-color: rgba(15,42,68,.18);
-        color: var(--primary);
+        font-weight:850;
+        color: rgba(15,15,16,.85);
       }
       .pill.gold{
-        background: rgba(176,141,87,.14);
-        border-color: rgba(176,141,87,.28);
+        background: rgba(176,141,87,.16);
+        border-color: rgba(176,141,87,.30);
         color: #6c4f24;
+      }
+      .pill.red{
+        background: rgba(192,24,42,.10);
+        border-color: rgba(192,24,42,.22);
+        color: var(--primary2);
       }
 
       .btn{
         display:inline-flex;
         align-items:center;
         justify-content:center;
-        padding:11px 16px;
+        padding:12px 16px;
         border-radius:12px;
         border:1px solid transparent;
-        font-weight:750;
+        font-weight:900;
         cursor:pointer;
         background:transparent;
         transition: transform .12s ease, box-shadow .12s ease, background .12s ease, opacity .12s ease;
@@ -190,19 +190,21 @@ function GlobalStyles() {
       .btn:active{ transform: translateY(0px); box-shadow:none; }
       .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
 
+      /* ✅ buttons POP */
       .btn-primary{
         background: linear-gradient(180deg, var(--primary), var(--primary2));
         color:#fff;
+        box-shadow: 0 12px 24px rgba(192,24,42,.22);
       }
       .btn-outline{
-        border-color: var(--border);
-        background: rgba(255,255,255,.7);
+        border-color: rgba(15,15,16,.18);
+        background: #fff;
         color: var(--text);
       }
       .btn-ghost{
         border-color: transparent;
-        background: rgba(15,42,68,.06);
-        color: var(--primary);
+        background: rgba(15,15,16,.06);
+        color: var(--text);
       }
 
       label{
@@ -210,7 +212,7 @@ function GlobalStyles() {
         letter-spacing:.18em;
         text-transform:uppercase;
         color:var(--muted2);
-        font-weight:750;
+        font-weight:850;
         display:block;
         margin:12px 0 6px;
       }
@@ -220,7 +222,7 @@ function GlobalStyles() {
         padding:11px 12px;
         border-radius:12px;
         border:1px solid var(--border);
-        background: rgba(255,255,255,.9);
+        background: #fff;
         color: var(--text);
         outline:none;
       }
@@ -229,7 +231,7 @@ function GlobalStyles() {
         box-shadow:0 0 0 4px var(--ring);
       }
 
-      /* ✅ Dropdown readability everywhere */
+      /* ✅ dropdown readability */
       select option{ color:#111; background:#fff; }
 
       table{ width:100%; border-collapse:collapse; }
@@ -239,7 +241,7 @@ function GlobalStyles() {
         letter-spacing:.18em;
         text-transform:uppercase;
         color: var(--muted2);
-        font-weight:750;
+        font-weight:850;
       }
 
       .mini{ font-size:13px; color:var(--muted2); line-height:1.65; }
@@ -257,12 +259,29 @@ function GlobalStyles() {
       .stickySide{ position: sticky; top: 92px; align-self:start; }
       @media(max-width:900px){ .stickySide{ position: static; } }
 
+      /* ✅ HOME one-screen layout */
+      .homeOneScreen{
+        padding: 22px 0 18px;
+      }
+      .homeViewport{
+        min-height: calc(100vh - 120px); /* header + announce approx */
+        display:grid;
+        grid-template-columns: 1.25fr .75fr;
+        gap:16px;
+        align-items:stretch;
+      }
+      @media(max-width:900px){
+        .homeViewport{
+          min-height: auto;
+          grid-template-columns:1fr;
+        }
+      }
+
       .hero{
         border:1px solid var(--border);
         border-radius:20px;
         overflow:hidden;
         position:relative;
-        min-height: 520px;
         background:#eee;
         box-shadow: var(--shadow);
       }
@@ -270,15 +289,16 @@ function GlobalStyles() {
         width:100%;
         height:100%;
         object-fit:cover;
-        filter: saturate(1.02) contrast(1.02);
+        filter: saturate(1.03) contrast(1.03);
       }
+      /* ✅ reduce “fade” so buttons stand out */
       .hero::after{
         content:"";
         position:absolute;
         inset:0;
         background:
-          linear-gradient(90deg, rgba(251,250,247,.92) 0%, rgba(251,250,247,.55) 45%, rgba(251,250,247,.25) 100%),
-          radial-gradient(900px 600px at 28% 50%, rgba(176,141,87,.14), transparent 60%);
+          linear-gradient(90deg, rgba(255,255,255,.86) 0%, rgba(255,255,255,.52) 46%, rgba(255,255,255,.20) 100%),
+          radial-gradient(820px 520px at 26% 52%, rgba(176,141,87,.18), transparent 58%);
         pointer-events:none;
       }
       .heroInner{
@@ -288,32 +308,26 @@ function GlobalStyles() {
         align-items:center;
       }
       .heroContent{
-        max-width: 580px;
-        padding: 26px;
+        max-width: 620px;
+        padding: 22px;
       }
-      .heroTitle{
-        font-size: 48px;
-        margin-top: 10px;
-      }
-      .heroSub{
-        color: rgba(20,20,20,.74);
-      }
+      .heroTitle{ font-size: 46px; margin-top: 10px; }
+      .heroSub{ color: rgba(15,15,16,.74); }
       @media(max-width:900px){
         .hero{ min-height: 520px; }
-        .heroTitle{ font-size: 38px; }
-        .heroContent{ padding: 18px; }
+        .heroTitle{ font-size: 36px; }
       }
 
       details.faq{
         border:1px solid var(--border);
         border-radius:14px;
         padding:12px 14px;
-        background: rgba(255,255,255,.75);
+        background: rgba(255,255,255,.92);
       }
       details.faq summary{
         cursor:pointer;
         list-style:none;
-        font-weight:750;
+        font-weight:900;
         color: var(--text);
       }
       details.faq summary::-webkit-details-marker{ display:none; }
@@ -323,7 +337,7 @@ function GlobalStyles() {
         font-size:12px;
         letter-spacing:.12em;
         text-transform:uppercase;
-        color: rgba(15,42,68,.78);
+        color: rgba(15,15,16,.78);
         text-decoration: underline;
         text-underline-offset: 4px;
       }
@@ -336,10 +350,10 @@ function GlobalStyles() {
         z-index: 60;
       }
       .floatingPanel{
-        width: 290px;
+        width: 300px;
         border-radius: 16px;
         border: 1px solid var(--border);
-        background: rgba(255,255,255,.96);
+        background: rgba(255,255,255,.97);
         box-shadow: var(--shadow);
         padding: 14px;
         margin-bottom: 10px;
@@ -350,14 +364,14 @@ function GlobalStyles() {
         transform: translateX(-50%);
         bottom: 18px;
         z-index: 80;
-        background: rgba(255,255,255,.96);
+        background: rgba(255,255,255,.97);
         border: 1px solid var(--border);
         border-radius: 999px;
         padding: 10px 14px;
         box-shadow: var(--shadow);
         font-size: 13px;
-        font-weight: 700;
-        color: rgba(20,20,20,.85);
+        font-weight: 900;
+        color: rgba(15,15,16,.85);
       }
     `}</style>
   );
@@ -399,31 +413,22 @@ function downloadTextFile(filename, text) {
    DATA
    ============================ */
 const FINISH_GROUPS = [
-  {
-    group: "Hudson",
-    finishes: [
-      { id: "hudson-snow-white", name: "Hudson Snow White" },
-      { id: "hudson-cloud-white", name: "Hudson Cloud White" },
-      { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
-      { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
-      { id: "hudson-cashew", name: "Hudson Cashew" },
-    ],
-  },
-  {
-    group: "Soho",
-    finishes: [
-      { id: "soho-snow-white", name: "Soho Snow White" },
-      { id: "soho-empire-blue", name: "Soho Empire Blue" },
-    ],
-  },
-  {
-    group: "Southampton",
-    finishes: [
-      { id: "southampton-snow-white", name: "Southampton Snow White" },
-      { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
-      { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
-    ],
-  },
+  { group: "Hudson", finishes: [
+    { id: "hudson-snow-white", name: "Hudson Snow White" },
+    { id: "hudson-cloud-white", name: "Hudson Cloud White" },
+    { id: "hudson-hearthstone", name: "Hudson Hearthstone" },
+    { id: "hudson-white-rift-oak", name: "Hudson White Rift Oak" },
+    { id: "hudson-cashew", name: "Hudson Cashew" },
+  ]},
+  { group: "Soho", finishes: [
+    { id: "soho-snow-white", name: "Soho Snow White" },
+    { id: "soho-empire-blue", name: "Soho Empire Blue" }, // keep if you want, but theme is red/white/black
+  ]},
+  { group: "Southampton", finishes: [
+    { id: "southampton-snow-white", name: "Southampton Snow White" },
+    { id: "southampton-white-rift-oak", name: "Southampton White Rift Oak" },
+    { id: "southampton-carbon-black-oak", name: "Southampton Carbon Black Oak" },
+  ]},
 ];
 
 function getFinishById(id) {
@@ -434,7 +439,7 @@ function getFinishById(id) {
 /* Pricing */
 const ASSEMBLY_UPCHARGE_PER_CABINET = 99; // change to your real number
 
-/* Catalog (replace wall/tall placeholders with real SKUs/prices when ready) */
+/* Catalog (replace wall/tall placeholders with real SKUs/prices) */
 const CABINET_CATALOG = {
   base: {
     label: "Base Cabinets",
@@ -492,13 +497,6 @@ const GALLERY = [
   "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
 ];
 
-/* Home extras */
-const TESTIMONIALS = [
-  { name: "M. R.", text: "The cabinet list was spot on and the finish looked even better in person." },
-  { name: "S. D.", text: "Shipping was smooth. Easy ordering without a showroom headache." },
-  { name: "K. L.", text: "Design help saved us. We felt confident before we bought anything." },
-];
-
 const FAQS = [
   { q: "RTA vs Assembled — what’s the difference?", a: "RTA ships flat-packed. Assembled arrives built. Assembly pricing shows per cabinet in the cart." },
   { q: "How does freight shipping work?", a: "Most orders ship LTL freight. We confirm freight cost based on destination and order size. Inspect boxes before signing." },
@@ -534,12 +532,8 @@ function AnnouncementBar() {
   return (
     <div className="announce">
       <div className="container">
-        <div>
-          Free 3D Design • Nationwide Shipping • Secure Checkout
-        </div>
-        <div>
-          <a href="#/design">Request Design</a>
-        </div>
+        <div>Free 3D Design • Nationwide Shipping • Secure Checkout</div>
+        <div><a href="#/design">Request Design</a></div>
       </div>
     </div>
   );
@@ -561,11 +555,11 @@ function FloatingHelp() {
       {open && (
         <div className="floatingPanel">
           <div className="kicker">Need help?</div>
-          <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 700, marginTop: 6 }}>
+          <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 850, marginTop: 6 }}>
             Quick Support
           </div>
           <p className="mini" style={{ marginTop: 8 }}>
-            Email us your measurements/photos and we’ll guide your cabinet list.
+            Email measurements/photos and we’ll guide your cabinet list.
           </p>
           <div className="row" style={{ marginTop: 10 }}>
             <a className="btn btn-primary" href={mailto}>Email</a>
@@ -578,12 +572,7 @@ function FloatingHelp() {
         </div>
       )}
 
-      <button
-        className="btn btn-primary"
-        type="button"
-        onClick={() => setOpen(v => !v)}
-        aria-label="Help"
-      >
+      <button className="btn btn-primary" type="button" onClick={() => setOpen(v => !v)}>
         {open ? "Close" : "Need help?"}
       </button>
     </div>
@@ -596,9 +585,9 @@ function FloatingHelp() {
 function Logo() {
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 8, lineHeight: 1 }}>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 750, fontSize: 20 }}>Premier</span>
-      <span style={{ fontWeight: 850, fontSize: 14, color: "var(--accent2)", letterSpacing: ".20em" }}>RTA</span>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 600, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900, fontSize: 20 }}>Premier</span>
+      <span style={{ fontWeight: 950, fontSize: 14, color: "var(--primary)", letterSpacing: ".20em" }}>RTA</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 750, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
     </div>
   );
 }
@@ -633,156 +622,105 @@ function Header({ cartCount }) {
 }
 
 /* ============================
-   HOME
+   HOME (ONE SCREEN, NO FAQ)
    ============================ */
 function Home() {
-  const previewFinishes = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes).slice(0, 6), []);
+  const quickFinishes = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes).slice(0, 3), []);
 
   return (
-    <>
-      <section className="section">
-        <div className="container">
-          <div className="hero">
-            <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
-            <div className="heroInner">
-              <div className="heroContent">
-                <div className="pill gold">Luxury • Clean • Designer-Led</div>
-                <h1 className="heroTitle">A refined way to buy a kitchen.</h1>
-                <p className="heroSub">
-                  Choose a finish, add base/wall/tall cabinets by SKU, and checkout with confidence.
-                  Or request a free 3D layout + cabinet list before you buy.
-                </p>
-                <div className="row" style={{ marginTop: 14 }}>
-                  <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
-                  <a className="btn btn-outline" href="#/design">Request Free 3D Design</a>
-                </div>
-                <div className="row" style={{ marginTop: 14 }}>
-                  <span className="pill primary">Nationwide Shipping</span>
-                  <span className="pill primary">Warehouse Pickup</span>
-                  <span className="pill primary">Secure Checkout</span>
-                </div>
-                <div style={{ marginTop: 10 }}>
-                  <a className="smallLink" href="#/learn">How ordering works →</a>
-                </div>
+    <section className="homeOneScreen">
+      <div className="container homeViewport">
+        {/* LEFT: HERO */}
+        <div className="hero">
+          <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
+          <div className="heroInner">
+            <div className="heroContent">
+              <div className="row">
+                <span className="pill gold">Gold accents</span>
+                <span className="pill red">Red • White • Black</span>
+              </div>
+
+              <h1 className="heroTitle">A refined way to buy cabinets.</h1>
+              <p className="heroSub">
+                Choose a finish. Add base/wall/tall cabinets by SKU. Checkout confidently.
+                If you want a full plan first — we’ll create a free 3D layout + cabinet list.
+              </p>
+
+              <div className="row" style={{ marginTop: 14 }}>
+                <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
+                <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+              </div>
+
+              <div className="row" style={{ marginTop: 14 }}>
+                <span className="pill">Nationwide Shipping</span>
+                <span className="pill">Warehouse Pickup</span>
+                <span className="pill">Secure Checkout</span>
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <a className="smallLink" href="#/learn">Questions? Read the Learning Center →</a>
               </div>
             </div>
           </div>
-
-          <div className="grid four" style={{ marginTop: 18 }}>
-            {[
-              ["Designer Support", "Get a layout + cabinet list before you spend."],
-              ["Shop by SKU", "Search SKUs, set heights/depths, add to cart."],
-              ["Freight Shipping", "LTL freight with inspection guidance."],
-              ["Finish Options", "Tribeca finishes curated for timeless kitchens."],
-            ].map(([title, body]) => (
-              <div key={title} className="card soft">
-                <div className="kicker">{title}</div>
-                <p className="mini" style={{ margin: "10px 0 0" }}>{body}</p>
-              </div>
-            ))}
-          </div>
         </div>
-      </section>
 
-      <section className="section" style={{ background: "var(--bg2)" }}>
-        <div className="container">
-          <div className="kicker">Shop Faster</div>
-          <h2 style={{ fontSize: 30, marginTop: 10 }}>Shop by Cabinet Type</h2>
-          <p>Start with the core pieces. Add panels, crown, toe kick, fillers next.</p>
-
-          <div className="grid three" style={{ marginTop: 14 }}>
-            {[
-              { title: "Base Cabinets", body: "The foundation of the layout.", href: "#/shop" },
-              { title: "Wall Cabinets", body: "Upper storage with clean lines.", href: "#/shop" },
-              { title: "Tall / Pantry", body: "Anchor walls with vertical storage.", href: "#/shop" },
-            ].map((x) => (
-              <div key={x.title} className="card">
-                <h3 style={{ fontSize: 18 }}>{x.title}</h3>
-                <p className="mini">{x.body}</p>
-                <a className="btn btn-outline" href={x.href}>Choose a finish</a>
-              </div>
-            ))}
+        {/* RIGHT: ACTIONS (compact, no-scroll) */}
+        <div style={{ display: "grid", gap: 16 }}>
+          {/* shop by type */}
+          <div className="card">
+            <div className="kicker">Start Here</div>
+            <h3 style={{ fontSize: 18, marginTop: 8 }}>Shop by Cabinet Type</h3>
+            <div className="grid three" style={{ marginTop: 12 }}>
+              {[
+                { t: "Base", d: "Foundation", href: "#/shop" },
+                { t: "Wall", d: "Uppers", href: "#/shop" },
+                { t: "Tall", d: "Pantry", href: "#/shop" },
+              ].map(x => (
+                <a key={x.t} href={x.href} className="card soft" style={{ padding: 14, textAlign: "center" }}>
+                  <div style={{ fontWeight: 950 }}>{x.t}</div>
+                  <div className="mini">{x.d}</div>
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
 
-      <section className="section">
-        <div className="container">
-          <div className="kicker">Finishes</div>
-          <h2 style={{ fontSize: 30, marginTop: 10 }}>Customer favorites</h2>
-          <p>Click a finish to configure cabinets and add to cart.</p>
-
-          <div className="grid three" style={{ marginTop: 14 }}>
-            {previewFinishes.map((f) => (
-              <a key={f.id} href={`#/shop/${f.id}`} className="card" style={{ display: "block" }}>
-                <div className="finish-img">
-                  <img src={imgForFinish(f.id)} alt={f.name} />
-                </div>
-                <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
-                  <div style={{ fontWeight: 800 }}>{f.name}</div>
-                  <span className="pill gold">Configure</span>
-                </div>
-                <p className="mini">Add base/wall/tall cabinets in this finish.</p>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section" style={{ background: "var(--bg2)" }}>
-        <div className="container">
-          <div className="kicker">Reviews</div>
-          <h2 style={{ fontSize: 30, marginTop: 10 }}>Trusted by homeowners & contractors</h2>
-          <p>Replace these with real reviews as you collect them.</p>
-
-          <div className="grid three" style={{ marginTop: 14 }}>
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="card soft">
-                <p style={{ marginTop: 0 }}>"{t.text}"</p>
-                <div className="mini">— <b style={{ color: "var(--text)" }}>{t.name}</b></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <div className="kicker">FAQ</div>
-          <h2 style={{ fontSize: 30, marginTop: 10 }}>Quick answers</h2>
-          <p>Clear FAQs reduce hesitation.</p>
-
-          <div className="grid two" style={{ marginTop: 14 }}>
-            {FAQS.map((f) => (
-              <details key={f.q} className="faq">
-                <summary>{f.q}</summary>
-                <p className="mini">{f.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section" style={{ background: "var(--bg2)" }}>
-        <div className="container">
-          <div className="card" style={{ padding: 22 }}>
+          {/* quick finishes */}
+          <div className="card">
             <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
               <div>
-                <div className="kicker">Need guidance?</div>
-                <h2 style={{ fontSize: 30, marginTop: 10 }}>Get a free 3D plan before you buy</h2>
-                <p className="mini">
-                  Send measurements/photos. We return a layout + cabinet list for a confident order.
-                </p>
+                <div className="kicker">Quick Picks</div>
+                <h3 style={{ fontSize: 18, marginTop: 8 }}>Popular finishes</h3>
               </div>
-              <div className="row">
-                <a className="btn btn-primary" href="#/design">Request Free Design</a>
-                <a className="btn btn-outline" href="#/shop">Shop Finishes</a>
-              </div>
+              <a className="smallLink" href="#/shop">All finishes →</a>
+            </div>
+
+            <div className="grid three" style={{ marginTop: 12 }}>
+              {quickFinishes.map(f => (
+                <a key={f.id} href={`#/shop/${f.id}`} className="card soft" style={{ padding: 10 }}>
+                  <div className="finish-img">
+                    <img src={imgForFinish(f.id)} alt={f.name} style={{ height: 110 }} />
+                  </div>
+                  <div style={{ marginTop: 8, fontWeight: 900, fontSize: 13 }}>{f.name}</div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* keep the Need Guidance CTA */}
+          <div className="card soft">
+            <div className="kicker">Need guidance?</div>
+            <h3 style={{ fontSize: 18, marginTop: 8 }}>Get a free 3D plan before you buy</h3>
+            <p className="mini" style={{ marginTop: 6 }}>
+              Send measurements/photos. We return a layout + cabinet list so you order confidently.
+            </p>
+            <div className="row" style={{ marginTop: 10 }}>
+              <a className="btn btn-primary" href="#/design">Request Free Design</a>
+              <a className="btn btn-outline" href="#/shop">Shop Now</a>
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
 
@@ -811,8 +749,8 @@ function ShopList() {
                     <img src={imgForFinish(f.id)} alt={f.name} />
                   </div>
                   <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
-                    <div style={{ fontWeight: 800 }}>{f.name}</div>
-                    <span className="pill primary">Finish</span>
+                    <div style={{ fontWeight: 950 }}>{f.name}</div>
+                    <span className="pill red">Finish</span>
                   </div>
                   <p className="mini">Configure base/wall/tall cabinets in this finish.</p>
                   <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
@@ -900,7 +838,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
             <div className="divider" />
 
             <div className="row">
-              <span className="pill primary">Lead time: 2–5 weeks (typical)</span>
+              <span className="pill red">Lead time: 2–5 weeks (typical)</span>
               <span className="pill gold">Warranty: Limited</span>
             </div>
           </div>
@@ -909,7 +847,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
         <div className="stickySide" style={{ display: "grid", gap: 16 }}>
           <div className="card soft">
             <div className="row" style={{ justifyContent: "space-between" }}>
-              <div style={{ fontWeight: 900 }}>Mini Cart</div>
+              <div style={{ fontWeight: 950 }}>Mini Cart</div>
               <span className="pill">{cartCount} items</span>
             </div>
             <div className="mini" style={{ marginTop: 8 }}>
@@ -1142,7 +1080,7 @@ function DesignCenter() {
 }
 
 /* ============================
-   LEARNING
+   LEARNING (FAQ moved here)
    ============================ */
 function Learning() {
   const items = [
@@ -1167,6 +1105,20 @@ function Learning() {
               <h3 style={{ fontSize: 18 }}>{it.title}</h3>
               <p className="mini">{it.body}</p>
             </div>
+          ))}
+        </div>
+
+        <div className="divider" />
+
+        <div className="kicker">FAQ</div>
+        <h2 style={{ fontSize: 26, marginTop: 10 }}>Quick answers</h2>
+
+        <div className="grid two" style={{ marginTop: 14 }}>
+          {FAQS.map((f) => (
+            <details key={f.q} className="faq">
+              <summary>{f.q}</summary>
+              <p className="mini">{f.a}</p>
+            </details>
           ))}
         </div>
       </div>
@@ -1210,7 +1162,6 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
 
   const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
   const [freightOk, setFreightOk] = useState(false);
-
   const canPay = checkoutOk && cart.length > 0 && freightOk;
 
   return (
@@ -1227,7 +1178,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
           <>
             <div className="card soft" style={{ marginTop: 14 }}>
               <div className="row" style={{ justifyContent: "space-between" }}>
-                <span className="pill primary">Freight shipping is quoted after order</span>
+                <span className="pill red">Freight shipping is quoted after order</span>
                 <span className="pill gold">Export + share tools below</span>
               </div>
               <div className="mini" style={{ marginTop: 10 }}>
@@ -1290,24 +1241,16 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, fontSize: 18 }}>
-              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 700 }}>{usd(subtotal)}</span>
+              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 850 }}>{usd(subtotal)}</span>
             </div>
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
               <div className="row">
                 <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
-                <button
-                  className="btn btn-outline"
-                  type="button"
-                  onClick={() => { onExportCSV(); onToast("CSV exported"); }}
-                >
+                <button className="btn btn-outline" type="button" onClick={() => { onExportCSV(); onToast("CSV exported"); }}>
                   Export CSV
                 </button>
-                <button
-                  className="btn btn-ghost"
-                  type="button"
-                  onClick={async () => { await onShareLink(); onToast("Share link copied"); }}
-                >
+                <button className="btn btn-ghost" type="button" onClick={async () => { await onShareLink(); onToast("Share link copied"); }}>
                   Share Cart
                 </button>
               </div>
@@ -1390,7 +1333,6 @@ export default function App() {
 
   useEffect(() => { localStorage.setItem("premier_cart", JSON.stringify(cart)); }, [cart]);
 
-  // Toast auto-clear
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 1800);
@@ -1399,7 +1341,7 @@ export default function App() {
 
   const onToast = (msg) => setToast(msg);
 
-  // ✅ Auto-load shared cart links: #/cart?data=XXXX
+  // Auto-load shared cart links: #/cart?data=XXXX
   useEffect(() => {
     if (route !== "cart") return;
     const data = params?.data;
@@ -1409,7 +1351,7 @@ export default function App() {
       const parsed = JSON.parse(decoded);
       if (Array.isArray(parsed)) {
         setCart(parsed);
-        window.location.hash = "/cart"; // clean URL
+        window.location.hash = "/cart";
         setToast("Cart loaded");
       }
     } catch {
@@ -1463,11 +1405,9 @@ export default function App() {
     const payload = JSON.stringify(cart);
     const token = b64urlEncode(payload);
     const url = `${window.location.origin}${window.location.pathname}#/cart?data=${token}`;
-
     try {
       await navigator.clipboard.writeText(url);
     } catch {
-      // fallback
       prompt("Copy this share link:", url);
     }
   };
