@@ -4,43 +4,22 @@ import React, { useEffect, useMemo, useState } from "react";
    CONFIG
    ============================ */
 const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_PAYMENT_LINK_HERE";
-
 const SUPPORT_EMAIL = "premier@premierkm.com";
 const SUPPORT_PHONE = "800-PREMIER";
 const SHOWROOM_ADDRESS = "3761D Victory Blvd, Staten Island, NY";
 
-const SAMPLE_PRICE = 25; // door sample price (edit)
-const ASSEMBLY_UPCHARGE_PER_CABINET = 99; // edit if needed
+const SAMPLE_PRICE = 25; // door sample price
+const SAMPLE_CREDIT_PLACEHOLDER = 25; // placeholder credit (cart UI only)
+const ASSEMBLY_UPCHARGE_PER_CABINET = 99;
 
-/* Optional: manual inventory + lead times */
-const FINISH_LEAD_TIMES = {
-  default: "2–5 weeks",
-  "soho-empire-blue": "3–6 weeks",
-};
-const SKU_INVENTORY = {
-  // examples — expand anytime
-  B30: "In stock",
-  B36: "Low stock",
-  T24: "Backorder",
-};
-const SKU_LEAD_TIMES = {
-  default: "2–5 weeks",
-  T24: "4–8 weeks",
-};
-
-/* ============================
-   FINISH IMAGES
-   ============================ */
 const FINISH_IMAGES = {
   "hudson-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-1-788x1024.jpg",
   "hudson-cloud-white": "https://tribecacabinetry.com/wp-content/uploads/2025/03/HD-CW-2-788x1024.jpg",
   "hudson-hearthstone": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-788x1024.jpg",
   "hudson-white-rift-oak": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_7-788x1024.jpg",
   "hudson-cashew": "https://tribecacabinetry.com/wp-content/uploads/2025/05/HD-CA-4-788x1024.jpg",
-
   "soho-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_4-788x1024.jpg",
   "soho-empire-blue": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_EP-rev-788x1024.jpg",
-
   "southampton-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_7-1-788x1024.jpg",
   "southampton-white-rift-oak": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_6-788x1024.jpg",
   "southampton-carbon-black-oak": "https://tribecacabinetry.com/wp-content/uploads/2025/03/STH-CBO-2-788x1024.jpg",
@@ -50,7 +29,7 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
-   GLOBAL STYLES (Luxury: Red / White / Black + Gold touches)
+   GLOBAL STYLES
    ============================ */
 function GlobalStyles() {
   return (
@@ -69,8 +48,6 @@ function GlobalStyles() {
         --primary2:#9f1322;
 
         --gold:#b08d57;
-        --gold2:#8d6a3c;
-
         --border: rgba(15,15,16,.12);
         --ring: rgba(192,24,42,.18);
 
@@ -201,22 +178,6 @@ function GlobalStyles() {
         color: var(--primary2);
       }
 
-      .badge{
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        padding:6px 10px;
-        border-radius:999px;
-        border:1px solid var(--border);
-        background: rgba(255,255,255,.92);
-        font-size:12px;
-        font-weight:800;
-        color: rgba(15,15,16,.86);
-      }
-      .badge.in{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); }
-      .badge.low{ border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10); }
-      .badge.back{ border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10); }
-
       .btn{
         display:inline-flex;
         align-items:center;
@@ -314,37 +275,6 @@ function GlobalStyles() {
       }
       .heroImage img{ width:100%; height:100%; object-fit:cover; }
 
-      details.lux{
-        border:1px solid var(--border);
-        border-radius:16px;
-        padding:14px 14px;
-        background: rgba(255,255,255,.92);
-        box-shadow: var(--shadow2);
-      }
-      details.lux summary{
-        cursor:pointer;
-        list-style:none;
-        font-weight:900;
-        color: var(--text);
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:12px;
-      }
-      details.lux summary::-webkit-details-marker{ display:none; }
-      details.lux p{ margin:10px 0 0; color: var(--muted); }
-      .luxTag{
-        font-size:11px;
-        letter-spacing:.16em;
-        text-transform:uppercase;
-        color: rgba(15,15,16,.60);
-        font-weight:850;
-        border:1px solid rgba(15,15,16,.14);
-        padding:6px 10px;
-        border-radius:999px;
-        background: rgba(255,255,255,.9);
-      }
-
       .floatingHelp{
         position: fixed;
         right: 16px;
@@ -375,16 +305,6 @@ function GlobalStyles() {
         font-weight: 900;
         color: rgba(15,15,16,.88);
       }
-
-      .mutedLink{
-        font-size:12px;
-        letter-spacing:.12em;
-        text-transform:uppercase;
-        color: rgba(15,15,16,.70);
-        text-decoration: underline;
-        text-underline-offset: 4px;
-      }
-      .mutedLink:hover{ color: var(--primary); }
 
       .footer{
         border-top:1px solid var(--border);
@@ -431,14 +351,6 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-function getInventoryBadge(status) {
-  const s = (status || "").toLowerCase();
-  if (s.includes("low")) return { cls: "low", text: status };
-  if (s.includes("back")) return { cls: "back", text: status };
-  if (s.includes("in")) return { cls: "in", text: status };
-  return { cls: "", text: status || "—" };
-}
-
 /* ============================
    DATA
    ============================ */
@@ -465,19 +377,6 @@ function getFinishById(id) {
   for (const g of FINISH_GROUPS) for (const f of g.finishes) if (f.id === id) return f;
   return FINISH_GROUPS[0].finishes[0];
 }
-
-const FINISH_NOTES = {
-  "hudson-snow-white": { undertone: "clean / bright", hardware: "matte black, nickel, brass", counters: "quartz, marble-look", vibe: "timeless" },
-  "hudson-cloud-white": { undertone: "soft warm", hardware: "brass, nickel", counters: "warm whites", vibe: "soft luxury" },
-  "hudson-hearthstone": { undertone: "warm greige", hardware: "black, bronze", counters: "warm quartz", vibe: "classic warm" },
-  "hudson-white-rift-oak": { undertone: "natural oak", hardware: "black, brass", counters: "white quartz", vibe: "modern classic" },
-  "hudson-cashew": { undertone: "warm tan", hardware: "brass, black", counters: "warm whites", vibe: "cozy" },
-  "soho-snow-white": { undertone: "clean / bright", hardware: "black, nickel", counters: "white quartz", vibe: "modern" },
-  "soho-empire-blue": { undertone: "deep blue", hardware: "brass, nickel", counters: "white quartz", vibe: "statement" },
-  "southampton-snow-white": { undertone: "clean / bright", hardware: "black, brass", counters: "marble-look", vibe: "classic" },
-  "southampton-white-rift-oak": { undertone: "natural oak", hardware: "black, brass", counters: "white quartz", vibe: "warm modern" },
-  "southampton-carbon-black-oak": { undertone: "deep black", hardware: "brass, black", counters: "white quartz", vibe: "bold luxury" },
-};
 
 const CABINET_CATALOG = {
   base: {
@@ -538,46 +437,16 @@ const ACCESSORIES = [
   { sku: "LR96", name: "Light Rail (96\")", price: 85 },
 ];
 
+const CASE_STUDIES = [
+  { title:"Bright classic kitchen", location:"Staten Island, NY", finishId:"hudson-snow-white", cabinetCount:18, range:"$9k–$14k (example)", image:"https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop" },
+  { title:"Warm oak + white quartz", location:"New Jersey", finishId:"southampton-white-rift-oak", cabinetCount:20, range:"$11k–$16k (example)", image:"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1400&auto=format&fit=crop" },
+  { title:"Bold pantry wall", location:"Pennsylvania", finishId:"southampton-carbon-black-oak", cabinetCount:16, range:"$10k–$15k (example)", image:"https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1400&auto=format&fit=crop" },
+];
+
 const REVIEWS = [
   { name: "M. R.", text: "Cabinet list was spot on. Finish looked even better in person.", meta: "Homeowner • NY" },
   { name: "S. D.", text: "Smooth delivery and easy ordering. Great support when I had questions.", meta: "Contractor • NJ" },
   { name: "K. L.", text: "Design help saved us time. Shopping by SKU was way easier than showrooms.", meta: "Homeowner • PA" },
-];
-
-const CASE_STUDIES = [
-  {
-    title: "Bright classic kitchen",
-    location: "Staten Island, NY",
-    finishId: "hudson-snow-white",
-    cabinetCount: 18,
-    range: "$9k–$14k (example)",
-    image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop",
-  },
-  {
-    title: "Warm oak + white quartz",
-    location: "New Jersey",
-    finishId: "southampton-white-rift-oak",
-    cabinetCount: 20,
-    range: "$11k–$16k (example)",
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1400&auto=format&fit=crop",
-  },
-  {
-    title: "Bold pantry wall",
-    location: "Pennsylvania",
-    finishId: "southampton-carbon-black-oak",
-    cabinetCount: 16,
-    range: "$10k–$15k (example)",
-    image: "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1400&auto=format&fit=crop",
-  },
-];
-
-/* Learning topics (no “common add-ons” block, no “door samples” block) */
-const LEARNING_TOPICS = [
-  { tag: "Ordering", title: "RTA vs Assembled", body: `RTA ships flat-packed. Assembled arrives built. Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet and shows in your cart.` },
-  { tag: "Measuring", title: "What to measure", body: "Wall lengths, ceiling height, window/door positions, and appliance sizes. Photos from each corner help a lot." },
-  { tag: "Shipping", title: "Freight (LTL) & delivery day", body: "Freight is quoted after order. Inspect packaging before signing and take photos of any damage. Liftgate/appointment options affect freight cost." },
-  { tag: "Support", title: "Damages & replacements", body: "Report issues quickly with photos. Policies vary by order type and timing — email us and we’ll guide you through the fastest resolution path." },
-  { tag: "Install", title: "Install basics", body: "Start level, find studs, hang uppers first, then bases. Use shims and a long level. Ask for install recommendations if needed." },
 ];
 
 /* ============================
@@ -589,7 +458,7 @@ function parseRouteFromHash(hash) {
   const h = (pathPart || "").trim().toLowerCase();
   const parts = h.split("/");
   const first = parts[0] || "home";
-  const valid = ["home", "shop", "design", "learn", "gallery", "cart", "contact", "trade"];
+  const valid = ["home", "shop", "design", "learn", "gallery", "cart", "contact"];
   const route = valid.includes(first) ? first : "home";
   const sub = parts[1];
   const params = {};
@@ -622,7 +491,7 @@ function Toast({ text }) {
 function FloatingHelp() {
   const [open, setOpen] = useState(false);
   const mailto = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Quick Question — Premier RTA Cabinetry")}&body=${encodeURIComponent(
-    `Hi Premier team,\n\nI have a question about:\n- Finish:\n- Cabinets/SKUs:\n- Measurements:\n- Shipping (residential/liftgate/appointment):\n\nThanks!\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
+    `Hi Premier team,\n\nI have a question about:\n- Finish:\n- Cabinets/SKUs:\n- Measurements:\n\nThanks!\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
   )}`;
 
   return (
@@ -634,7 +503,7 @@ function FloatingHelp() {
             Quick Support
           </div>
           <p className="mini" style={{ marginTop: 8 }}>
-            Visit our Staten Island showroom or email measurements/photos — we’ll guide your cabinet list.
+            Visit the showroom or email measurements/photos — we’ll guide your cabinet list.
           </p>
           <div className="row" style={{ marginTop: 10 }}>
             <a className="btn btn-primary" href={mailto}>Email</a>
@@ -642,7 +511,6 @@ function FloatingHelp() {
           </div>
           <div className="row" style={{ marginTop: 8 }}>
             <a className="btn btn-ghost" href="#/shop">Shop</a>
-            <a className="btn btn-ghost" href="#/trade">Trade</a>
             <a className="btn btn-ghost" href="#/contact">Contact</a>
           </div>
         </div>
@@ -696,9 +564,8 @@ function Header({ cartCount, projects, currentProjectId, onSwitchProject, onCrea
     ["#/home", "Home"],
     ["#/shop", "Shop"],
     ["#/design", "Design Center"],
-    ["#/learn", "Resources"],
+    ["#/learn", "Learning"],
     ["#/gallery", "Gallery"],
-    ["#/trade", "Trade"],
     ["#/cart", `Cart (${cartCount})`],
     ["#/contact", "Contact"],
   ];
@@ -750,13 +617,13 @@ function Home() {
             <div className="row" style={{ marginTop: 14 }}>
               <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
               <a className="btn btn-outline" href="#/design">Free 3D Design</a>
-              <a className="btn btn-ghost" href="#/trade">Trade</a>
+              <a className="btn btn-ghost" href="#/contact">Visit / Contact</a>
             </div>
 
             <div className="row" style={{ marginTop: 14 }}>
               <span className="pill">Nationwide Freight</span>
               <span className="pill">Local Pickup</span>
-              <span className="pill gold">Designer Support</span>
+              <span className="pill gold">Gold hardware pairs</span>
             </div>
 
             <div className="divider" />
@@ -777,21 +644,21 @@ function Home() {
         <div className="grid three" style={{ marginTop: 16 }}>
           <div className="card soft">
             <div className="kicker">Door samples</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Try before you buy</h3>
-            <p className="mini">Order samples in Shop. Apply sample credit at checkout (placeholder).</p>
-            <a className="mutedLink" href="#/shop">Go to Shop →</a>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Order a sample</h3>
+            <p className="mini">Try a sample before committing. Order from Shop. Apply a sample credit later (placeholder).</p>
+            <a className="btn btn-primary" href="#/shop">Shop + Samples</a>
           </div>
           <div className="card soft">
-            <div className="kicker">Shipping options</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Freight estimator</h3>
-            <p className="mini">Choose residential/commercial + liftgate + appointment and see a range.</p>
-            <a className="mutedLink" href="#/cart">Go to Cart →</a>
+            <div className="kicker">Shipping</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Freight done right</h3>
+            <p className="mini">Residential/commercial, liftgate, appointment — set options at checkout so the quote is accurate.</p>
+            <a className="btn btn-outline" href="#/cart">Checkout tools</a>
           </div>
           <div className="card soft">
-            <div className="kicker">Install resources</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Checklists + guides</h3>
-            <p className="mini">Download delivery & install checklists in Resources.</p>
-            <a className="mutedLink" href="#/learn">Open Resources →</a>
+            <div className="kicker">Design help</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>We’ll build your list</h3>
+            <p className="mini">Send measurements/photos. We return a 3D plan + itemized SKUs.</p>
+            <a className="btn btn-primary" href="#/design">Design Center</a>
           </div>
         </div>
       </div>
@@ -800,23 +667,12 @@ function Home() {
 }
 
 /* ============================
-   SHOP (search + compare + samples + inventory badges)
+   SHOP (samples)
    ============================ */
 function ShopList({ onAddSample }) {
   const [group, setGroup] = useState("all");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("az");
-
-  const finishesFlat = useMemo(() => FINISH_GROUPS.flatMap(g=>g.finishes), []);
-  const [compare, setCompare] = useState([]);
-
-  const toggleCompare = (id) => {
-    setCompare(prev => {
-      if (prev.includes(id)) return prev.filter(x => x !== id);
-      if (prev.length >= 3) return prev;
-      return [...prev, id];
-    });
-  };
 
   const results = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -836,16 +692,12 @@ function ShopList({ onAddSample }) {
       .filter(g => g.finishes.length > 0);
   }, [group, q, sort]);
 
-  const compareFinishes = compare.map(id => finishesFlat.find(f=>f.id===id)).filter(Boolean);
-
-  const leadForFinish = (id) => FINISH_LEAD_TIMES[id] || FINISH_LEAD_TIMES.default;
-
   return (
     <section className="section">
       <div className="container">
         <div className="kicker">Shop</div>
-        <h2 style={{ fontSize: 32, marginTop: 10 }}>Finishes, Samples, and Compare</h2>
-        <p>Search finishes, order door samples, compare undertones, and start building by SKU.</p>
+        <h2 style={{ fontSize: 32, marginTop: 10 }}>Finishes + Door Samples</h2>
+        <p>Search finishes, then configure cabinets by SKU. Order door samples anytime.</p>
 
         <div className="card soft" style={{ marginTop: 14 }}>
           <div className="grid three">
@@ -868,49 +720,11 @@ function ShopList({ onAddSample }) {
               </select>
             </div>
           </div>
+
           <div className="mini" style={{ marginTop: 10 }}>
-            Compare: select up to 3 finishes. Door sample price: <b style={{ color:"var(--text)" }}>{usd(SAMPLE_PRICE)}</b>.
+            Door sample price: <b style={{ color:"var(--text)" }}>{usd(SAMPLE_PRICE)}</b>. Showroom: <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b>.
           </div>
         </div>
-
-        {compareFinishes.length > 0 && (
-          <div className="card" style={{ marginTop: 16 }}>
-            <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
-              <div>
-                <div className="kicker">Compare</div>
-                <h3 style={{ fontSize: 22, marginTop: 8 }}>Selected finishes</h3>
-              </div>
-              <button className="btn btn-outline" type="button" onClick={()=>setCompare([])}>Clear compare</button>
-            </div>
-
-            <div className="grid three" style={{ marginTop: 14 }}>
-              {compareFinishes.map(f=>{
-                const notes = FINISH_NOTES[f.id] || {};
-                return (
-                  <div key={f.id} className="card soft">
-                    <div className="finish-img">
-                      <img src={imgForFinish(f.id)} alt={f.name} style={{ height: 160 }} />
-                    </div>
-                    <div style={{ marginTop: 10, fontWeight: 900 }}>{f.name}</div>
-                    <div className="row" style={{ marginTop: 10 }}>
-                      <span className="pill gold">Lead: {leadForFinish(f.id)}</span>
-                    </div>
-                    <div className="mini" style={{ marginTop: 8 }}>
-                      <b>Undertone:</b> {notes.undertone || "—"}<br/>
-                      <b>Hardware:</b> {notes.hardware || "—"}<br/>
-                      <b>Counters:</b> {notes.counters || "—"}<br/>
-                      <b>Vibe:</b> {notes.vibe || "—"}
-                    </div>
-                    <div className="row" style={{ marginTop: 12 }}>
-                      <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
-                      <button className="btn btn-outline" type="button" onClick={()=>onAddSample(f.id, f.name)}>Order sample</button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {results.map(g=>(
           <div key={g.group} style={{ marginTop: 22 }}>
@@ -930,23 +744,7 @@ function ShopList({ onAddSample }) {
                     <span className="pill red">Finish</span>
                   </div>
 
-                  <div className="row" style={{ marginTop: 10 }}>
-                    <span className="pill gold">Lead: {leadForFinish(f.id)}</span>
-                  </div>
-
-                  <div className="row" style={{ marginTop: 10 }}>
-                    <label style={{ margin:0, letterSpacing:".10em", textTransform:"uppercase", fontSize:11, color:"var(--muted2)" }}>
-                      Compare
-                    </label>
-                    <input
-                      type="checkbox"
-                      checked={compare.includes(f.id)}
-                      onChange={()=>toggleCompare(f.id)}
-                      style={{ width:18, height:18 }}
-                    />
-                  </div>
-
-                  <p className="mini">Configure cabinets in this finish — or order a sample.</p>
+                  <p className="mini">Configure cabinets by SKU or order a door sample.</p>
 
                   <div className="row" style={{ marginTop: 10 }}>
                     <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
@@ -964,7 +762,7 @@ function ShopList({ onAddSample }) {
 }
 
 /* ============================
-   CONFIGURATOR (inventory badges + samples + accessories)
+   CONFIGURATOR
    ============================ */
 function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, onAddSample }) {
   const finish = getFinishById(finishId);
@@ -1010,21 +808,13 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
     catalogItems[0];
 
   const assemblyFeeEach = assembly === "assembled" ? ASSEMBLY_UPCHARGE_PER_CABINET : 0;
-  const lineTotal = ((chosen?.price ?? 0) + assemblyFeeEach) * qty;
+  const unitTotal = (chosen?.price ?? 0) + assemblyFeeEach;
+  const lineTotal = unitTotal * qty;
 
-  const cartSubtotal = useMemo(() => {
-    return cart.reduce((s, it) => {
-      const assemblyLine = (it.assemblyFeeEach || 0) * it.qty;
-      return s + it.unitPrice * it.qty + assemblyLine;
-    }, 0);
-  }, [cart]);
+  const totals = useMemo(() => computeCartTotals(cart), [cart]);
 
-  const cartCount = useMemo(() => cart.reduce((s, it) => s + it.qty, 0), [cart]);
+  const cartCount = useMemo(() => cart.reduce((s,it)=>s+it.qty,0), [cart]);
   const dimsLabel = `${chosen?.width ?? "-"}" W × ${height}" H × ${depth}" D`;
-
-  const inv = SKU_INVENTORY[chosen?.sku] || "—";
-  const invBadge = getInventoryBadge(inv);
-  const skuLead = SKU_LEAD_TIMES[chosen?.sku] || SKU_LEAD_TIMES.default;
 
   const accItem = ACCESSORIES.find(a => a.sku === accSku) || ACCESSORIES[0];
 
@@ -1040,18 +830,19 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
           <div style={{ padding: 18 }}>
             <div className="kicker">Tribeca Finish</div>
             <h2 style={{ fontSize: 28, marginTop: 10 }}>{finish.name}</h2>
-            <p className="mini">Add cabinets by SKU — plus accessories. Inventory/lead-time badges help set expectations.</p>
+            <p className="mini">Add cabinets by SKU — plus accessories. Order a sample if you want to see the finish in your space.</p>
 
             <div className="row" style={{ marginTop: 10 }}>
               <button className="btn btn-outline" type="button" onClick={()=>onAddSample(finish.id, finish.name)}>
                 Order sample ({usd(SAMPLE_PRICE)})
               </button>
-              <a className="btn btn-ghost" href="#/design">Free 3D Design</a>
+              <a className="btn btn-ghost" href="#/design">Design Center</a>
             </div>
 
             <div className="divider" />
             <div className="row">
-              <span className="pill gold">Finish lead: {FINISH_LEAD_TIMES[finish.id] || FINISH_LEAD_TIMES.default}</span>
+              <span className="pill red">Lead time: 2–5 weeks (typical)</span>
+              <span className="pill gold">Freight quoted after order</span>
               <span className="pill">Showroom: {SHOWROOM_ADDRESS}</span>
             </div>
           </div>
@@ -1063,9 +854,16 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
               <div style={{ fontWeight: 900 }}>Mini Cart</div>
               <span className="pill">{cartCount} items</span>
             </div>
+
             <div className="mini" style={{ marginTop: 8 }}>
-              Subtotal: <b style={{ color: "var(--text)" }}>{usd(cartSubtotal)}</b>
+              Cabinets: <b style={{ color:"var(--text)" }}>{usd(totals.cabinetsSubtotal)}</b><br/>
+              Accessories: <b style={{ color:"var(--text)" }}>{usd(totals.accessoriesSubtotal)}</b><br/>
+              Samples: <b style={{ color:"var(--text)" }}>{usd(totals.samplesSubtotal)}</b><br/>
+              Assembly: <b style={{ color:"var(--text)" }}>{usd(totals.assemblySubtotal)}</b>
+              <div className="divider" />
+              Subtotal: <b style={{ color:"var(--text)" }}>{usd(totals.subtotal)}</b>
             </div>
+
             <div className="row" style={{ marginTop: 12 }}>
               <a className="btn btn-primary" href="#/cart">Go to cart</a>
               <button className="btn btn-outline" type="button" onClick={() => { onExportCartCSV(); onToast("CSV exported"); }}>
@@ -1102,11 +900,6 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
               ))}
             </select>
 
-            <div className="row" style={{ marginTop: 10 }}>
-              <span className={`badge ${invBadge.cls}`}>Inventory: {invBadge.text}</span>
-              <span className="badge">Lead: {skuLead}</span>
-            </div>
-
             <div className="grid two" style={{ marginTop: 8 }}>
               <div>
                 <label>Height</label>
@@ -1127,12 +920,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
             </div>
 
             <label>Quantity</label>
-            <input
-              type="number"
-              min={1}
-              value={qty}
-              onChange={(e) => setQty(Math.max(1, parseInt(e.target.value || "1")))}
-            />
+            <input type="number" min={1} value={qty} onChange={(e) => setQty(Math.max(1, parseInt(e.target.value || "1")))} />
 
             <div className="card soft" style={{ marginTop: 14 }}>
               <div className="mini" style={{ display: "grid", gap: 6 }}>
@@ -1155,7 +943,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
                     qty,
                     unitPrice: chosen.price,
                     assembly,
-                    assemblyFeeEach: assembly === "assembled" ? ASSEMBLY_UPCHARGE_PER_CABINET : 0,
+                    assemblyFeeEach: assemblyFeeEach,
                     width: chosen.width,
                     height,
                     depth,
@@ -1170,7 +958,6 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
 
             <div className="divider" />
             <h3 style={{ fontSize: 18, margin: "0 0 6px" }}>Accessories</h3>
-            <div className="mini">Toe kick, panels, fillers, crown.</div>
 
             <label style={{ marginTop: 10 }}>Accessory</label>
             <select value={accSku} onChange={(e)=>setAccSku(e.target.value)}>
@@ -1182,12 +969,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
             </select>
 
             <label>Qty</label>
-            <input
-              type="number"
-              min={1}
-              value={accQty}
-              onChange={(e)=>setAccQty(Math.max(1, parseInt(e.target.value || "1")))}
-            />
+            <input type="number" min={1} value={accQty} onChange={(e)=>setAccQty(Math.max(1, parseInt(e.target.value || "1")))} />
 
             <div className="row" style={{ marginTop: 12 }}>
               <button
@@ -1211,7 +993,6 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
               >
                 Add accessory
               </button>
-              <a className="btn btn-outline" href="#/learn">Install resources</a>
             </div>
           </div>
         </div>
@@ -1221,123 +1002,131 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
 }
 
 /* ============================
-   CART (itemized totals + shipping estimator + sample credit + project packet)
+   CART UTIL: itemized totals
    ============================ */
-function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
-  const [freightOk, setFreightOk] = useState(false);
+function computeCartTotals(cart) {
+  let cabinetsSubtotal = 0;
+  let accessoriesSubtotal = 0;
+  let samplesSubtotal = 0;
+  let assemblySubtotal = 0;
 
-  // Shipping estimator inputs
-  const [ship, setShip] = useState({
-    zip: "",
-    type: "residential",
-    liftgate: true,
-    appointment: true,
-  });
+  for (const it of cart) {
+    const lineBase = (it.unitPrice || 0) * (it.qty || 0);
+    const lineAssembly = (it.assemblyFeeEach || 0) * (it.qty || 0);
 
-  // sample shipping + credit
-  const [sampleShip, setSampleShip] = useState({ name:"", address:"", city:"", state:"", zip:"" });
-  const [applySampleCredit, setApplySampleCredit] = useState(false);
+    if (it.cabinetType === "accessory") accessoriesSubtotal += lineBase;
+    else if (it.cabinetType === "sample") samplesSubtotal += lineBase;
+    else cabinetsSubtotal += lineBase;
 
-  const lineSums = useMemo(() => {
-    const sums = {
-      cabinets: 0,
-      accessories: 0,
-      samples: 0,
-      assembly: 0,
-    };
-    for (const it of cart) {
-      const assemblyLine = (it.assemblyFeeEach || 0) * it.qty;
-      const baseLine = it.unitPrice * it.qty;
+    assemblySubtotal += lineAssembly;
+  }
 
-      if (it.cabinetType === "sample") sums.samples += baseLine;
-      else if (it.cabinetType === "accessory") sums.accessories += baseLine;
-      else sums.cabinets += baseLine;
+  const subtotal = cabinetsSubtotal + accessoriesSubtotal + samplesSubtotal + assemblySubtotal;
 
-      sums.assembly += assemblyLine;
-    }
-    return sums;
-  }, [cart]);
+  return { cabinetsSubtotal, accessoriesSubtotal, samplesSubtotal, assemblySubtotal, subtotal };
+}
 
-  const subtotal = useMemo(() => {
-    return lineSums.cabinets + lineSums.accessories + lineSums.samples + lineSums.assembly;
-  }, [lineSums]);
-
-  // Placeholder sample credit: apply up to sample subtotal as discount
-  const sampleCredit = useMemo(() => {
-    if (!applySampleCredit) return 0;
-    return Math.min(lineSums.samples, subtotal); // placeholder behavior
-  }, [applySampleCredit, lineSums.samples, subtotal]);
-
-  const totalAfterCredit = useMemo(() => Math.max(0, subtotal - sampleCredit), [subtotal, sampleCredit]);
+/* ============================
+   CART (shipping estimator + sample credit + project packet)
+   ============================ */
+function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast, projectName, measurementSummaryText }) {
+  const totals = useMemo(() => computeCartTotals(cart), [cart]);
 
   const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
-  const canPay = checkoutOk && cart.length > 0 && freightOk;
+  const [freightOk, setFreightOk] = useState(false);
 
-  // shipping range (simple heuristic)
-  const shipRange = useMemo(() => {
-    if (!ship.zip || ship.zip.trim().length < 5) return null;
-    let base = ship.type === "commercial" ? 350 : 450;
-    if (ship.liftgate) base += 75;
-    if (ship.appointment) base += 35;
-    const low = Math.round(base * 0.85);
-    const high = Math.round(base * 1.25);
+  // shipping estimator options
+  const [shipType, setShipType] = useState("residential"); // residential | commercial
+  const [liftgate, setLiftgate] = useState(true);
+  const [appointment, setAppointment] = useState(true);
+  const [zip, setZip] = useState("");
+
+  // sample credit placeholder
+  const [applySampleCredit, setApplySampleCredit] = useState(true);
+
+  const estimatedFreight = useMemo(() => {
+    // heuristic: base range depends on type; liftgate/appointment add
+    const baseLow = shipType === "commercial" ? 350 : 450;
+    const baseHigh = shipType === "commercial" ? 650 : 850;
+
+    const addLift = liftgate ? 75 : 0;
+    const addAppt = appointment ? 50 : 0;
+
+    // simple: if zip entered, slightly “tighten” range; otherwise keep wide
+    const tighten = zip.trim().length >= 5 ? 0.85 : 1;
+
+    const low = Math.round((baseLow + addLift + addAppt) * tighten);
+    const high = Math.round((baseHigh + addLift + addAppt) * (tighten ? 1 : 1.15));
+
     return { low, high };
-  }, [ship]);
+  }, [shipType, liftgate, appointment, zip]);
+
+  const sampleCredit = applySampleCredit ? Math.min(SAMPLE_CREDIT_PLACEHOLDER, totals.samplesSubtotal) : 0;
+  const totalAfterCredit = Math.max(0, totals.subtotal - sampleCredit);
+
+  const canPay = checkoutOk && cart.length > 0 && freightOk;
 
   const [notes, setNotes] = useState("");
 
   const emailQuoteHref = useMemo(() => {
-    const subject = encodeURIComponent("Cart / Quote Review — Premier RTA Cabinetry");
+    const subject = encodeURIComponent(`Cart / Quote Review — ${projectName || "Premier Project"}`);
     const lines = cart.map(it => {
       const size = `${it.width ?? "-"}W x ${it.height ?? "-"}H x ${it.depth ?? "-"}D`;
       const assembly = it.assembly === "assembled" ? `Assembled (+${it.assemblyFeeEach || 0}/ea)` : "RTA";
       return `- ${it.finishName} | ${it.cabinetTypeLabel} | ${it.sku} | ${size} | Qty ${it.qty} | ${assembly}`;
     });
 
-    const shipLine = shipRange ? `Estimated freight range: ${usd(shipRange.low)}–${usd(shipRange.high)}` : "Estimated freight range: (enter ZIP)";
+    const shipLine =
+      `Shipping options:\n- Type: ${shipType}\n- Liftgate: ${liftgate ? "Yes" : "No"}\n- Appointment: ${appointment ? "Yes" : "No"}\n- Zip: ${zip || "-"}\n`;
+
     const body = encodeURIComponent(
       `Hi Premier team,\n\nPlease review my cart / quote:\n\n${lines.join("\n")}\n\n` +
-      `Itemized:\n- Cabinets: ${usd(lineSums.cabinets)}\n- Accessories: ${usd(lineSums.accessories)}\n- Samples: ${usd(lineSums.samples)}\n- Assembly: ${usd(lineSums.assembly)}\nSubtotal: ${usd(subtotal)}\n` +
-      (applySampleCredit ? `Sample credit applied (placeholder): -${usd(sampleCredit)}\n` : "") +
-      `Total after credit: ${usd(totalAfterCredit)}\n\n` +
-      `Shipping prefs:\n- ZIP: ${ship.zip}\n- Type: ${ship.type}\n- Liftgate: ${ship.liftgate ? "Yes" : "No"}\n- Appointment: ${ship.appointment ? "Yes" : "No"}\n${shipLine}\n\n` +
-      `Sample shipping (if applicable):\nName: ${sampleShip.name}\nAddress: ${sampleShip.address}\nCity/State/ZIP: ${sampleShip.city}, ${sampleShip.state} ${sampleShip.zip}\n\n` +
-      `Notes:\n${notes || "(none)"}\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
-    );
-    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [cart, notes, subtotal, ship, shipRange, lineSums, applySampleCredit, sampleCredit, totalAfterCredit, sampleShip]);
-
-  const downloadDeliveryChecklist = () => {
-    downloadTextFile(
-      "delivery-checklist.txt",
-      `Premier RTA Cabinetry — Delivery Checklist\n\n` +
-      `1) Inspect packaging before signing.\n` +
-      `2) Take photos of any damage.\n` +
-      `3) Count boxes and compare to BOL if provided.\n` +
-      `4) Email ${SUPPORT_EMAIL} with photos + notes.\n\n` +
+      `Itemized totals:\n- Cabinets: ${usd(totals.cabinetsSubtotal)}\n- Accessories: ${usd(totals.accessoriesSubtotal)}\n- Samples: ${usd(totals.samplesSubtotal)}\n- Assembly: ${usd(totals.assemblySubtotal)}\nSubtotal: ${usd(totals.subtotal)}\n` +
+      `Sample credit applied (placeholder): ${usd(sampleCredit)}\nTotal after credit: ${usd(totalAfterCredit)}\n\n` +
+      `${shipLine}\nCustomer notes:\n${notes || "(none)"}\n\n` +
       `Showroom: ${SHOWROOM_ADDRESS}\n`
     );
-  };
+    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  }, [cart, notes, totals, shipType, liftgate, appointment, zip, sampleCredit, totalAfterCredit, projectName]);
 
-  const downloadInstallChecklist = () => {
-    downloadTextFile(
-      "install-checklist.txt",
-      `Premier RTA Cabinetry — Install Checklist\n\n` +
-      `Tools: level, shims, drill/driver, stud finder, tape, clamps.\n` +
-      `1) Mark studs + level lines.\n` +
-      `2) Hang uppers first.\n` +
-      `3) Level bases with shims.\n` +
-      `4) Check reveals/doors.\n` +
-      `5) Add fillers/panels, then crown/light rail.\n\n` +
-      `Support: ${SUPPORT_EMAIL}\n`
-    );
-  };
-
-  const projectPacket = () => {
+  const exportProjectPacket = () => {
+    // CSV
     onExportCSV();
-    downloadDeliveryChecklist();
-    downloadInstallChecklist();
-    onToast("Project packet downloaded");
+
+    // Measurements summary (if provided from Design Center wizard)
+    const measurementText = measurementSummaryText?.trim()
+      ? measurementSummaryText.trim()
+      : "No measurement summary saved for this project yet. Use Design Center to create one.";
+
+    // Delivery checklist
+    const deliveryChecklist =
+`Premier RTA Cabinetry — Delivery Checklist
+
+Before delivery:
+- Confirm delivery address + phone number
+- Choose Residential vs Commercial
+- Liftgate needed? (Yes/No)
+- Appointment needed? (Yes/No)
+- Clear pathway for boxes
+
+On delivery day:
+- Inspect packaging BEFORE signing
+- Take photos of any visible damage
+- Note issues on the delivery receipt
+- Count boxes/pallets
+
+After delivery:
+- Open boxes carefully
+- Save labels + paperwork
+- Report issues quickly with photos to: ${SUPPORT_EMAIL}
+
+Showroom/Warehouse:
+${SHOWROOM_ADDRESS}
+`;
+
+    downloadTextFile(`${projectName || "project"}-measurements.txt`, measurementText + "\n");
+    downloadTextFile(`${projectName || "project"}-delivery-checklist.txt`, deliveryChecklist);
+    onToast("Project Packet exported");
   };
 
   return (
@@ -1359,22 +1148,74 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
             <div className="card soft" style={{ marginTop: 14 }}>
               <div className="row" style={{ justifyContent: "space-between" }}>
                 <span className="pill red">Freight shipping is quoted after order</span>
-                <span className="pill gold">Lead time: {SKU_LEAD_TIMES.default} (typical)</span>
+                <span className="pill gold">Lead time: 2–5 weeks (typical)</span>
               </div>
-              <div className="mini" style={{ marginTop: 10 }}>
-                Most orders ship LTL freight. We’ll confirm final freight based on destination and order size.
-              </div>
-              <div className="row" style={{ marginTop: 10 }}>
-                <input
-                  id="freight-ok"
-                  type="checkbox"
-                  checked={freightOk}
-                  onChange={(e) => setFreightOk(e.target.checked)}
-                  style={{ width: 18, height: 18 }}
-                />
-                <label htmlFor="freight-ok" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "var(--muted)" }}>
-                  I understand freight will be quoted separately.
-                </label>
+
+              <div className="grid two" style={{ marginTop: 12 }}>
+                <div>
+                  <div className="kicker">Shipping options</div>
+                  <div className="grid two" style={{ marginTop: 10 }}>
+                    <div>
+                      <label>Type</label>
+                      <select value={shipType} onChange={(e)=>setShipType(e.target.value)}>
+                        <option value="residential">Residential</option>
+                        <option value="commercial">Commercial</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label>ZIP</label>
+                      <input value={zip} onChange={(e)=>setZip(e.target.value)} placeholder="e.g. 10314" />
+                    </div>
+                  </div>
+
+                  <div className="row" style={{ marginTop: 10 }}>
+                    <input type="checkbox" checked={liftgate} onChange={(e)=>setLiftgate(e.target.checked)} style={{ width:18, height:18 }} />
+                    <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Liftgate</label>
+
+                    <input type="checkbox" checked={appointment} onChange={(e)=>setAppointment(e.target.checked)} style={{ width:18, height:18 }} />
+                    <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Appointment</label>
+                  </div>
+
+                  <div className="mini" style={{ marginTop: 10 }}>
+                    Estimated freight range: <b style={{ color:"var(--text)" }}>{usd(estimatedFreight.low)} – {usd(estimatedFreight.high)}</b> (ballpark)
+                  </div>
+
+                  <div className="row" style={{ marginTop: 10 }}>
+                    <input
+                      id="freight-ok"
+                      type="checkbox"
+                      checked={freightOk}
+                      onChange={(e) => setFreightOk(e.target.checked)}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <label htmlFor="freight-ok" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "var(--muted)" }}>
+                      I understand freight will be quoted separately.
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="kicker">Itemized totals</div>
+                  <div className="mini" style={{ marginTop: 10 }}>
+                    Cabinets: <b style={{ color:"var(--text)" }}>{usd(totals.cabinetsSubtotal)}</b><br/>
+                    Accessories: <b style={{ color:"var(--text)" }}>{usd(totals.accessoriesSubtotal)}</b><br/>
+                    Samples: <b style={{ color:"var(--text)" }}>{usd(totals.samplesSubtotal)}</b><br/>
+                    Assembly: <b style={{ color:"var(--text)" }}>{usd(totals.assemblySubtotal)}</b>
+                    <div className="divider" />
+                    Subtotal: <b style={{ color:"var(--text)" }}>{usd(totals.subtotal)}</b>
+                  </div>
+
+                  <div className="row" style={{ marginTop: 10 }}>
+                    <input type="checkbox" checked={applySampleCredit} onChange={(e)=>setApplySampleCredit(e.target.checked)} style={{ width:18, height:18 }} />
+                    <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>
+                      Apply sample credit (placeholder): {usd(sampleCredit)}
+                    </label>
+                  </div>
+
+                  <div className="mini" style={{ marginTop: 10 }}>
+                    Total after credit: <b style={{ color:"var(--text)" }}>{usd(totalAfterCredit)}</b>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1420,133 +1261,6 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
               </table>
             </div>
 
-            {/* Itemized totals */}
-            <div className="card soft" style={{ marginTop: 14 }}>
-              <div className="kicker">Itemized totals</div>
-              <div className="grid two" style={{ marginTop: 10 }}>
-                <div className="mini">
-                  Cabinets: <b style={{ color:"var(--text)" }}>{usd(lineSums.cabinets)}</b><br/>
-                  Accessories: <b style={{ color:"var(--text)" }}>{usd(lineSums.accessories)}</b><br/>
-                  Door samples: <b style={{ color:"var(--text)" }}>{usd(lineSums.samples)}</b><br/>
-                  Assembly: <b style={{ color:"var(--text)" }}>{usd(lineSums.assembly)}</b>
-                </div>
-                <div className="mini">
-                  Subtotal: <b style={{ color:"var(--text)" }}>{usd(subtotal)}</b><br/>
-                  Sample credit (placeholder): <b style={{ color:"var(--text)" }}>-{usd(sampleCredit)}</b><br/>
-                  Total after credit: <b style={{ color:"var(--text)" }}>{usd(totalAfterCredit)}</b>
-                </div>
-              </div>
-
-              <div className="row" style={{ marginTop: 12 }}>
-                <input
-                  id="sample-credit"
-                  type="checkbox"
-                  checked={applySampleCredit}
-                  onChange={(e)=>setApplySampleCredit(e.target.checked)}
-                  style={{ width:18, height:18 }}
-                />
-                <label htmlFor="sample-credit" style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>
-                  Apply sample credit to order (placeholder)
-                </label>
-              </div>
-            </div>
-
-            {/* Shipping estimator */}
-            <div className="grid two" style={{ marginTop: 16 }}>
-              <div className="card">
-                <div className="kicker">Shipping estimator</div>
-                <h3 style={{ fontSize: 22, marginTop: 8 }}>Delivery options</h3>
-
-                <div className="grid two" style={{ marginTop: 10 }}>
-                  <div>
-                    <label>ZIP</label>
-                    <input value={ship.zip} onChange={(e)=>setShip(s=>({ ...s, zip:e.target.value }))} placeholder="e.g. 10314" />
-                  </div>
-                  <div>
-                    <label>Delivery type</label>
-                    <select value={ship.type} onChange={(e)=>setShip(s=>({ ...s, type:e.target.value }))}>
-                      <option value="residential">Residential</option>
-                      <option value="commercial">Commercial</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="row" style={{ marginTop: 10 }}>
-                  <input
-                    id="liftgate"
-                    type="checkbox"
-                    checked={ship.liftgate}
-                    onChange={(e)=>setShip(s=>({ ...s, liftgate:e.target.checked }))}
-                    style={{ width:18, height:18 }}
-                  />
-                  <label htmlFor="liftgate" style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>
-                    Liftgate needed
-                  </label>
-                </div>
-
-                <div className="row" style={{ marginTop: 10 }}>
-                  <input
-                    id="appt"
-                    type="checkbox"
-                    checked={ship.appointment}
-                    onChange={(e)=>setShip(s=>({ ...s, appointment:e.target.checked }))}
-                    style={{ width:18, height:18 }}
-                  />
-                  <label htmlFor="appt" style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>
-                    Appointment delivery
-                  </label>
-                </div>
-
-                <div className="divider" />
-                <div className="mini">
-                  Estimated freight range:{" "}
-                  <b style={{ color:"var(--text)" }}>
-                    {shipRange ? `${usd(shipRange.low)} – ${usd(shipRange.high)}` : "Enter ZIP"}
-                  </b>
-                </div>
-
-                <div className="mini" style={{ marginTop: 10 }}>
-                  Final freight confirmed after order based on order size + destination.
-                </div>
-              </div>
-
-              {/* Sample shipping */}
-              <div className="card soft">
-                <div className="kicker">Door sample shipping</div>
-                <h3 style={{ fontSize: 22, marginTop: 8 }}>Where should samples ship?</h3>
-
-                <div className="grid two" style={{ marginTop: 10 }}>
-                  <div>
-                    <label>Name</label>
-                    <input value={sampleShip.name} onChange={(e)=>setSampleShip(s=>({ ...s, name:e.target.value }))} />
-                  </div>
-                  <div>
-                    <label>ZIP</label>
-                    <input value={sampleShip.zip} onChange={(e)=>setSampleShip(s=>({ ...s, zip:e.target.value }))} />
-                  </div>
-                </div>
-
-                <label>Address</label>
-                <input value={sampleShip.address} onChange={(e)=>setSampleShip(s=>({ ...s, address:e.target.value }))} />
-
-                <div className="grid two" style={{ marginTop: 10 }}>
-                  <div>
-                    <label>City</label>
-                    <input value={sampleShip.city} onChange={(e)=>setSampleShip(s=>({ ...s, city:e.target.value }))} />
-                  </div>
-                  <div>
-                    <label>State</label>
-                    <input value={sampleShip.state} onChange={(e)=>setSampleShip(s=>({ ...s, state:e.target.value }))} />
-                  </div>
-                </div>
-
-                <div className="mini" style={{ marginTop: 10 }}>
-                  If you’re visiting: <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes + tools + packet */}
             <div className="grid two" style={{ marginTop: 16 }}>
               <div className="card soft">
                 <div className="kicker">Order notes</div>
@@ -1555,21 +1269,25 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
                 <div className="row" style={{ marginTop: 12 }}>
                   <a className="btn btn-primary" href={emailQuoteHref} onClick={()=>onToast("Email draft opened")}>Email quote</a>
                   <button className="btn btn-outline" type="button" onClick={()=>{ onExportCSV(); onToast("CSV exported"); }}>Export CSV</button>
-                  <button className="btn btn-ghost" type="button" onClick={projectPacket}>Project Packet</button>
                 </div>
                 <div className="mini" style={{ marginTop: 10 }}>
-                  Packet downloads: cart CSV + delivery checklist + install checklist.
+                  Showroom: <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b>
                 </div>
               </div>
 
               <div className="card">
-                <div className="kicker">Checkout</div>
-                <h3 style={{ fontSize: 20, marginTop: 8 }}>Pay online</h3>
-
+                <div className="kicker">Tools</div>
+                <h3 style={{ fontSize: 20, marginTop: 8 }}>Save & export</h3>
                 <div className="row" style={{ marginTop: 12 }}>
                   <button className="btn btn-outline" type="button" onClick={onClear}>Clear cart</button>
                   <button className="btn btn-ghost" type="button" onClick={async ()=>{ await onShareLink(); onToast("Share link copied"); }}>
                     Share cart
+                  </button>
+                </div>
+
+                <div className="row" style={{ marginTop: 12 }}>
+                  <button className="btn btn-outline" type="button" onClick={exportProjectPacket}>
+                    Export Project Packet
                   </button>
                 </div>
 
@@ -1612,29 +1330,64 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
 }
 
 /* ============================
-   DESIGN CENTER (includes measurement wizard + shipping prefs)
+   DESIGN CENTER (tools live here now)
    ============================ */
-function DesignCenter() {
+function DesignCenter({ onSaveMeasurementSummary, savedMeasurementSummary }) {
   const [path, setPath] = useState("Design It For Me");
   const [budget, setBudget] = useState(25000);
   const [notes, setNotes] = useState("");
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [files, setFiles] = useState([]);
 
+  // Measurement wizard (moved here)
   const [wiz, setWiz] = useState({
     ceiling: "",
     wallA: "",
     wallB: "",
     windowsDoors: "",
     appliances: "",
+    notes: ""
   });
 
-  const [shipPref, setShipPref] = useState({
-    zip: "",
-    type: "residential",
-    liftgate: true,
-    appointment: true,
-  });
+  const measurementSummaryText = useMemo(() => {
+    return (
+`Premier RTA Cabinetry — Measurement Summary
+
+Showroom/Warehouse:
+${SHOWROOM_ADDRESS}
+
+Ceiling height: ${wiz.ceiling || "-"}
+Wall A length: ${wiz.wallA || "-"}
+Wall B length: ${wiz.wallB || "-"}
+Windows/doors: ${wiz.windowsDoors || "-"}
+Appliances: ${wiz.appliances || "-"}
+Notes: ${wiz.notes || "-"}
+
+(Attach photos/sketches when emailing.)
+`
+    );
+  }, [wiz]);
+
+  // Quick price calc (moved here)
+  const [linFeet, setLinFeet] = useState(20);
+  const [uppers, setUppers] = useState(6);
+  const [pantry, setPantry] = useState(false);
+  const [calcAssembly, setCalcAssembly] = useState(false);
+
+  const estRange = useMemo(() => {
+    const base = linFeet * 450 + uppers * 300 + (pantry ? 800 : 0);
+    const assembly = calcAssembly ? (Math.round((linFeet * 2 + uppers + (pantry ? 1 : 0))) * ASSEMBLY_UPCHARGE_PER_CABINET) : 0;
+    const total = base + assembly;
+    const low = Math.round(total * 0.8);
+    const high = Math.round(total * 1.2);
+    return { low, high };
+  }, [linFeet, uppers, pantry, calcAssembly]);
+
+  const wizardEmailHref = useMemo(() => {
+    const subject = encodeURIComponent("Measurements — Premier RTA Cabinetry");
+    const body = encodeURIComponent(measurementSummaryText);
+    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  }, [measurementSummaryText]);
 
   const mailtoHref = useMemo(() => {
     const subject = encodeURIComponent("Free 3D Design Request — Premier RTA Cabinetry");
@@ -1647,42 +1400,122 @@ function DesignCenter() {
       `Email: ${contact.email}`,
       `Phone: ${contact.phone}`,
       ``,
-      `Measurements:`,
-      `Ceiling: ${wiz.ceiling || "-"}`,
-      `Wall A: ${wiz.wallA || "-"}`,
-      `Wall B: ${wiz.wallB || "-"}`,
-      `Windows/Doors: ${wiz.windowsDoors || "-"}`,
-      `Appliances: ${wiz.appliances || "-"}`,
-      ``,
-      `Shipping preferences:`,
-      `ZIP: ${shipPref.zip || "-"}`,
-      `Type: ${shipPref.type}`,
-      `Liftgate: ${shipPref.liftgate ? "Yes" : "No"}`,
-      `Appointment: ${shipPref.appointment ? "Yes" : "No"}`,
-      ``,
       `Notes:`,
       notes || "(none)",
+      ``,
+      `Measurement summary (paste or see attached):`,
+      measurementSummaryText,
       ``,
       `Uploads (attach these to this email):`,
       files.length ? files.map((f) => `- ${f.name}`).join("\n") : "- (none)",
     ];
     const body = encodeURIComponent(bodyLines.join("\n"));
     return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [path, budget, contact, notes, files, wiz, shipPref]);
+  }, [path, budget, contact, notes, files, measurementSummaryText]);
 
   return (
     <section className="section">
       <div className="container">
         <div className="kicker">Design Center</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>Free 3D Design & Cabinet List</h2>
+        <h2 style={{ fontSize: 34, marginTop: 10 }}>Free 3D Design + Measurement Tools</h2>
         <p>
-          From our showroom/warehouse at <b>{SHOWROOM_ADDRESS}</b>, we’ve helped customers for years plan kitchens the right way.
-          Now we’re offering that same guidance online — and shipping RTA nationwide.
+          We’ve served customers for years from Staten Island — now shipping RTA nationwide with designer-led support.
+          Use the tools below to send clean measurements and request a free 3D plan.
         </p>
 
         <div className="grid two" style={{ marginTop: 16 }}>
           <div className="card">
-            <h3 style={{ fontSize: 22 }}>Request (Free)</h3>
+            <div className="kicker">Measurement Wizard</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Send measurements in 60 seconds</h3>
+
+            <div className="grid two" style={{ marginTop: 10 }}>
+              <div>
+                <label>Ceiling height</label>
+                <input value={wiz.ceiling} onChange={(e)=>setWiz(w=>({ ...w, ceiling:e.target.value }))} placeholder='e.g. 96"' />
+              </div>
+              <div>
+                <label>Wall A length</label>
+                <input value={wiz.wallA} onChange={(e)=>setWiz(w=>({ ...w, wallA:e.target.value }))} placeholder='e.g. 144"' />
+              </div>
+              <div>
+                <label>Wall B length</label>
+                <input value={wiz.wallB} onChange={(e)=>setWiz(w=>({ ...w, wallB:e.target.value }))} placeholder='e.g. 120"' />
+              </div>
+              <div>
+                <label>Windows/doors</label>
+                <input value={wiz.windowsDoors} onChange={(e)=>setWiz(w=>({ ...w, windowsDoors:e.target.value }))} placeholder="sizes + locations" />
+              </div>
+            </div>
+
+            <label>Appliances</label>
+            <input value={wiz.appliances} onChange={(e)=>setWiz(w=>({ ...w, appliances:e.target.value }))} placeholder="range/fridge/dishwasher sizes" />
+
+            <label>Notes</label>
+            <textarea rows={3} value={wiz.notes} onChange={(e)=>setWiz(w=>({ ...w, notes:e.target.value }))} placeholder="pantry? island? timeline?" />
+
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href={wizardEmailHref}>Email measurements</a>
+              <button
+                className="btn btn-outline"
+                type="button"
+                onClick={()=>{
+                  onSaveMeasurementSummary(measurementSummaryText);
+                }}
+              >
+                Save to project
+              </button>
+              <button
+                className="btn btn-ghost"
+                type="button"
+                onClick={()=>{
+                  downloadTextFile("measurements.txt", measurementSummaryText);
+                }}
+              >
+                Download
+              </button>
+            </div>
+
+            {savedMeasurementSummary?.trim?.() && (
+              <div className="mini" style={{ marginTop: 10 }}>
+                <b style={{ color:"var(--text)" }}>Saved to this project.</b>
+              </div>
+            )}
+          </div>
+
+          <div className="card soft">
+            <div className="kicker">Quick price calculator</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Ballpark range (not a quote)</h3>
+
+            <label>Base run (linear feet)</label>
+            <input type="number" min={1} value={linFeet} onChange={(e)=>setLinFeet(Math.max(1, parseInt(e.target.value || "1")))} />
+
+            <label># of upper cabinets</label>
+            <input type="number" min={0} value={uppers} onChange={(e)=>setUppers(Math.max(0, parseInt(e.target.value || "0")))} />
+
+            <div className="row" style={{ marginTop: 10 }}>
+              <input type="checkbox" checked={pantry} onChange={(e)=>setPantry(e.target.checked)} style={{ width:18, height:18 }} />
+              <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Include pantry/tall cabinet</label>
+            </div>
+
+            <div className="row" style={{ marginTop: 10 }}>
+              <input type="checkbox" checked={calcAssembly} onChange={(e)=>setCalcAssembly(e.target.checked)} style={{ width:18, height:18 }} />
+              <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Include assembled</label>
+            </div>
+
+            <div className="divider" />
+            <div style={{ fontSize: 18, fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700 }}>
+              Estimated range: {usd(estRange.low)} – {usd(estRange.high)}
+            </div>
+            <div className="mini" style={{ marginTop: 10 }}>
+              Freight/tax not included. For an exact list, request a free 3D design.
+            </div>
+          </div>
+        </div>
+
+        <div className="grid two" style={{ marginTop: 16 }}>
+          <div className="card">
+            <div className="kicker">Free 3D design request</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Request (Free)</h3>
 
             <div className="row" style={{ marginTop: 10 }}>
               {["Design It For Me","I Have Measurements","I Just Want Advice"].map(p=>(
@@ -1715,7 +1548,7 @@ function DesignCenter() {
             <label>Email</label>
             <input value={contact.email} onChange={(e)=>setContact(c=>({ ...c, email:e.target.value }))} />
 
-            <label>Upload measurements/photos</label>
+            <label>Upload photos/sketches</label>
             <input type="file" multiple onChange={(e)=>setFiles(Array.from(e.target.files || []))} />
             <div className="mini" style={{ marginTop: 6 }}>
               {files.length ? `Selected: ${files.map(f=>f.name).join(", ")}` : "Attach photos/sketches after the email opens."}
@@ -1731,61 +1564,22 @@ function DesignCenter() {
           </div>
 
           <div className="card soft">
-            <div className="kicker">Measurements + Shipping</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Make your request faster</h3>
-
-            <div className="grid two" style={{ marginTop: 10 }}>
-              <div>
-                <label>Ceiling height</label>
-                <input value={wiz.ceiling} onChange={(e)=>setWiz(w=>({ ...w, ceiling:e.target.value }))} placeholder='e.g. 96"' />
-              </div>
-              <div>
-                <label>Wall A length</label>
-                <input value={wiz.wallA} onChange={(e)=>setWiz(w=>({ ...w, wallA:e.target.value }))} placeholder='e.g. 144"' />
-              </div>
-              <div>
-                <label>Wall B length</label>
-                <input value={wiz.wallB} onChange={(e)=>setWiz(w=>({ ...w, wallB:e.target.value }))} placeholder='e.g. 120"' />
-              </div>
-              <div>
-                <label>Windows/doors</label>
-                <input value={wiz.windowsDoors} onChange={(e)=>setWiz(w=>({ ...w, windowsDoors:e.target.value }))} placeholder="sizes + locations" />
-              </div>
-            </div>
-
-            <label>Appliances</label>
-            <input value={wiz.appliances} onChange={(e)=>setWiz(w=>({ ...w, appliances:e.target.value }))} placeholder="range/fridge/dishwasher sizes" />
+            <div className="kicker">Expectations</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Lead time & freight</h3>
+            <p className="mini">
+              Typical lead time is <b style={{ color:"var(--text)" }}>2–5 weeks</b> (varies by finish and order size).
+              Freight ships LTL and is confirmed after order based on destination and options (residential/liftgate/appointment).
+            </p>
 
             <div className="divider" />
-
-            <div className="grid two">
-              <div>
-                <label>ZIP</label>
-                <input value={shipPref.zip} onChange={(e)=>setShipPref(s=>({ ...s, zip:e.target.value }))} placeholder="e.g. 10314" />
-              </div>
-              <div>
-                <label>Delivery type</label>
-                <select value={shipPref.type} onChange={(e)=>setShipPref(s=>({ ...s, type:e.target.value }))}>
-                  <option value="residential">Residential</option>
-                  <option value="commercial">Commercial</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="row" style={{ marginTop: 10 }}>
-              <input type="checkbox" checked={shipPref.liftgate} onChange={(e)=>setShipPref(s=>({ ...s, liftgate:e.target.checked }))} style={{ width:18, height:18 }} />
-              <span className="mini">Liftgate</span>
-              <input type="checkbox" checked={shipPref.appointment} onChange={(e)=>setShipPref(s=>({ ...s, appointment:e.target.checked }))} style={{ width:18, height:18 }} />
-              <span className="mini">Appointment</span>
-            </div>
-
-            <div className="divider" />
-            <div className="mini">
-              Tip: Adding measurements + shipping preferences reduces back-and-forth and speeds up your list.
-            </div>
+            <div className="kicker">Showroom</div>
+            <p className="mini" style={{ marginTop: 8 }}>
+              Visit: <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b><br/>
+              Phone: <b style={{ color:"var(--text)" }}>{SUPPORT_PHONE}</b>
+            </p>
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-outline" href="#/shop">Shop finishes</a>
-              <a className="btn btn-outline" href="#/trade">Trade</a>
+              <a className="btn btn-primary" href="#/shop">Shop</a>
+              <a className="btn btn-outline" href="#/cart">Checkout</a>
             </div>
           </div>
         </div>
@@ -1795,114 +1589,92 @@ function DesignCenter() {
 }
 
 /* ============================
-   RESOURCES (Learning tab, renamed + restructured)
+   LEARNING (simplified per your request)
    ============================ */
 function Learning() {
-  const downloadDeliveryChecklist = () => {
-    downloadTextFile(
-      "delivery-checklist.txt",
-      `Premier RTA Cabinetry — Delivery Checklist\n\n` +
-      `1) Inspect packaging before signing.\n` +
-      `2) Take photos of any damage.\n` +
-      `3) Count boxes and compare to BOL if provided.\n` +
-      `4) Email ${SUPPORT_EMAIL} with photos + notes.\n\n` +
-      `Showroom: ${SHOWROOM_ADDRESS}\n`
-    );
-  };
+  const measurementSteps = [
+    "Measure wall lengths (in inches)",
+    "Measure ceiling height",
+    "Mark windows/doors (width + height + distance from corners)",
+    "List appliances (range, fridge, dishwasher sizes)",
+    "Take photos from each corner",
+  ];
 
-  const downloadInstallChecklist = () => {
-    downloadTextFile(
-      "install-checklist.txt",
-      `Premier RTA Cabinetry — Install Checklist\n\n` +
-      `Tools: level, shims, drill/driver, stud finder, tape, clamps.\n` +
-      `1) Mark studs + level lines.\n` +
-      `2) Hang uppers first.\n` +
-      `3) Level bases with shims.\n` +
-      `4) Check reveals/doors.\n` +
-      `5) Add fillers/panels, then crown/light rail.\n\n` +
-      `Support: ${SUPPORT_EMAIL}\n`
-    );
-  };
-
-  const [email, setEmail] = useState("");
-  const emailCaptureHref = useMemo(() => {
-    const subject = encodeURIComponent("Add me to updates — Premier RTA Cabinetry");
+  const emailTemplateHref = useMemo(() => {
+    const subject = encodeURIComponent("Measurements — Premier RTA Cabinetry");
     const body = encodeURIComponent(
-      `Hi Premier team,\n\nPlease add me to updates.\nEmail: ${email}\n\nInterested in:\n- Door samples\n- RTA nationwide shipping\n- Trade program\n\nThanks!\n`
+      `Hi Premier team,\n\nHere are my measurements:\n- Ceiling height:\n- Wall A length:\n- Wall B length:\n- Windows/doors:\n- Appliances:\n- Notes:\n\n(Attached photos/sketches)\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
     );
     return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [email]);
+  }, []);
 
   return (
     <section className="section" style={{ background:"var(--bg2)" }}>
       <div className="container">
-        <div className="kicker">Resources</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>Install + Delivery + Ordering</h2>
-        <p>Clean resources customers actually use. Download checklists, then shop or request a 3D plan.</p>
+        <div className="kicker">Learning</div>
+        <h2 style={{ fontSize: 34, marginTop: 10 }}>How we work</h2>
+        <p>
+          We’ve served customers for years from our Staten Island showroom/warehouse at <b>{SHOWROOM_ADDRESS}</b>.
+          Now we ship RTA nationwide — with the same planning support, finish guidance, and SKU-based ordering.
+        </p>
 
-        <div className="grid two" style={{ marginTop: 14 }}>
+        <div className="grid three" style={{ marginTop: 14 }}>
           <div className="card">
-            <div className="kicker">Downloads</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Project resources</h3>
-            <div className="row" style={{ marginTop: 12 }}>
-              <button className="btn btn-primary" type="button" onClick={downloadDeliveryChecklist}>Delivery checklist</button>
-              <button className="btn btn-outline" type="button" onClick={downloadInstallChecklist}>Install checklist</button>
-            </div>
-            <div className="mini" style={{ marginTop: 10 }}>
-              These are simple text downloads for now — easy to upgrade to PDF later.
-            </div>
+            <div className="kicker">1) Choose your path</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Shop online or request a plan</h3>
+            <p className="mini">You can shop finishes and add cabinets by SKU — or request a free 3D layout + list first.</p>
           </div>
+          <div className="card">
+            <div className="kicker">2) We support the order</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Designer-led when needed</h3>
+            <p className="mini">We help confirm cabinets, fillers, panels, and order flow so the install goes smooth.</p>
+          </div>
+          <div className="card">
+            <div className="kicker">3) Delivery expectations</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Freight + lead time</h3>
+            <p className="mini">Lead time is typically 2–5 weeks. Freight is confirmed after order based on delivery options.</p>
+          </div>
+        </div>
 
+        <div className="grid two" style={{ marginTop: 16 }}>
           <div className="card soft">
-            <div className="kicker">Email updates</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Get the measuring checklist</h3>
-            <div className="mini">Not spammy — just a simple way to capture leads.</div>
-            <label style={{ marginTop: 10 }}>Email</label>
-            <input value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com" />
+            <div className="kicker">How to send measurements</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Send these 5 items</h3>
+            <ul className="mini" style={{ marginTop: 10, paddingLeft: 18 }}>
+              {measurementSteps.map((s,i)=><li key={i}>{s}</li>)}
+            </ul>
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href={emailCaptureHref}>Send</a>
-              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+              <a className="btn btn-primary" href="#/design">Use Design Center tools</a>
+              <a className="btn btn-outline" href={emailTemplateHref}>Email template</a>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="kicker">Visit us</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Showroom & warehouse</h3>
+            <p className="mini">
+              <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b><br/>
+              Phone: <b style={{ color:"var(--text)" }}>{SUPPORT_PHONE}</b><br/>
+              Email: <b style={{ color:"var(--text)" }}>{SUPPORT_EMAIL}</b>
+            </p>
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href="#/shop">Shop</a>
+              <a className="btn btn-outline" href="#/contact">Contact</a>
             </div>
           </div>
         </div>
 
-        <div className="divider" />
-
-        <div className="kicker">FAQ</div>
-        <h3 style={{ fontSize: 26, marginTop: 10 }}>The essentials</h3>
-
-        <div className="grid two" style={{ marginTop: 14 }}>
-          {LEARNING_TOPICS.map((t) => (
-            <details key={t.title} className="lux">
-              <summary>
-                <span>{t.title}</span>
-                <span className="luxTag">{t.tag}</span>
-              </summary>
-              <p className="mini">{t.body}</p>
-            </details>
-          ))}
-        </div>
-
-        <div className="card" style={{ marginTop: 16 }}>
-          <div className="kicker">Next step</div>
-          <h3 style={{ fontSize: 22, marginTop: 8 }}>Want us to build your cabinet list?</h3>
-          <p className="mini">Use Design Center for a free 3D layout + itemized list — then shop by SKU.</p>
-          <div className="row" style={{ marginTop: 12 }}>
-            <a className="btn btn-primary" href="#/design">Free 3D Design</a>
-            <a className="btn btn-outline" href="#/shop">Shop</a>
-          </div>
-        </div>
       </div>
     </section>
   );
 }
 
 /* ============================
-   GALLERY (case studies)
+   GALLERY
    ============================ */
 function Gallery() {
-  const [filterFinish, setFilterFinish] = useState("all");
   const finishesFlat = useMemo(() => FINISH_GROUPS.flatMap(g=>g.finishes), []);
+  const [filterFinish, setFilterFinish] = useState("all");
 
   const studies = useMemo(() => {
     if (filterFinish === "all") return CASE_STUDIES;
@@ -1924,7 +1696,7 @@ function Gallery() {
           <div>
             <div className="kicker">Gallery</div>
             <h2 style={{ fontSize: 34, marginTop: 10 }}>Installs & Case Studies</h2>
-            <p>Replace examples with real installs and tag the finish used.</p>
+            <p>Replace the examples with real installs and tag the finish used.</p>
           </div>
           <a className="btn btn-primary" href={submitMailto}>Submit your install</a>
         </div>
@@ -1939,7 +1711,7 @@ function Gallery() {
               </select>
             </div>
             <div className="mini" style={{ alignSelf:"end" }}>
-              Tip: Add “before/after” photo pairs later.
+              Tip: Real installs + finish tags convert like crazy.
             </div>
             <div style={{ alignSelf:"end" }}>
               <a className="btn btn-outline" href="#/shop">Shop finishes</a>
@@ -2000,14 +1772,14 @@ function Contact() {
           </p>
 
           <div className="divider" />
-          <div className="kicker">About</div>
+          <div className="kicker">What we do</div>
           <p className="mini">
-            Years of local experience — now shipping RTA nationwide with the same planning support and curated finishes.
+            We’ve served Staten Island for years — now shipping RTA nationwide with finish guidance and designer-led support.
           </p>
 
           <div className="row" style={{ marginTop: 12 }}>
             <a className="btn btn-primary" href="#/design">Free 3D Design</a>
-            <a className="btn btn-outline" href="#/trade">Trade</a>
+            <a className="btn btn-outline" href="#/shop">Shop</a>
           </div>
         </div>
 
@@ -2047,108 +1819,10 @@ function Contact() {
 }
 
 /* ============================
-   TRADE PAGE (contractor growth)
-   ============================ */
-function Trade() {
-  const [trade, setTrade] = useState({
-    company: "",
-    name: "",
-    email: "",
-    phone: "",
-    website: "",
-    notes: "",
-    taxExempt: false,
-    jobsiteDelivery: true,
-  });
-
-  const mailtoHref = useMemo(() => {
-    const subject = encodeURIComponent("Trade / Contractor Request — Premier RTA Cabinetry");
-    const body = encodeURIComponent(
-      `Company: ${trade.company}\nName: ${trade.name}\nEmail: ${trade.email}\nPhone: ${trade.phone}\nWebsite/IG: ${trade.website}\n\n` +
-      `Tax-exempt: ${trade.taxExempt ? "Yes" : "No"}\n` +
-      `Jobsite delivery options: ${trade.jobsiteDelivery ? "Yes" : "No"}\n\n` +
-      `Notes:\n${trade.notes}\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
-    );
-    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [trade]);
-
-  return (
-    <section className="section" style={{ background:"var(--bg2)" }}>
-      <div className="container">
-        <div className="kicker">Trade</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>Contractors & Trade Accounts</h2>
-        <p>Request trade pricing, tax-exempt handling, and jobsite delivery preferences.</p>
-
-        <div className="grid two" style={{ marginTop: 16 }}>
-          <div className="card">
-            <h3 style={{ fontSize: 22 }}>Trade request</h3>
-
-            <label>Company</label>
-            <input value={trade.company} onChange={(e)=>setTrade(t=>({ ...t, company:e.target.value }))} />
-
-            <div className="grid two" style={{ marginTop: 10 }}>
-              <div>
-                <label>Name</label>
-                <input value={trade.name} onChange={(e)=>setTrade(t=>({ ...t, name:e.target.value }))} />
-              </div>
-              <div>
-                <label>Phone</label>
-                <input value={trade.phone} onChange={(e)=>setTrade(t=>({ ...t, phone:e.target.value }))} />
-              </div>
-            </div>
-
-            <label>Email</label>
-            <input value={trade.email} onChange={(e)=>setTrade(t=>({ ...t, email:e.target.value }))} />
-
-            <label>Website / Instagram</label>
-            <input value={trade.website} onChange={(e)=>setTrade(t=>({ ...t, website:e.target.value }))} placeholder="optional" />
-
-            <div className="row" style={{ marginTop: 10 }}>
-              <input type="checkbox" checked={trade.taxExempt} onChange={(e)=>setTrade(t=>({ ...t, taxExempt:e.target.checked }))} style={{ width:18, height:18 }} />
-              <span className="mini">Tax-exempt</span>
-              <input type="checkbox" checked={trade.jobsiteDelivery} onChange={(e)=>setTrade(t=>({ ...t, jobsiteDelivery:e.target.checked }))} style={{ width:18, height:18 }} />
-              <span className="mini">Jobsite delivery</span>
-            </div>
-
-            <label>Notes</label>
-            <textarea rows={4} value={trade.notes} onChange={(e)=>setTrade(t=>({ ...t, notes:e.target.value }))} placeholder="Typical volume, timelines, preferred lines…" />
-
-            <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href={mailtoHref}>Send trade request</a>
-              <a className="btn btn-outline" href="#/contact">Contact</a>
-            </div>
-
-            <div className="mini" style={{ marginTop: 10 }}>
-              Upload tax-exempt docs by replying to the email with attachments.
-            </div>
-          </div>
-
-          <div className="card soft">
-            <div className="kicker">Why trade with us</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Fast, repeatable ordering</h3>
-            <ul className="mini" style={{ marginTop: 10, paddingLeft: 18, color:"var(--muted2)" }}>
-              <li>SKU-based ordering (less showroom time)</li>
-              <li>Multiple projects saved (switch in header)</li>
-              <li>Shareable cart links for approvals</li>
-              <li>Delivery options (residential/commercial/liftgate)</li>
-              <li>Showroom support: {SHOWROOM_ADDRESS}</li>
-            </ul>
-            <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/shop">Shop</a>
-              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================
-   PROJECTS STORAGE
+   PROJECT HELPERS
    ============================ */
 function getDefaultProjects() {
-  return [{ id: "p_" + uid(), name: "My Project", cart: [] }];
+  return [{ id: "p_" + uid(), name: "My Project", cart: [], measurementSummary: "" }];
 }
 
 /* ============================
@@ -2158,10 +1832,11 @@ export default function App() {
   const [hash, setHash] = useState(typeof window !== "undefined" ? (window.location.hash || "#/home") : "#/home");
   const [toast, setToast] = useState("");
 
+  // multi projects (no new tab)
   const [projects, setProjects] = useState(() => {
     if (typeof window === "undefined") return getDefaultProjects();
     try {
-      const raw = localStorage.getItem("premier_projects");
+      const raw = localStorage.getItem("premier_projects_v2");
       const parsed = raw ? JSON.parse(raw) : null;
       return Array.isArray(parsed) && parsed.length ? parsed : getDefaultProjects();
     } catch {
@@ -2171,7 +1846,7 @@ export default function App() {
 
   const [currentProjectId, setCurrentProjectId] = useState(() => {
     if (typeof window === "undefined") return "";
-    return localStorage.getItem("premier_current_project") || "";
+    return localStorage.getItem("premier_current_project_v2") || "";
   });
 
   useEffect(() => {
@@ -2185,11 +1860,12 @@ export default function App() {
   }, [projects, currentProjectId]);
 
   const cart = currentProject?.cart || [];
+  const measurementSummary = currentProject?.measurementSummary || "";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    localStorage.setItem("premier_projects", JSON.stringify(projects));
-    localStorage.setItem("premier_current_project", currentProjectId || "");
+    localStorage.setItem("premier_projects_v2", JSON.stringify(projects));
+    localStorage.setItem("premier_current_project_v2", currentProjectId || "");
   }, [projects, currentProjectId]);
 
   useEffect(() => {
@@ -2210,7 +1886,7 @@ export default function App() {
 
   const { route, sub, params } = parseRouteFromHash(hash);
 
-  // Share-link load for current project cart
+  // Load shared cart into current project
   useEffect(() => {
     if (route !== "cart") return;
     const data = params?.data;
@@ -2236,16 +1912,14 @@ export default function App() {
   const createProject = () => {
     const name = prompt("Project name:", `Project ${projects.length + 1}`);
     if (!name) return;
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    const p = { id: "p_" + uid(), name: trimmed, cart: [] };
+    const p = { id: "p_" + uid(), name, cart: [], measurementSummary: "" };
     setProjects(prev => [p, ...prev]);
     setCurrentProjectId(p.id);
     setToast("Project created");
   };
 
-  const updateCurrentCart = (nextCart) => {
-    setProjects(prev => prev.map(p => p.id === currentProjectId ? ({ ...p, cart: nextCart }) : p));
+  const updateCurrentProject = (patch) => {
+    setProjects(prev => prev.map(p => p.id === currentProjectId ? ({ ...p, ...patch }) : p));
   };
 
   const addToCart = ({ finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach, width, height, depth }) => {
@@ -2261,12 +1935,12 @@ export default function App() {
       return [...cart, { key, finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach, width, height, depth }];
     })();
 
-    updateCurrentCart(next);
+    updateCurrentProject({ cart: next });
     window.location.hash = "/cart";
   };
 
-  const removeFromCart = (key) => updateCurrentCart(cart.filter(x => x.key !== key));
-  const clearCart = () => updateCurrentCart([]);
+  const removeFromCart = (key) => updateCurrentProject({ cart: cart.filter(x => x.key !== key) });
+  const clearCart = () => updateCurrentProject({ cart: [] });
 
   const exportCartCSV = () => {
     const header = ["Finish", "Type", "SKU", "Width", "Height", "Depth", "Qty", "UnitPrice", "AssemblyEach", "LineTotal"].join(",");
@@ -2331,4 +2005,61 @@ export default function App() {
       {route === "home" && <Home />}
 
       {route === "shop" && (!sub ? (
-        <ShopList onAddSample={addSample}
+        <ShopList onAddSample={addSample} />
+      ) : (
+        <Configurator
+          finishId={sub}
+          cart={cart}
+          onAddToCart={addToCart}
+          onExportCartCSV={exportCartCSV}
+          onToast={onToast}
+          onAddSample={addSample}
+        />
+      ))}
+
+      {route === "design" && (
+        <DesignCenter
+          onSaveMeasurementSummary={(txt)=>{ updateCurrentProject({ measurementSummary: txt }); onToast("Measurements saved to project"); }}
+          savedMeasurementSummary={measurementSummary}
+        />
+      )}
+
+      {route === "learn" && <Learning />}
+
+      {route === "gallery" && <Gallery />}
+
+      {route === "cart" && (
+        <Cart
+          cart={cart}
+          onRemove={removeFromCart}
+          onClear={clearCart}
+          onExportCSV={exportCartCSV}
+          onShareLink={shareCartLink}
+          onToast={onToast}
+          projectName={currentProject?.name || "Project"}
+          measurementSummaryText={measurementSummary}
+        />
+      )}
+
+      {route === "contact" && <Contact />}
+
+      <div className="footer">
+        <div className="container">
+          <div className="grid two">
+            <div className="mini">
+              <b style={{ color:"var(--text)" }}>Showroom/Warehouse:</b> {SHOWROOM_ADDRESS}<br/>
+              <b style={{ color:"var(--text)" }}>Email:</b> {SUPPORT_EMAIL}<br/>
+              <b style={{ color:"var(--text)" }}>Phone:</b> {SUPPORT_PHONE}
+            </div>
+            <div className="mini">
+              <b style={{ color:"var(--text)" }}>About:</b> Serving Staten Island for years — now offering RTA cabinetry shipping nationwide with designer-led support when you want it.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <FloatingHelp />
+      <Toast text={toast} />
+    </div>
+  );
+}
