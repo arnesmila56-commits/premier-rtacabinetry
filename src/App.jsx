@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 /* ============================
    CONFIG (edit these)
@@ -44,8 +44,9 @@ function GlobalStyles() {
         --ring: rgba(225,29,72,.22);
         --shadow: 0 18px 50px rgba(0,0,0,.40);
 
-        /* FIX: you were using var(--subtle) but it wasn’t defined */
         --subtle:#2a2b31;
+        --ok:#22c55e;
+        --warn:#f59e0b;
       }
 
       html,body{
@@ -130,6 +131,8 @@ function GlobalStyles() {
         font-weight:600;
       }
       .pill.red{ background:var(--primary); border-color:transparent; color:#fff; }
+      .pill.ok{ background:rgba(34,197,94,.18); border-color:rgba(34,197,94,.35); color:#dcfce7; }
+      .pill.warn{ background:rgba(245,158,11,.14); border-color:rgba(245,158,11,.35); color:#ffedd5; }
 
       .btn{
         display:inline-flex;
@@ -141,12 +144,14 @@ function GlobalStyles() {
         font-weight:600;
         cursor:pointer;
         background:transparent;
-        transition: transform .12s ease, box-shadow .12s ease;
+        transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
       }
       .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
       .btn:active{ transform: translateY(0px); box-shadow:none; }
+      .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
       .btn-primary{ background:var(--primary); color:#fff; }
       .btn-outline{ border-color:var(--border); color:var(--text); }
+      .btn-ghost{ border-color:transparent; background:rgba(255,255,255,.06); }
 
       label{
         font-size:11px;
@@ -157,6 +162,7 @@ function GlobalStyles() {
         display:block;
         margin:12px 0 6px;
       }
+
       input,select,textarea{
         width:100%;
         padding:11px 12px;
@@ -171,6 +177,12 @@ function GlobalStyles() {
         box-shadow:0 0 0 4px var(--ring);
       }
 
+      /* ✅ FIX: dropdown options were white-on-white in many browsers */
+      select option{
+        color:#111;
+        background:#fff;
+      }
+
       table{ width:100%; border-collapse:collapse; }
       th,td{ padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
       th{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted2); font-weight:600; }
@@ -183,15 +195,62 @@ function GlobalStyles() {
         background: rgba(255,255,255,.03);
       }
       .finish-img img{ width:100%; height:180px; object-fit:cover; }
+
+      .stickySide{
+        position: sticky;
+        top: 92px;
+        align-self: start;
+      }
+      @media(max-width:900px){
+        .stickySide{ position: static; }
+      }
+
+      .divider{
+        height:1px;
+        background:var(--border);
+        margin:14px 0;
+      }
     `}</style>
   );
 }
 
 /* ============================
-   DATA
+   HELPERS
    ============================ */
 const usd = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
+function imgForFinish(id){
+  const u = FINISH_IMAGES[id];
+  return u && u.trim().length > 0 ? u : FALLBACK_IMAGE;
+}
+
+/* base64url helpers for share links */
+function b64urlEncode(str){
+  const b64 = btoa(unescape(encodeURIComponent(str)));
+  return b64.replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+}
+function b64urlDecode(str){
+  const pad = str.length % 4 === 0 ? "" : "=".repeat(4 - (str.length % 4));
+  const b64 = (str + pad).replaceAll("-","+").replaceAll("_","/");
+  return decodeURIComponent(escape(atob(b64)));
+}
+
+/* CSV download */
+function downloadTextFile(filename, text){
+  const blob = new Blob([text], { type:"text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================
+   DATA
+   ============================ */
 const FINISH_GROUPS = [
   { group:"Hudson", finishes:[
     { id:"hudson-snow-white", name:"Hudson Snow White" },
@@ -211,13 +270,24 @@ const FINISH_GROUPS = [
   ]},
 ];
 
-/* ✅ REAL PRICING LOGIC (assembly is now applied) */
-const ASSEMBLY_UPCHARGE_PER_CABINET = 99; // change to your real number if needed
+function getFinishById(id){
+  for (const g of FINISH_GROUPS){
+    for (const f of g.finishes){
+      if (f.id === id) return f;
+    }
+  }
+  return FINISH_GROUPS[0].finishes[0];
+}
 
-/* ✅ CABINET CATALOG (Base + Wall + Tall) */
+/* ✅ Real pricing: assembly upcharge */
+const ASSEMBLY_UPCHARGE_PER_CABINET = 99; // change to your real number
+
+/* ✅ Catalog: add your real Wall/Tall SKU + pricing when ready */
 const CABINET_CATALOG = {
   base: {
     label: "Base Cabinets",
+    depthOptions: [24, 21],
+    heightOptions: [34.5],
     items: [
       { sku:"B12R", width:12, price:225 },
       { sku:"B12L", width:12, price:225 },
@@ -236,9 +306,10 @@ const CABINET_CATALOG = {
     ],
   },
 
-  // IMPORTANT: Replace these with your real Wall SKUs + prices
   wall: {
     label: "Wall Cabinets",
+    depthOptions: [12],
+    heightOptions: [30, 36, 42],
     items: [
       { sku:"W12", width:12, price:199 },
       { sku:"W15", width:15, price:219 },
@@ -250,9 +321,10 @@ const CABINET_CATALOG = {
     ],
   },
 
-  // IMPORTANT: Replace these with your real Tall/Pantry SKUs + prices
   tall: {
     label: "Tall / Pantry Cabinets",
+    depthOptions: [24],
+    heightOptions: [84, 90, 96],
     items: [
       { sku:"T18", width:18, price:699 },
       { sku:"T21", width:21, price:749 },
@@ -270,29 +342,24 @@ const GALLERY = [
   "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
 ];
 
-function imgForFinish(id){
-  const u = FINISH_IMAGES[id];
-  return u && u.trim().length > 0 ? u : FALLBACK_IMAGE;
-}
-
-function getFinishById(id){
-  for (const g of FINISH_GROUPS){
-    for (const f of g.finishes){
-      if (f.id === id) return f;
-    }
-  }
-  return FINISH_GROUPS[0].finishes[0];
-}
-
 /* ============================
-   ROUTER (hash + subroutes)
+   ROUTER (hash + subroutes + ?query)
    ============================ */
 function parseRouteFromHash(hash){
-  const h = (hash || "").replace(/^#\/?/, "").trim().toLowerCase();
+  const raw = (hash || "").replace(/^#\/?/, "").trim();
+  const [pathPart, queryPart] = raw.split("?");
+  const h = (pathPart || "").trim().toLowerCase();
   const parts = h.split("/");
   const first = parts[0] || "home";
   const valid = ["home","shop","design","learn","gallery","cart","contact"];
-  return valid.includes(first) ? { route:first, sub: parts[1] } : { route:"home", sub: undefined };
+  const route = valid.includes(first) ? first : "home";
+  const sub = parts[1];
+  const params = {};
+  if (queryPart){
+    const usp = new URLSearchParams(queryPart);
+    for (const [k,v] of usp.entries()) params[k] = v;
+  }
+  return { route, sub, params };
 }
 
 /* ============================
@@ -347,7 +414,7 @@ function Home(){
           <div className="pill red">Classic Luxury • Designer Led</div>
           <h1 style={{ fontSize:44, marginTop:12 }}>A calmer way to buy a kitchen.</h1>
           <p>
-            Browse Tribeca finishes, choose base/wall/tall cabinet SKUs, and order with confidence.
+            Browse Tribeca finishes, configure base/wall/tall cabinets, and order with confidence.
             If you don’t know where to start, our team creates a free 3D layout and cabinet list first.
           </p>
           <div className="row" style={{ marginTop:14 }}>
@@ -372,14 +439,13 @@ function Home(){
   );
 }
 
-/** Shop list page (all colors visible, click Configure like before) */
 function ShopList(){
   return (
     <section className="section">
       <div className="container">
         <div className="kicker">Shop</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Tribeca Finishes</h2>
-        <p>Select a finish to configure cabinets and add to cart.</p>
+        <p>Select a finish to configure cabinet SKUs and add to cart.</p>
 
         {FINISH_GROUPS.map(g=>(
           <div key={g.group} style={{ marginTop:22 }}>
@@ -398,7 +464,7 @@ function ShopList(){
                     <div style={{ fontWeight:600 }}>{f.name}</div>
                     <span className="pill red">Finish</span>
                   </div>
-                  <p className="mini">Click configure to choose cabinet type + SKU and add to cart.</p>
+                  <p className="mini">Configure cabinets (base/wall/tall), pick SKU + size, and add to cart.</p>
                   <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
                 </div>
               ))}
@@ -410,27 +476,63 @@ function ShopList(){
   );
 }
 
-/** ✅ Configurator page (dropdown cabinet type + SKU + qty + real pricing) */
-function Configurator({ finishId, onAddToCart }){
+function Configurator({ finishId, cart, onAddToCart, onExportCartCSV }){
   const finish = getFinishById(finishId);
 
   const [assembly, setAssembly] = useState("rta");
-  const [cabType, setCabType] = useState("base"); // base | wall | tall
+  const [cabType, setCabType] = useState("base");
+  const [skuSearch, setSkuSearch] = useState("");
   const [selectedSku, setSelectedSku] = useState(() => CABINET_CATALOG.base.items[0].sku);
+
+  const initialDepth = CABINET_CATALOG.base.depthOptions[0];
+  const initialHeight = CABINET_CATALOG.base.heightOptions[0];
+  const [depth, setDepth] = useState(initialDepth);
+  const [height, setHeight] = useState(initialHeight);
+
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
-    const firstSku = CABINET_CATALOG[cabType]?.items?.[0]?.sku || "";
+    const cat = CABINET_CATALOG[cabType];
+    const firstSku = cat?.items?.[0]?.sku || "";
     setSelectedSku(firstSku);
+    setSkuSearch("");
+    setDepth(cat.depthOptions[0]);
+    setHeight(cat.heightOptions[0]);
     setQty(1);
   }, [cabType]);
 
   const catalogItems = CABINET_CATALOG[cabType].items;
-  const chosen = catalogItems.find(x => x.sku === selectedSku) || catalogItems[0];
+  const filteredItems = useMemo(() => {
+    const q = skuSearch.trim().toLowerCase();
+    if (!q) return catalogItems;
+    return catalogItems.filter(it =>
+      it.sku.toLowerCase().includes(q) ||
+      String(it.width).includes(q)
+    );
+  }, [catalogItems, skuSearch]);
+
+  useEffect(() => {
+    if (!filteredItems.find(x => x.sku === selectedSku) && filteredItems.length > 0){
+      setSelectedSku(filteredItems[0].sku);
+    }
+  }, [filteredItems, selectedSku]);
+
+  const chosen = (filteredItems.find(x => x.sku === selectedSku) || catalogItems.find(x => x.sku === selectedSku) || catalogItems[0]);
 
   const assemblyFeeEach = assembly === "assembled" ? ASSEMBLY_UPCHARGE_PER_CABINET : 0;
   const unitTotal = (chosen?.price ?? 0) + assemblyFeeEach;
   const lineTotal = unitTotal * qty;
+
+  const cartSubtotal = useMemo(() => {
+    return cart.reduce((s,it)=>{
+      const assemblyLine = (it.assemblyFeeEach || 0) * it.qty;
+      return s + (it.unitPrice * it.qty) + assemblyLine;
+    },0);
+  }, [cart]);
+
+  const cartCount = useMemo(() => cart.reduce((s,it)=>s+it.qty,0), [cart]);
+
+  const dimsLabel = `${chosen.width}" W × ${height}" H × ${depth}" D`;
 
   return (
     <section className="section">
@@ -441,84 +543,144 @@ function Configurator({ finishId, onAddToCart }){
             <div className="kicker">Tribeca Finish</div>
             <h2 style={{ fontSize:28, marginTop:10 }}>{finish.name}</h2>
             <p className="mini">
-              Choose cabinet type + SKU, set quantity, and add to cart. Need a full plan? Use Design Center.
+              Choose cabinet type + SKU. Search SKUs, set height/depth, then add to cart.
             </p>
+
+            <div className="divider" />
+
+            <div className="row" style={{ justifyContent:"space-between" }}>
+              <span className="pill ok">Lead time: 2–5 weeks (typical)</span>
+              <span className="pill">Warranty: Limited</span>
+            </div>
           </div>
         </div>
 
-        <div className="card">
-          <h3 style={{ fontSize:22 }}>Add Cabinets</h3>
-
-          <label>Assembly</label>
-          <select value={assembly} onChange={(e)=>setAssembly(e.target.value)}>
-            <option value="rta">RTA (unassembled)</option>
-            <option value="assembled">Assembled (+{usd(ASSEMBLY_UPCHARGE_PER_CABINET)} each)</option>
-          </select>
-
-          <label>Cabinet type</label>
-          <select value={cabType} onChange={(e)=>setCabType(e.target.value)}>
-            <option value="base">{CABINET_CATALOG.base.label}</option>
-            <option value="wall">{CABINET_CATALOG.wall.label}</option>
-            <option value="tall">{CABINET_CATALOG.tall.label}</option>
-          </select>
-
-          <label>SKU</label>
-          <select value={selectedSku} onChange={(e)=>setSelectedSku(e.target.value)}>
-            {catalogItems.map(it => (
-              <option key={it.sku} value={it.sku}>
-                {it.sku} — {it.width}" — {usd(it.price)}
-              </option>
-            ))}
-          </select>
-
-          <label>Quantity</label>
-          <input
-            type="number"
-            min={1}
-            value={qty}
-            onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value || "1")))}
-          />
-
-          <div className="card soft" style={{ marginTop:14 }}>
-            <div className="mini" style={{ display:"grid", gap:6 }}>
-              <div>
-                <b style={{ color:"var(--text)" }}>Unit:</b> {usd(chosen.price)}
-                {assembly==="assembled" ? ` + ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} assembly` : ""}
-              </div>
-              <div><b style={{ color:"var(--text)" }}>Unit Total:</b> {usd(unitTotal)}</div>
-              <div><b style={{ color:"var(--text)" }}>Line Total:</b> {usd(lineTotal)}</div>
+        <div className="stickySide" style={{ display:"grid", gap:16 }}>
+          {/* Sticky mini cart */}
+          <div className="card soft">
+            <div className="row" style={{ justifyContent:"space-between" }}>
+              <div style={{ fontWeight:700 }}>Mini Cart</div>
+              <span className="pill">{cartCount} items</span>
+            </div>
+            <div className="mini" style={{ marginTop:8 }}>
+              Subtotal: <b style={{ color:"var(--text)" }}>{usd(cartSubtotal)}</b>
+            </div>
+            <div className="row" style={{ marginTop:12 }}>
+              <a className="btn btn-primary" href="#/cart">Go to cart</a>
+              <button className="btn btn-outline" type="button" onClick={onExportCartCSV}>
+                Export CSV
+              </button>
+            </div>
+            <div className="mini" style={{ marginTop:10 }}>
+              Tip: Use “Share Cart” in checkout to send a customer their exact list.
             </div>
           </div>
 
-          <div className="row" style={{ marginTop:14 }}>
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={()=>{
-                onAddToCart({
-                  finishId: finish.id,
-                  finishName: finish.name,
-                  cabinetType: cabType,
-                  cabinetTypeLabel: CABINET_CATALOG[cabType].label,
-                  sku: chosen.sku,
-                  qty,
-                  unitPrice: chosen.price,
-                  assembly,
-                  assemblyFeeEach,
-                });
-              }}
-            >
-              Add to cart
-            </button>
+          {/* Add item */}
+          <div className="card">
+            <h3 style={{ fontSize:22 }}>Add Cabinets</h3>
 
-            <a className="btn btn-outline" href="#/shop">Back to finishes</a>
-            <a className="btn btn-outline" href="#/cart">Go to cart</a>
-          </div>
+            <label>Assembly</label>
+            <select value={assembly} onChange={(e)=>setAssembly(e.target.value)}>
+              <option value="rta">RTA (unassembled)</option>
+              <option value="assembled">Assembled (+{usd(ASSEMBLY_UPCHARGE_PER_CABINET)} each)</option>
+            </select>
 
-          <div className="card soft" style={{ marginTop:14 }}>
-            <p className="mini" style={{ margin:0 }}>
-              Questions or want fillers/panels next? Email <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
-            </p>
+            <label>Cabinet type</label>
+            <select value={cabType} onChange={(e)=>setCabType(e.target.value)}>
+              <option value="base">{CABINET_CATALOG.base.label}</option>
+              <option value="wall">{CABINET_CATALOG.wall.label}</option>
+              <option value="tall">{CABINET_CATALOG.tall.label}</option>
+            </select>
+
+            <label>Search SKU</label>
+            <input
+              value={skuSearch}
+              onChange={(e)=>setSkuSearch(e.target.value)}
+              placeholder='Type "B30" or "24"...'
+            />
+
+            <label>SKU</label>
+            <select value={selectedSku} onChange={(e)=>setSelectedSku(e.target.value)}>
+              {filteredItems.map(it => (
+                <option key={it.sku} value={it.sku}>
+                  {it.sku} — {it.width}" — {usd(it.price)}
+                </option>
+              ))}
+            </select>
+
+            <div className="grid two" style={{ marginTop:8 }}>
+              <div>
+                <label>Height</label>
+                <select value={height} onChange={(e)=>setHeight(parseFloat(e.target.value))}>
+                  {CABINET_CATALOG[cabType].heightOptions.map(h => (
+                    <option key={h} value={h}>{h}"</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label>Depth</label>
+                <select value={depth} onChange={(e)=>setDepth(parseFloat(e.target.value))}>
+                  {CABINET_CATALOG[cabType].depthOptions.map(d => (
+                    <option key={d} value={d}>{d}"</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <label>Quantity</label>
+            <input
+              type="number"
+              min={1}
+              value={qty}
+              onChange={(e)=>setQty(Math.max(1, parseInt(e.target.value || "1")))}
+            />
+
+            <div className="card soft" style={{ marginTop:14 }}>
+              <div className="mini" style={{ display:"grid", gap:6 }}>
+                <div><b style={{ color:"var(--text)" }}>Size:</b> {dimsLabel}</div>
+                <div>
+                  <b style={{ color:"var(--text)" }}>Unit:</b> {usd(chosen.price)}
+                  {assembly==="assembled" ? ` + ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} assembly` : ""}
+                </div>
+                <div><b style={{ color:"var(--text)" }}>Unit Total:</b> {usd(unitTotal)}</div>
+                <div><b style={{ color:"var(--text)" }}>Line Total:</b> {usd(lineTotal)}</div>
+              </div>
+            </div>
+
+            <div className="row" style={{ marginTop:14 }}>
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={()=>{
+                  onAddToCart({
+                    finishId: finish.id,
+                    finishName: finish.name,
+                    cabinetType: cabType,
+                    cabinetTypeLabel: CABINET_CATALOG[cabType].label,
+                    sku: chosen.sku,
+                    qty,
+                    unitPrice: chosen.price,
+                    assembly,
+                    assemblyFeeEach,
+                    width: chosen.width,
+                    height,
+                    depth,
+                  });
+                }}
+              >
+                Add to cart
+              </button>
+
+              <a className="btn btn-outline" href="#/shop">Back</a>
+              <a className="btn btn-outline" href="#/cart">Checkout</a>
+            </div>
+
+            <div className="card soft" style={{ marginTop:14 }}>
+              <p className="mini" style={{ margin:0 }}>
+                Want fillers/panels/crown or a full layout? Email <b style={{ color:"var(--text)" }}>premier@premierkm.com</b>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -531,6 +693,29 @@ function DesignCenter(){
   const [budget, setBudget] = useState(25000);
   const [notes, setNotes] = useState("");
   const [contact, setContact] = useState({ name:"", email:"", phone:"" });
+  const [files, setFiles] = useState([]);
+
+  const mailtoHref = useMemo(() => {
+    const subject = encodeURIComponent("Free 3D Design Request — Premier RTA Cabinetry");
+    const bodyLines = [
+      `Path: ${path}`,
+      `Budget: ${usd(budget)}`,
+      ``,
+      `Name: ${contact.name}`,
+      `Email: ${contact.email}`,
+      `Phone: ${contact.phone}`,
+      ``,
+      `Notes:`,
+      notes || "(none)",
+      ``,
+      `Uploads (attach these to this email):`,
+      files.length ? files.map(f=>`- ${f.name}`).join("\n") : "- (none)",
+      ``,
+      `Photos/Measurements to include: wall lengths, ceiling height, windows/doors, appliance sizes.`,
+    ];
+    const body = encodeURIComponent(bodyLines.join("\n"));
+    return `mailto:premier@premierkm.com?subject=${subject}&body=${body}`;
+  }, [path, budget, contact, notes, files]);
 
   return (
     <section className="section" style={{ background:"var(--subtle)" }}>
@@ -539,6 +724,7 @@ function DesignCenter(){
           <div className="kicker">Design Center</div>
           <h2 style={{ fontSize:30, marginTop:10 }}>Free 3D Design</h2>
           <p>Pick a path. We deliver a 3D layout + cabinet list before you buy.</p>
+
           <div className="row" style={{ marginTop:12 }}>
             {["Design It For Me","I Have Measurements","I Just Want Advice"].map(p=>(
               <button
@@ -551,10 +737,31 @@ function DesignCenter(){
               </button>
             ))}
           </div>
+
           <div className="card soft" style={{ marginTop:14 }}>
             <p className="mini" style={{ margin:0 }}>
-              After you submit, our professional team creates a custom 3D kitchen design + cabinet placement + itemized list — free.
+              Submit your info + photos/measurements. We’ll send a cabinet list and 3D plan — free.
             </p>
+          </div>
+
+          <div className="grid two" style={{ marginTop:14 }}>
+            <div className="card soft">
+              <div className="row" style={{ justifyContent:"space-between" }}>
+                <b>Lead time</b> <span className="pill ok">2–5 weeks</span>
+              </div>
+              <p className="mini" style={{ margin:10, marginLeft:0 }}>
+                Typical. Depends on finish + order size.
+              </p>
+            </div>
+
+            <div className="card soft">
+              <div className="row" style={{ justifyContent:"space-between" }}>
+                <b>Warranty</b> <span className="pill">Limited</span>
+              </div>
+              <p className="mini" style={{ margin:10, marginLeft:0 }}>
+                Ask us for the full warranty sheet for your selected line.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -562,7 +769,14 @@ function DesignCenter(){
           <h3 style={{ fontSize:20 }}>Request (Free)</h3>
 
           <label>Budget comfort</label>
-          <input type="range" min={8000} max={80000} step={1000} value={budget} onChange={(e)=>setBudget(parseInt(e.target.value||"25000"))} />
+          <input
+            type="range"
+            min={8000}
+            max={80000}
+            step={1000}
+            value={budget}
+            onChange={(e)=>setBudget(parseInt(e.target.value||"25000"))}
+          />
           <div className="mini">Target: <b style={{ color:"var(--text)" }}>{usd(budget)}</b></div>
 
           <label>Name</label>
@@ -574,12 +788,28 @@ function DesignCenter(){
           <label>Phone</label>
           <input value={contact.phone} onChange={(e)=>setContact(c=>({ ...c, phone:e.target.value }))} />
 
+          <label>Upload measurements/photos</label>
+          <input
+            type="file"
+            multiple
+            onChange={(e)=>setFiles(Array.from(e.target.files || []))}
+          />
+          <div className="mini" style={{ marginTop:6 }}>
+            {files.length ? `Selected: ${files.map(f=>f.name).join(", ")}` : "Add photos/sketches. (They’ll be attached when your email opens.)"}
+          </div>
+
           <label>Notes</label>
           <textarea rows={4} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Walls/windows, appliances, timeline…" />
 
           <div className="row" style={{ marginTop:14 }}>
-            <button className="btn btn-primary" type="button">Request Free Design</button>
+            <a className="btn btn-primary" href={mailtoHref}>Request Free Design (Email)</a>
             <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email</a>
+          </div>
+
+          <div className="card soft" style={{ marginTop:14 }}>
+            <p className="mini" style={{ margin:0 }}>
+              No backend needed: this opens an email with everything prefilled. Attach your photos and send.
+            </p>
           </div>
         </div>
       </div>
@@ -592,9 +822,9 @@ function Learning(){
     { title:"What is RTA?", body:"Ready-to-Assemble ships flat-packed for easier delivery and handling." },
     { title:"How to measure", body:"Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner." },
     { title:"Freight shipping", body:"Most cabinet orders ship LTL freight. Inspect boxes before signing." },
-    { title:"Assembly", body:`Hardware/instructions included. Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet.` },
+    { title:"Assembly pricing", body:`Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet (shown in cart).` },
     { title:"Damages/returns", body:"Report issues quickly with photos. Policies vary by order type." },
-    { title:"Need help?", body:"Email premier@premierkm.com and we’ll guide you through finish + SKU list." },
+    { title:"Need help?", body:"Email premier@premierkm.com and we’ll guide you through finish + cabinet list." },
   ];
 
   return (
@@ -623,12 +853,20 @@ function Gallery(){
       <div className="container">
         <div className="kicker">Gallery</div>
         <h2 style={{ fontSize:30, marginTop:10 }}>Project Inspiration</h2>
-        <p>Luxury placeholders now — replace with your installs anytime.</p>
+        <p>Placeholders now — swap with your real installs and tag the finish used.</p>
 
         <div className="grid three" style={{ marginTop:14 }}>
           {GALLERY.map((src,i)=>(
-            <div key={i} className="card" style={{ padding:0, overflow:"hidden" }}>
+            <div key={i} className="card" style={{ padding:0, overflow:"hidden", position:"relative" }}>
               <img src={src} alt="Gallery" style={{ width:"100%", height:240, objectFit:"cover" }} />
+              <div style={{
+                position:"absolute", left:12, bottom:12,
+                padding:"6px 10px", borderRadius:999,
+                background:"rgba(0,0,0,.45)", border:"1px solid rgba(255,255,255,.18)",
+                fontSize:12, fontWeight:700
+              }}>
+                Example install
+              </div>
             </div>
           ))}
         </div>
@@ -637,13 +875,18 @@ function Gallery(){
   );
 }
 
-function Cart({ cart, onRemove, onClear }){
-  const subtotal = cart.reduce((s,it)=> {
-    const assemblyFee = (it.assemblyFeeEach || 0) * it.qty;
-    return s + (it.unitPrice * it.qty) + assemblyFee;
-  }, 0);
+function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink }){
+  const subtotal = useMemo(() => {
+    return cart.reduce((s,it)=> {
+      const assemblyFee = (it.assemblyFeeEach || 0) * it.qty;
+      return s + (it.unitPrice * it.qty) + assemblyFee;
+    }, 0);
+  }, [cart]);
 
   const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
+  const [freightOk, setFreightOk] = useState(false);
+
+  const canPay = checkoutOk && cart.length > 0 && freightOk;
 
   return (
     <section className="section">
@@ -657,6 +900,28 @@ function Cart({ cart, onRemove, onClear }){
           </div>
         ) : (
           <>
+            <div className="card soft" style={{ marginTop:14 }}>
+              <div className="row" style={{ justifyContent:"space-between" }}>
+                <span className="pill warn">Freight shipping is quoted after order</span>
+                <span className="pill">Export + share tools below</span>
+              </div>
+              <div className="mini" style={{ marginTop:10 }}>
+                Most orders ship LTL freight. We’ll confirm freight cost based on destination and order size.
+              </div>
+              <div className="row" style={{ marginTop:10 }}>
+                <input
+                  id="freight-ok"
+                  type="checkbox"
+                  checked={freightOk}
+                  onChange={(e)=>setFreightOk(e.target.checked)}
+                  style={{ width:18, height:18 }}
+                />
+                <label htmlFor="freight-ok" style={{ margin:0, textTransform:"none", letterSpacing:0, fontSize:13, color:"var(--muted)" }}>
+                  I understand freight will be quoted separately.
+                </label>
+              </div>
+            </div>
+
             <div className="card" style={{ padding:0, overflow:"hidden", marginTop:14 }}>
               <table>
                 <thead>
@@ -664,6 +929,7 @@ function Cart({ cart, onRemove, onClear }){
                     <th>Finish</th>
                     <th>Type</th>
                     <th>SKU</th>
+                    <th>Size</th>
                     <th>Qty</th>
                     <th>Unit</th>
                     <th>Assembly</th>
@@ -676,12 +942,14 @@ function Cart({ cart, onRemove, onClear }){
                   {cart.map(it=>{
                     const assemblyFeeLine = (it.assemblyFeeEach || 0) * it.qty;
                     const lineTotal = (it.unitPrice * it.qty) + assemblyFeeLine;
+                    const size = `${it.width ?? "-"}"W × ${it.height ?? "-"}"H × ${it.depth ?? "-"}"D`;
 
                     return (
                       <tr key={it.key}>
                         <td>{it.finishName}</td>
                         <td>{it.cabinetTypeLabel || it.cabinetType || "-"}</td>
                         <td>{it.sku}</td>
+                        <td>{size}</td>
                         <td>{it.qty}</td>
                         <td>{usd(it.unitPrice)}</td>
                         <td>{it.assembly === "assembled" ? usd(it.assemblyFeeEach || 0) : usd(0)}</td>
@@ -700,16 +968,26 @@ function Cart({ cart, onRemove, onClear }){
               Subtotal: <span style={{ marginLeft:10, fontFamily:'Georgia,"Times New Roman",serif' }}>{usd(subtotal)}</span>
             </div>
 
-            <div className="row" style={{ justifyContent:"flex-end", marginTop:12 }}>
-              <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
+            <div className="row" style={{ justifyContent:"space-between", marginTop:12 }}>
+              <div className="row">
+                <button className="btn btn-outline" type="button" onClick={onClear}>Clear Cart</button>
+                <button className="btn btn-outline" type="button" onClick={onExportCSV}>Export CSV</button>
+                <button className="btn btn-ghost" type="button" onClick={onShareLink}>Share Cart</button>
+              </div>
+
               {checkoutOk ? (
-                <a className="btn btn-primary" href={STRIPE_PAYMENT_LINK} target="_blank" rel="noreferrer">
+                <a
+                  className="btn btn-primary"
+                  href={canPay ? STRIPE_PAYMENT_LINK : undefined}
+                  onClick={(e)=>{ if (!canPay) e.preventDefault(); }}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ opacity: canPay ? 1 : .55, pointerEvents: canPay ? "auto" : "none" }}
+                >
                   Pay (Apple Pay / Card)
                 </a>
               ) : (
-                <a className="btn btn-primary" href="mailto:premier@premierkm.com">
-                  Checkout Setup Needed
-                </a>
+                <a className="btn btn-primary" href="mailto:premier@premierkm.com">Checkout Setup Needed</a>
               )}
             </div>
 
@@ -717,6 +995,14 @@ function Cart({ cart, onRemove, onClear }){
               <div className="card soft" style={{ marginTop:14 }}>
                 <p className="mini" style={{ margin:0 }}>
                   Paste your Stripe payment link into STRIPE_PAYMENT_LINK at the top of this file.
+                </p>
+              </div>
+            )}
+
+            {checkoutOk && !freightOk && (
+              <div className="card soft" style={{ marginTop:14 }}>
+                <p className="mini" style={{ margin:0 }}>
+                  Check the freight acknowledgement above to enable checkout.
                 </p>
               </div>
             )}
@@ -761,10 +1047,31 @@ export default function App(){
 
   useEffect(()=>{ localStorage.setItem("premier_cart", JSON.stringify(cart)); },[cart]);
 
-  const { route, sub } = parseRouteFromHash(hash);
+  const { route, sub, params } = parseRouteFromHash(hash);
 
-  const addToCart = ({ finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach }) => {
-    const key = `${finishId}|${cabinetType}|${sku}|${assembly}`; // ✅ includes type now
+  /* ✅ Auto-load shared cart links: #/cart?data=XXXX */
+  useEffect(() => {
+    if (route !== "cart") return;
+    const data = params?.data;
+    if (!data) return;
+    try{
+      const decoded = b64urlDecode(data);
+      const parsed = JSON.parse(decoded);
+      if (Array.isArray(parsed)){
+        setCart(parsed);
+        // clean the URL after import
+        window.location.hash = "/cart";
+      }
+    } catch {
+      // ignore bad links
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route]);
+
+  const addToCart = ({ finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach, width, height, depth }) => {
+    // ✅ key includes type + sku + assembly + dimensions
+    const key = `${finishId}|${cabinetType}|${sku}|${assembly}|${width}|${height}|${depth}`;
+
     setCart(prev=>{
       const idx = prev.findIndex(x=>x.key===key);
       if (idx>=0){
@@ -772,13 +1079,65 @@ export default function App(){
         copy[idx] = { ...copy[idx], qty: copy[idx].qty + qty };
         return copy;
       }
-      return [...prev, { key, finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach }];
+      return [...prev, {
+        key,
+        finishId,
+        finishName,
+        cabinetType,
+        cabinetTypeLabel,
+        sku,
+        qty,
+        unitPrice,
+        assembly,
+        assemblyFeeEach,
+        width,
+        height,
+        depth
+      }];
     });
+
     window.location.hash = "/cart";
   };
 
   const removeFromCart = (key)=>setCart(prev=>prev.filter(x=>x.key!==key));
   const clearCart = ()=>setCart([]);
+
+  const exportCartCSV = () => {
+    const header = ["Finish","Type","SKU","Width","Height","Depth","Qty","UnitPrice","AssemblyEach","LineTotal"].join(",");
+    const rows = cart.map(it => {
+      const assemblyLine = (it.assemblyFeeEach || 0) * it.qty;
+      const lineTotal = (it.unitPrice * it.qty) + assemblyLine;
+      const cols = [
+        it.finishName,
+        it.cabinetTypeLabel || it.cabinetType || "",
+        it.sku,
+        it.width ?? "",
+        it.height ?? "",
+        it.depth ?? "",
+        it.qty,
+        it.unitPrice,
+        it.assembly === "assembled" ? (it.assemblyFeeEach || 0) : 0,
+        lineTotal
+      ];
+      return cols.map(v => `"${String(v).replaceAll('"','""')}"`).join(",");
+    });
+    const csv = [header, ...rows].join("\n");
+    downloadTextFile("premier-cart.csv", csv);
+  };
+
+  const shareCartLink = async () => {
+    const payload = JSON.stringify(cart);
+    const token = b64urlEncode(payload);
+    const url = `${window.location.origin}${window.location.pathname}#/cart?data=${token}`;
+
+    try{
+      await navigator.clipboard.writeText(url);
+      alert("Share link copied to clipboard!");
+    } catch {
+      // fallback
+      prompt("Copy this share link:", url);
+    }
+  };
 
   return (
     <div>
@@ -786,11 +1145,26 @@ export default function App(){
       <Header cartCount={cart.reduce((s,it)=>s+it.qty,0)} />
 
       {route==="home" && <Home />}
-      {route==="shop" && (!sub ? <ShopList /> : <Configurator finishId={sub} onAddToCart={addToCart} />)}
+      {route==="shop" && (!sub ? <ShopList /> : (
+        <Configurator
+          finishId={sub}
+          cart={cart}
+          onAddToCart={addToCart}
+          onExportCartCSV={exportCartCSV}
+        />
+      ))}
       {route==="design" && <DesignCenter />}
       {route==="learn" && <Learning />}
       {route==="gallery" && <Gallery />}
-      {route==="cart" && <Cart cart={cart} onRemove={removeFromCart} onClear={clearCart} />}
+      {route==="cart" && (
+        <Cart
+          cart={cart}
+          onRemove={removeFromCart}
+          onClear={clearCart}
+          onExportCSV={exportCartCSV}
+          onShareLink={shareCartLink}
+        />
+      )}
       {route==="contact" && <Contact />}
     </div>
   );
