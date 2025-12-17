@@ -29,16 +29,17 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
-   GLOBAL STYLES
+   GLOBAL STYLES (WHITE / RED / BLACK ONLY)
    ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
         --bg:#ffffff;
-        --bg2:#faf7f1;
+        --bg2:#f7f7f9;
+
         --card:#ffffff;
-        --card2:#fbf9f4;
+        --card2:#fafafa;
 
         --text:#0f0f10;
         --muted:#2f2f34;
@@ -47,7 +48,6 @@ function GlobalStyles() {
         --primary:#c0182a;
         --primary2:#9f1322;
 
-        --gold:#b08d57;
         --border: rgba(15,15,16,.12);
         --ring: rgba(192,24,42,.18);
 
@@ -58,8 +58,7 @@ function GlobalStyles() {
       html,body{
         margin:0;
         background:
-          radial-gradient(900px 520px at 15% 0%, rgba(176,141,87,.10), transparent 55%),
-          radial-gradient(900px 520px at 85% 10%, rgba(192,24,42,.07), transparent 60%),
+          radial-gradient(900px 520px at 85% 10%, rgba(192,24,42,.06), transparent 60%),
           var(--bg);
         color:var(--text);
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -166,11 +165,6 @@ function GlobalStyles() {
         font-size:12px;
         font-weight:800;
         color: rgba(15,15,16,.86);
-      }
-      .pill.gold{
-        background: rgba(176,141,87,.16);
-        border-color: rgba(176,141,87,.30);
-        color: #6c4f24;
       }
       .pill.red{
         background: rgba(192,24,42,.10);
@@ -450,23 +444,27 @@ const REVIEWS = [
 ];
 
 /* ============================
-   ROUTER
+   CART TOTALS (itemized)
    ============================ */
-function parseRouteFromHash(hash) {
-  const raw = (hash || "").replace(/^#\/?/, "").trim();
-  const [pathPart, queryPart] = raw.split("?");
-  const h = (pathPart || "").trim().toLowerCase();
-  const parts = h.split("/");
-  const first = parts[0] || "home";
-  const valid = ["home", "shop", "design", "learn", "gallery", "cart", "contact"];
-  const route = valid.includes(first) ? first : "home";
-  const sub = parts[1];
-  const params = {};
-  if (queryPart) {
-    const usp = new URLSearchParams(queryPart);
-    for (const [k, v] of usp.entries()) params[k] = v;
+function computeCartTotals(cart) {
+  let cabinetsSubtotal = 0;
+  let accessoriesSubtotal = 0;
+  let samplesSubtotal = 0;
+  let assemblySubtotal = 0;
+
+  for (const it of cart) {
+    const lineBase = (it.unitPrice || 0) * (it.qty || 0);
+    const lineAssembly = (it.assemblyFeeEach || 0) * (it.qty || 0);
+
+    if (it.cabinetType === "accessory") accessoriesSubtotal += lineBase;
+    else if (it.cabinetType === "sample") samplesSubtotal += lineBase;
+    else cabinetsSubtotal += lineBase;
+
+    assemblySubtotal += lineAssembly;
   }
-  return { route, sub, params };
+
+  const subtotal = cabinetsSubtotal + accessoriesSubtotal + samplesSubtotal + assemblySubtotal;
+  return { cabinetsSubtotal, accessoriesSubtotal, samplesSubtotal, assemblySubtotal, subtotal };
 }
 
 /* ============================
@@ -597,7 +595,7 @@ function Header({ cartCount, projects, currentProjectId, onSwitchProject, onCrea
 }
 
 /* ============================
-   HOME
+   HOME (no gold bubbles, no gold tint)
    ============================ */
 function Home() {
   const [reviewIdx, setReviewIdx] = useState(0);
@@ -623,7 +621,7 @@ function Home() {
             <div className="row" style={{ marginTop: 14 }}>
               <span className="pill">Nationwide Freight</span>
               <span className="pill">Local Pickup</span>
-              <span className="pill gold">Gold hardware pairs</span>
+              <span className="pill red">Red • White • Black</span>
             </div>
 
             <div className="divider" />
@@ -645,7 +643,7 @@ function Home() {
           <div className="card soft">
             <div className="kicker">Door samples</div>
             <h3 style={{ fontSize: 20, marginTop: 8 }}>Order a sample</h3>
-            <p className="mini">Try a sample before committing. Order from Shop. Apply a sample credit later (placeholder).</p>
+            <p className="mini">Try a sample before committing. Order from Shop.</p>
             <a className="btn btn-primary" href="#/shop">Shop + Samples</a>
           </div>
           <div className="card soft">
@@ -667,7 +665,7 @@ function Home() {
 }
 
 /* ============================
-   SHOP (samples)
+   SHOP
    ============================ */
 function ShopList({ onAddSample }) {
   const [group, setGroup] = useState("all");
@@ -697,7 +695,7 @@ function ShopList({ onAddSample }) {
       <div className="container">
         <div className="kicker">Shop</div>
         <h2 style={{ fontSize: 32, marginTop: 10 }}>Finishes + Door Samples</h2>
-        <p>Search finishes, then configure cabinets by SKU. Order door samples anytime.</p>
+        <p>Search finishes, configure cabinets by SKU, and order door samples.</p>
 
         <div className="card soft" style={{ marginTop: 14 }}>
           <div className="grid three">
@@ -722,7 +720,7 @@ function ShopList({ onAddSample }) {
           </div>
 
           <div className="mini" style={{ marginTop: 10 }}>
-            Door sample price: <b style={{ color:"var(--text)" }}>{usd(SAMPLE_PRICE)}</b>. Showroom: <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b>.
+            Door sample price: <b style={{ color:"var(--text)" }}>{usd(SAMPLE_PRICE)}</b> • Showroom: <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b>
           </div>
         </div>
 
@@ -730,7 +728,7 @@ function ShopList({ onAddSample }) {
           <div key={g.group} style={{ marginTop: 22 }}>
             <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
               <h3 style={{ margin:0 }}>{g.group}</h3>
-              <span className="pill gold">Tribeca</span>
+              <span className="pill">Tribeca</span>
             </div>
 
             <div className="grid three" style={{ marginTop: 12 }}>
@@ -812,10 +810,9 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
   const lineTotal = unitTotal * qty;
 
   const totals = useMemo(() => computeCartTotals(cart), [cart]);
-
   const cartCount = useMemo(() => cart.reduce((s,it)=>s+it.qty,0), [cart]);
-  const dimsLabel = `${chosen?.width ?? "-"}" W × ${height}" H × ${depth}" D`;
 
+  const dimsLabel = `${chosen?.width ?? "-"}" W × ${height}" H × ${depth}" D`;
   const accItem = ACCESSORIES.find(a => a.sku === accSku) || ACCESSORIES[0];
 
   return (
@@ -842,7 +839,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
             <div className="divider" />
             <div className="row">
               <span className="pill red">Lead time: 2–5 weeks (typical)</span>
-              <span className="pill gold">Freight quoted after order</span>
+              <span className="pill">Freight quoted after order</span>
               <span className="pill">Showroom: {SHOWROOM_ADDRESS}</span>
             </div>
           </div>
@@ -1002,32 +999,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast, o
 }
 
 /* ============================
-   CART UTIL: itemized totals
-   ============================ */
-function computeCartTotals(cart) {
-  let cabinetsSubtotal = 0;
-  let accessoriesSubtotal = 0;
-  let samplesSubtotal = 0;
-  let assemblySubtotal = 0;
-
-  for (const it of cart) {
-    const lineBase = (it.unitPrice || 0) * (it.qty || 0);
-    const lineAssembly = (it.assemblyFeeEach || 0) * (it.qty || 0);
-
-    if (it.cabinetType === "accessory") accessoriesSubtotal += lineBase;
-    else if (it.cabinetType === "sample") samplesSubtotal += lineBase;
-    else cabinetsSubtotal += lineBase;
-
-    assemblySubtotal += lineAssembly;
-  }
-
-  const subtotal = cabinetsSubtotal + accessoriesSubtotal + samplesSubtotal + assemblySubtotal;
-
-  return { cabinetsSubtotal, accessoriesSubtotal, samplesSubtotal, assemblySubtotal, subtotal };
-}
-
-/* ============================
-   CART (shipping estimator + sample credit + project packet)
+   CART (shipping estimator + sample credit + packet)
    ============================ */
 function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast, projectName, measurementSummaryText }) {
   const totals = useMemo(() => computeCartTotals(cart), [cart]);
@@ -1035,29 +1007,21 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast, proj
   const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
   const [freightOk, setFreightOk] = useState(false);
 
-  // shipping estimator options
-  const [shipType, setShipType] = useState("residential"); // residential | commercial
+  const [shipType, setShipType] = useState("residential");
   const [liftgate, setLiftgate] = useState(true);
   const [appointment, setAppointment] = useState(true);
   const [zip, setZip] = useState("");
 
-  // sample credit placeholder
   const [applySampleCredit, setApplySampleCredit] = useState(true);
 
   const estimatedFreight = useMemo(() => {
-    // heuristic: base range depends on type; liftgate/appointment add
     const baseLow = shipType === "commercial" ? 350 : 450;
     const baseHigh = shipType === "commercial" ? 650 : 850;
-
     const addLift = liftgate ? 75 : 0;
     const addAppt = appointment ? 50 : 0;
-
-    // simple: if zip entered, slightly “tighten” range; otherwise keep wide
-    const tighten = zip.trim().length >= 5 ? 0.85 : 1;
-
+    const tighten = zip.trim().length >= 5 ? 0.9 : 1;
     const low = Math.round((baseLow + addLift + addAppt) * tighten);
-    const high = Math.round((baseHigh + addLift + addAppt) * (tighten ? 1 : 1.15));
-
+    const high = Math.round((baseHigh + addLift + addAppt) * (zip.trim().length >= 5 ? 0.95 : 1.15));
     return { low, high };
   }, [shipType, liftgate, appointment, zip]);
 
@@ -1090,15 +1054,12 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast, proj
   }, [cart, notes, totals, shipType, liftgate, appointment, zip, sampleCredit, totalAfterCredit, projectName]);
 
   const exportProjectPacket = () => {
-    // CSV
     onExportCSV();
 
-    // Measurements summary (if provided from Design Center wizard)
     const measurementText = measurementSummaryText?.trim()
       ? measurementSummaryText.trim()
       : "No measurement summary saved for this project yet. Use Design Center to create one.";
 
-    // Delivery checklist
     const deliveryChecklist =
 `Premier RTA Cabinetry — Delivery Checklist
 
@@ -1148,7 +1109,7 @@ ${SHOWROOM_ADDRESS}
             <div className="card soft" style={{ marginTop: 14 }}>
               <div className="row" style={{ justifyContent: "space-between" }}>
                 <span className="pill red">Freight shipping is quoted after order</span>
-                <span className="pill gold">Lead time: 2–5 weeks (typical)</span>
+                <span className="pill">Lead time: 2–5 weeks (typical)</span>
               </div>
 
               <div className="grid two" style={{ marginTop: 12 }}>
@@ -1330,7 +1291,7 @@ ${SHOWROOM_ADDRESS}
 }
 
 /* ============================
-   DESIGN CENTER (tools live here now)
+   DESIGN CENTER (ONE TOOL: measurements + request)
    ============================ */
 function DesignCenter({ onSaveMeasurementSummary, savedMeasurementSummary }) {
   const [path, setPath] = useState("Design It For Me");
@@ -1339,14 +1300,14 @@ function DesignCenter({ onSaveMeasurementSummary, savedMeasurementSummary }) {
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [files, setFiles] = useState([]);
 
-  // Measurement wizard (moved here)
+  // measurement fields (part of same tool)
   const [wiz, setWiz] = useState({
     ceiling: "",
     wallA: "",
     wallB: "",
     windowsDoors: "",
     appliances: "",
-    notes: ""
+    mnotes: ""
   });
 
   const measurementSummaryText = useMemo(() => {
@@ -1361,14 +1322,14 @@ Wall A length: ${wiz.wallA || "-"}
 Wall B length: ${wiz.wallB || "-"}
 Windows/doors: ${wiz.windowsDoors || "-"}
 Appliances: ${wiz.appliances || "-"}
-Notes: ${wiz.notes || "-"}
+Notes: ${wiz.mnotes || "-"}
 
 (Attach photos/sketches when emailing.)
 `
     );
   }, [wiz]);
 
-  // Quick price calc (moved here)
+  // quick price calc (still here)
   const [linFeet, setLinFeet] = useState(20);
   const [uppers, setUppers] = useState(6);
   const [pantry, setPantry] = useState(false);
@@ -1382,12 +1343,6 @@ Notes: ${wiz.notes || "-"}
     const high = Math.round(total * 1.2);
     return { low, high };
   }, [linFeet, uppers, pantry, calcAssembly]);
-
-  const wizardEmailHref = useMemo(() => {
-    const subject = encodeURIComponent("Measurements — Premier RTA Cabinetry");
-    const body = encodeURIComponent(measurementSummaryText);
-    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-  }, [measurementSummaryText]);
 
   const mailtoHref = useMemo(() => {
     const subject = encodeURIComponent("Free 3D Design Request — Premier RTA Cabinetry");
@@ -1403,7 +1358,7 @@ Notes: ${wiz.notes || "-"}
       `Notes:`,
       notes || "(none)",
       ``,
-      `Measurement summary (paste or see attached):`,
+      `Measurement summary:`,
       measurementSummaryText,
       ``,
       `Uploads (attach these to this email):`,
@@ -1417,105 +1372,15 @@ Notes: ${wiz.notes || "-"}
     <section className="section">
       <div className="container">
         <div className="kicker">Design Center</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>Free 3D Design + Measurement Tools</h2>
+        <h2 style={{ fontSize: 34, marginTop: 10 }}>One form: measurements + free 3D design request</h2>
         <p>
-          We’ve served customers for years from Staten Island — now shipping RTA nationwide with designer-led support.
-          Use the tools below to send clean measurements and request a free 3D plan.
+          Fill this out once. We’ll use your measurements and photos to create a 3D layout + an itemized SKU list.
         </p>
 
         <div className="grid two" style={{ marginTop: 16 }}>
+          {/* ONE TOOL: request + measurements */}
           <div className="card">
-            <div className="kicker">Measurement Wizard</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Send measurements in 60 seconds</h3>
-
-            <div className="grid two" style={{ marginTop: 10 }}>
-              <div>
-                <label>Ceiling height</label>
-                <input value={wiz.ceiling} onChange={(e)=>setWiz(w=>({ ...w, ceiling:e.target.value }))} placeholder='e.g. 96"' />
-              </div>
-              <div>
-                <label>Wall A length</label>
-                <input value={wiz.wallA} onChange={(e)=>setWiz(w=>({ ...w, wallA:e.target.value }))} placeholder='e.g. 144"' />
-              </div>
-              <div>
-                <label>Wall B length</label>
-                <input value={wiz.wallB} onChange={(e)=>setWiz(w=>({ ...w, wallB:e.target.value }))} placeholder='e.g. 120"' />
-              </div>
-              <div>
-                <label>Windows/doors</label>
-                <input value={wiz.windowsDoors} onChange={(e)=>setWiz(w=>({ ...w, windowsDoors:e.target.value }))} placeholder="sizes + locations" />
-              </div>
-            </div>
-
-            <label>Appliances</label>
-            <input value={wiz.appliances} onChange={(e)=>setWiz(w=>({ ...w, appliances:e.target.value }))} placeholder="range/fridge/dishwasher sizes" />
-
-            <label>Notes</label>
-            <textarea rows={3} value={wiz.notes} onChange={(e)=>setWiz(w=>({ ...w, notes:e.target.value }))} placeholder="pantry? island? timeline?" />
-
-            <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href={wizardEmailHref}>Email measurements</a>
-              <button
-                className="btn btn-outline"
-                type="button"
-                onClick={()=>{
-                  onSaveMeasurementSummary(measurementSummaryText);
-                }}
-              >
-                Save to project
-              </button>
-              <button
-                className="btn btn-ghost"
-                type="button"
-                onClick={()=>{
-                  downloadTextFile("measurements.txt", measurementSummaryText);
-                }}
-              >
-                Download
-              </button>
-            </div>
-
-            {savedMeasurementSummary?.trim?.() && (
-              <div className="mini" style={{ marginTop: 10 }}>
-                <b style={{ color:"var(--text)" }}>Saved to this project.</b>
-              </div>
-            )}
-          </div>
-
-          <div className="card soft">
-            <div className="kicker">Quick price calculator</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Ballpark range (not a quote)</h3>
-
-            <label>Base run (linear feet)</label>
-            <input type="number" min={1} value={linFeet} onChange={(e)=>setLinFeet(Math.max(1, parseInt(e.target.value || "1")))} />
-
-            <label># of upper cabinets</label>
-            <input type="number" min={0} value={uppers} onChange={(e)=>setUppers(Math.max(0, parseInt(e.target.value || "0")))} />
-
-            <div className="row" style={{ marginTop: 10 }}>
-              <input type="checkbox" checked={pantry} onChange={(e)=>setPantry(e.target.checked)} style={{ width:18, height:18 }} />
-              <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Include pantry/tall cabinet</label>
-            </div>
-
-            <div className="row" style={{ marginTop: 10 }}>
-              <input type="checkbox" checked={calcAssembly} onChange={(e)=>setCalcAssembly(e.target.checked)} style={{ width:18, height:18 }} />
-              <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Include assembled</label>
-            </div>
-
-            <div className="divider" />
-            <div style={{ fontSize: 18, fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700 }}>
-              Estimated range: {usd(estRange.low)} – {usd(estRange.high)}
-            </div>
-            <div className="mini" style={{ marginTop: 10 }}>
-              Freight/tax not included. For an exact list, request a free 3D design.
-            </div>
-          </div>
-        </div>
-
-        <div className="grid two" style={{ marginTop: 16 }}>
-          <div className="card">
-            <div className="kicker">Free 3D design request</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Request (Free)</h3>
+            <div className="kicker">Free 3D Design Request</div>
 
             <div className="row" style={{ marginTop: 10 }}>
               {["Design It For Me","I Have Measurements","I Just Want Advice"].map(p=>(
@@ -1548,35 +1413,105 @@ Notes: ${wiz.notes || "-"}
             <label>Email</label>
             <input value={contact.email} onChange={(e)=>setContact(c=>({ ...c, email:e.target.value }))} />
 
+            <div className="divider" />
+
+            <div className="kicker">Measurements</div>
+            <div className="grid two" style={{ marginTop: 10 }}>
+              <div>
+                <label>Ceiling height</label>
+                <input value={wiz.ceiling} onChange={(e)=>setWiz(w=>({ ...w, ceiling:e.target.value }))} placeholder='e.g. 96"' />
+              </div>
+              <div>
+                <label>Wall A length</label>
+                <input value={wiz.wallA} onChange={(e)=>setWiz(w=>({ ...w, wallA:e.target.value }))} placeholder='e.g. 144"' />
+              </div>
+              <div>
+                <label>Wall B length</label>
+                <input value={wiz.wallB} onChange={(e)=>setWiz(w=>({ ...w, wallB:e.target.value }))} placeholder='e.g. 120"' />
+              </div>
+              <div>
+                <label>Windows/doors</label>
+                <input value={wiz.windowsDoors} onChange={(e)=>setWiz(w=>({ ...w, windowsDoors:e.target.value }))} placeholder="sizes + locations" />
+              </div>
+            </div>
+
+            <label>Appliances</label>
+            <input value={wiz.appliances} onChange={(e)=>setWiz(w=>({ ...w, appliances:e.target.value }))} placeholder="range/fridge/dishwasher sizes" />
+
+            <label>Measurement notes</label>
+            <textarea rows={3} value={wiz.mnotes} onChange={(e)=>setWiz(w=>({ ...w, mnotes:e.target.value }))} placeholder="pantry? island? timeline?" />
+
             <label>Upload photos/sketches</label>
             <input type="file" multiple onChange={(e)=>setFiles(Array.from(e.target.files || []))} />
             <div className="mini" style={{ marginTop: 6 }}>
               {files.length ? `Selected: ${files.map(f=>f.name).join(", ")}` : "Attach photos/sketches after the email opens."}
             </div>
 
-            <label>Notes</label>
-            <textarea rows={4} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Layout goals, appliances, timeline…" />
+            <label>Project notes</label>
+            <textarea rows={3} value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Layout goals, appliances, timeline…" />
 
             <div className="row" style={{ marginTop: 14 }}>
-              <a className="btn btn-primary" href={mailtoHref}>Request Free Design (Email)</a>
-              <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email</a>
+              <a className="btn btn-primary" href={mailtoHref}>Send Request (Email)</a>
+              <button
+                className="btn btn-outline"
+                type="button"
+                onClick={() => onSaveMeasurementSummary(measurementSummaryText)}
+              >
+                Save measurements to project
+              </button>
+              <button
+                className="btn btn-ghost"
+                type="button"
+                onClick={() => downloadTextFile("measurements.txt", measurementSummaryText)}
+              >
+                Download
+              </button>
             </div>
+
+            {savedMeasurementSummary?.trim?.() && (
+              <div className="mini" style={{ marginTop: 10 }}>
+                <b style={{ color:"var(--text)" }}>Saved to this project.</b>
+              </div>
+            )}
           </div>
 
+          {/* Right column: calculator + expectations */}
           <div className="card soft">
-            <div className="kicker">Expectations</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Lead time & freight</h3>
-            <p className="mini">
-              Typical lead time is <b style={{ color:"var(--text)" }}>2–5 weeks</b> (varies by finish and order size).
-              Freight ships LTL and is confirmed after order based on destination and options (residential/liftgate/appointment).
-            </p>
+            <div className="kicker">Quick tools</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Ballpark range (not a quote)</h3>
+
+            <label>Base run (linear feet)</label>
+            <input type="number" min={1} value={linFeet} onChange={(e)=>setLinFeet(Math.max(1, parseInt(e.target.value || "1")))} />
+
+            <label># of upper cabinets</label>
+            <input type="number" min={0} value={uppers} onChange={(e)=>setUppers(Math.max(0, parseInt(e.target.value || "0")))} />
+
+            <div className="row" style={{ marginTop: 10 }}>
+              <input type="checkbox" checked={pantry} onChange={(e)=>setPantry(e.target.checked)} style={{ width:18, height:18 }} />
+              <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Include pantry/tall cabinet</label>
+            </div>
+
+            <div className="row" style={{ marginTop: 10 }}>
+              <input type="checkbox" checked={calcAssembly} onChange={(e)=>setCalcAssembly(e.target.checked)} style={{ width:18, height:18 }} />
+              <label style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>Include assembled</label>
+            </div>
+
+            <div className="divider" />
+            <div style={{ fontSize: 18, fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700 }}>
+              Estimated range: {usd(estRange.low)} – {usd(estRange.high)}
+            </div>
+            <div className="mini" style={{ marginTop: 10 }}>
+              Freight/tax not included. Lead time typically 2–5 weeks.
+            </div>
 
             <div className="divider" />
             <div className="kicker">Showroom</div>
-            <p className="mini" style={{ marginTop: 8 }}>
-              Visit: <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b><br/>
-              Phone: <b style={{ color:"var(--text)" }}>{SUPPORT_PHONE}</b>
-            </p>
+            <div className="mini" style={{ marginTop: 8 }}>
+              <b style={{ color:"var(--text)" }}>{SHOWROOM_ADDRESS}</b><br/>
+              Phone: <b style={{ color:"var(--text)" }}>{SUPPORT_PHONE}</b><br/>
+              Email: <b style={{ color:"var(--text)" }}>{SUPPORT_EMAIL}</b>
+            </div>
+
             <div className="row" style={{ marginTop: 12 }}>
               <a className="btn btn-primary" href="#/shop">Shop</a>
               <a className="btn btn-outline" href="#/cart">Checkout</a>
@@ -1589,7 +1524,7 @@ Notes: ${wiz.notes || "-"}
 }
 
 /* ============================
-   LEARNING (simplified per your request)
+   LEARNING (simple)
    ============================ */
 function Learning() {
   const measurementSteps = [
@@ -1621,13 +1556,13 @@ function Learning() {
         <div className="grid three" style={{ marginTop: 14 }}>
           <div className="card">
             <div className="kicker">1) Choose your path</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Shop online or request a plan</h3>
-            <p className="mini">You can shop finishes and add cabinets by SKU — or request a free 3D layout + list first.</p>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Shop or request a plan</h3>
+            <p className="mini">Shop finishes and add cabinets by SKU — or request a free 3D layout + list first.</p>
           </div>
           <div className="card">
             <div className="kicker">2) We support the order</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Designer-led when needed</h3>
-            <p className="mini">We help confirm cabinets, fillers, panels, and order flow so the install goes smooth.</p>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Experience-led support</h3>
+            <p className="mini">We help confirm cabinets, order flow, and delivery expectations so installs go smooth.</p>
           </div>
           <div className="card">
             <div className="kicker">3) Delivery expectations</div>
@@ -1644,7 +1579,7 @@ function Learning() {
               {measurementSteps.map((s,i)=><li key={i}>{s}</li>)}
             </ul>
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/design">Use Design Center tools</a>
+              <a className="btn btn-primary" href="#/design">Use Design Center form</a>
               <a className="btn btn-outline" href={emailTemplateHref}>Email template</a>
             </div>
           </div>
@@ -1711,7 +1646,7 @@ function Gallery() {
               </select>
             </div>
             <div className="mini" style={{ alignSelf:"end" }}>
-              Tip: Real installs + finish tags convert like crazy.
+              Tip: Real installs + finish tags convert fast.
             </div>
             <div style={{ alignSelf:"end" }}>
               <a className="btn btn-outline" href="#/shop">Shop finishes</a>
@@ -1772,9 +1707,8 @@ function Contact() {
           </p>
 
           <div className="divider" />
-          <div className="kicker">What we do</div>
           <p className="mini">
-            We’ve served Staten Island for years — now shipping RTA nationwide with finish guidance and designer-led support.
+            Serving Staten Island for years — now shipping RTA nationwide with designer-led support when you want it.
           </p>
 
           <div className="row" style={{ marginTop: 12 }}>
@@ -1832,11 +1766,10 @@ export default function App() {
   const [hash, setHash] = useState(typeof window !== "undefined" ? (window.location.hash || "#/home") : "#/home");
   const [toast, setToast] = useState("");
 
-  // multi projects (no new tab)
   const [projects, setProjects] = useState(() => {
     if (typeof window === "undefined") return getDefaultProjects();
     try {
-      const raw = localStorage.getItem("premier_projects_v2");
+      const raw = localStorage.getItem("premier_projects_v3");
       const parsed = raw ? JSON.parse(raw) : null;
       return Array.isArray(parsed) && parsed.length ? parsed : getDefaultProjects();
     } catch {
@@ -1846,7 +1779,7 @@ export default function App() {
 
   const [currentProjectId, setCurrentProjectId] = useState(() => {
     if (typeof window === "undefined") return "";
-    return localStorage.getItem("premier_current_project_v2") || "";
+    return localStorage.getItem("premier_current_project_v3") || "";
   });
 
   useEffect(() => {
@@ -1864,8 +1797,8 @@ export default function App() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    localStorage.setItem("premier_projects_v2", JSON.stringify(projects));
-    localStorage.setItem("premier_current_project_v2", currentProjectId || "");
+    localStorage.setItem("premier_projects_v3", JSON.stringify(projects));
+    localStorage.setItem("premier_current_project_v3", currentProjectId || "");
   }, [projects, currentProjectId]);
 
   useEffect(() => {
@@ -1886,7 +1819,6 @@ export default function App() {
 
   const { route, sub, params } = parseRouteFromHash(hash);
 
-  // Load shared cart into current project
   useEffect(() => {
     if (route !== "cart") return;
     const data = params?.data;
@@ -1925,15 +1857,15 @@ export default function App() {
   const addToCart = ({ finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach, width, height, depth }) => {
     const key = `${finishId}|${cabinetType}|${sku}|${assembly}|${width}|${height}|${depth}`;
 
-    const next = (() => {
-      const idx = cart.findIndex(x => x.key === key);
-      if (idx >= 0) {
-        const copy = cart.slice();
-        copy[idx] = { ...copy[idx], qty: copy[idx].qty + qty };
-        return copy;
-      }
-      return [...cart, { key, finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach, width, height, depth }];
-    })();
+    const idx = cart.findIndex(x => x.key === key);
+    let next;
+    if (idx >= 0) {
+      const copy = cart.slice();
+      copy[idx] = { ...copy[idx], qty: copy[idx].qty + qty };
+      next = copy;
+    } else {
+      next = [...cart, { key, finishId, finishName, cabinetType, cabinetTypeLabel, sku, qty, unitPrice, assembly, assemblyFeeEach, width, height, depth }];
+    }
 
     updateCurrentProject({ cart: next });
     window.location.hash = "/cart";
