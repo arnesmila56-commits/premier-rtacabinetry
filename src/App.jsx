@@ -47,15 +47,16 @@ function GlobalStyles() {
         --border: rgba(15,15,16,.12);
         --ring: rgba(192,24,42,.20);
 
-        --shadow: 0 18px 44px rgba(0,0,0,.10);
-        --shadow2: 0 10px 24px rgba(0,0,0,.08);
+        /* less “cartoon” = softer shadows + less bounce */
+        --shadow: 0 16px 36px rgba(0,0,0,.10);
+        --shadow2: 0 10px 22px rgba(0,0,0,.08);
       }
 
       html,body{
         margin:0;
         background:
-          radial-gradient(900px 520px at 15% 0%, rgba(176,141,87,.14), transparent 55%),
-          radial-gradient(900px 520px at 85% 10%, rgba(192,24,42,.10), transparent 60%),
+          radial-gradient(900px 520px at 15% 0%, rgba(176,141,87,.12), transparent 55%),
+          radial-gradient(900px 520px at 85% 10%, rgba(192,24,42,.08), transparent 60%),
           var(--bg);
         color:var(--text);
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -69,7 +70,7 @@ function GlobalStyles() {
       h1,h2,h3{
         margin:0 0 10px;
         font-family: Georgia, "Times New Roman", serif;
-        font-weight:750;
+        font-weight:700;
         letter-spacing:-0.02em;
         line-height:1.15;
       }
@@ -80,7 +81,7 @@ function GlobalStyles() {
       }
 
       .container{ max-width:1200px; margin:0 auto; padding:0 22px; }
-      section.section{ padding:48px 0; }
+      section.section{ padding:46px 0; }
       @media(max-width:900px){ section.section{ padding:32px 0; } }
 
       header.sticky{
@@ -133,7 +134,7 @@ function GlobalStyles() {
         letter-spacing:.22em;
         text-transform:uppercase;
         color:var(--muted2);
-        font-weight:850;
+        font-weight:800;
       }
 
       .card{
@@ -158,7 +159,7 @@ function GlobalStyles() {
         border:1px solid var(--border);
         background: rgba(255,255,255,.92);
         font-size:12px;
-        font-weight:850;
+        font-weight:800;
         color: rgba(15,15,16,.86);
       }
       .pill.gold{
@@ -179,20 +180,20 @@ function GlobalStyles() {
         padding:12px 16px;
         border-radius:12px;
         border:1px solid transparent;
-        font-weight:950;
+        font-weight:900;
         cursor:pointer;
         background:transparent;
-        transition: transform .12s ease, box-shadow .12s ease, background .12s ease, opacity .12s ease;
+        transition: transform .10s ease, box-shadow .10s ease, background .10s ease, opacity .10s ease;
       }
       .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
       .btn:active{ transform: translateY(0px); box-shadow:none; }
       .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
 
-      /* ✅ buttons POP */
+      /* strong, not faded */
       .btn-primary{
         background: linear-gradient(180deg, var(--primary), var(--primary2));
         color:#fff;
-        box-shadow: 0 14px 28px rgba(192,24,42,.26);
+        box-shadow: 0 14px 28px rgba(192,24,42,.24);
       }
       .btn-outline{
         border-color: rgba(15,15,16,.22);
@@ -210,7 +211,7 @@ function GlobalStyles() {
         letter-spacing:.18em;
         text-transform:uppercase;
         color:var(--muted2);
-        font-weight:850;
+        font-weight:800;
         display:block;
         margin:12px 0 6px;
       }
@@ -255,72 +256,59 @@ function GlobalStyles() {
       .stickySide{ position: sticky; top: 92px; align-self:start; }
       @media(max-width:900px){ .stickySide{ position: static; } }
 
-      /* ✅ HOME one-screen layout */
-      .homeOneScreen{ padding: 18px 0 14px; }
+      /* HOME (no overlay fade on image) */
+      .homeWrap{ padding: 18px 0 14px; }
       .homeViewport{
         min-height: calc(100vh - 120px);
         display:grid;
-        grid-template-columns: 1.15fr .85fr;
+        grid-template-columns: 1fr 1fr;
         gap:16px;
         align-items:stretch;
       }
       @media(max-width:900px){
         .homeViewport{
-          min-height: auto;
+          min-height:auto;
           grid-template-columns:1fr;
         }
       }
-
-      .hero{
-        border:1px solid var(--border);
+      .homePhoto{
         border-radius:20px;
         overflow:hidden;
-        position:relative;
-        background:#eee;
+        border:1px solid var(--border);
         box-shadow: var(--shadow);
+        background:#eee;
+        height: 100%;
+        min-height: 520px;
       }
-      .hero img{
+      .homePhoto img{
         width:100%;
         height:100%;
         object-fit:cover;
-        filter: saturate(1.03) contrast(1.03);
-      }
-      /* ✅ less fade + higher clarity */
-      .hero::after{
-        content:"";
-        position:absolute;
-        inset:0;
-        background:
-          linear-gradient(90deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.78) 44%, rgba(255,255,255,.35) 100%),
-          radial-gradient(820px 520px at 26% 52%, rgba(176,141,87,.16), transparent 58%);
-        pointer-events:none;
-      }
-      .heroInner{
-        position:absolute;
-        inset:0;
-        display:flex;
-        align-items:center;
-      }
-      .heroPanel{
-        max-width: 640px;
-        padding: 18px;
-        margin-left: 18px;
-        margin-right: 18px;
-        border-radius: 18px;
-        border: 1px solid rgba(15,15,16,.10);
-        background: rgba(255,255,255,.92);
-        box-shadow: 0 16px 40px rgba(0,0,0,.10);
-        backdrop-filter: blur(6px);
-      }
-      .heroTitle{ font-size: 46px; margin-top: 6px; }
-      .heroSub{ color: rgba(15,15,16,.78); }
-      @media(max-width:900px){
-        .hero{ min-height: 520px; }
-        .heroTitle{ font-size: 36px; }
-        .heroPanel{ margin: 14px; }
       }
 
-      /* Learning accordions (luxury) */
+      .homeStack{
+        display:grid;
+        grid-template-rows: auto auto 1fr;
+        gap:16px;
+      }
+
+      /* elegant step strip */
+      .step{
+        border:1px solid var(--border);
+        border-radius:16px;
+        background: rgba(255,255,255,.92);
+        box-shadow: var(--shadow2);
+        padding: 14px;
+      }
+      .stepNum{
+        font-size:11px;
+        letter-spacing:.20em;
+        text-transform:uppercase;
+        font-weight:900;
+        color: rgba(15,15,16,.65);
+      }
+
+      /* Learning accordions */
       details.lux{
         border:1px solid var(--border);
         border-radius:16px;
@@ -331,7 +319,7 @@ function GlobalStyles() {
       details.lux summary{
         cursor:pointer;
         list-style:none;
-        font-weight:950;
+        font-weight:900;
         color: var(--text);
         display:flex;
         justify-content:space-between;
@@ -379,7 +367,7 @@ function GlobalStyles() {
         padding: 10px 14px;
         box-shadow: var(--shadow);
         font-size: 13px;
-        font-weight: 950;
+        font-weight: 900;
         color: rgba(15,15,16,.88);
       }
     `}</style>
@@ -585,7 +573,7 @@ function FloatingHelp() {
       {open && (
         <div className="floatingPanel">
           <div className="kicker">Need help?</div>
-          <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 950, marginTop: 6 }}>
+          <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900, marginTop: 6 }}>
             Quick Support
           </div>
           <p className="mini" style={{ marginTop: 8 }}>
@@ -615,9 +603,9 @@ function FloatingHelp() {
 function Logo() {
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 8, lineHeight: 1 }}>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 950, fontSize: 20 }}>Premier</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900, fontSize: 20 }}>Premier</span>
       <span style={{ fontWeight: 950, fontSize: 14, color: "var(--primary)", letterSpacing: ".20em" }}>RTA</span>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 850, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 800, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
     </div>
   );
 }
@@ -652,86 +640,90 @@ function Header({ cartCount }) {
 }
 
 /* ============================
-   HOME (clean, no bubbles, no faded look)
+   HOME (fully changed: no fade overlay, not cartoon)
    ============================ */
 function Home() {
   const finishesFlat = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes), []);
   const [finishId, setFinishId] = useState(finishesFlat[0]?.id || "");
-
   const selectedFinish = finishesFlat.find(f => f.id === finishId) || finishesFlat[0];
 
   return (
-    <section className="homeOneScreen">
+    <section className="homeWrap">
       <div className="container homeViewport">
-        {/* Left hero */}
-        <div className="hero">
-          <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
-          <div className="heroInner">
-            <div className="heroPanel">
-              <div className="kicker">Premier RTA Cabinetry</div>
-              <h1 className="heroTitle">Luxury cabinets, without the showroom.</h1>
-              <p className="heroSub">
-                Choose a finish. Add base / wall / tall cabinets by SKU. Checkout with confidence.
-                If you want a full plan first — we’ll create a free 3D layout + cabinet list.
-              </p>
+        {/* Left column: crisp content cards */}
+        <div className="homeStack">
+          <div className="card">
+            <div className="kicker">Premier RTA Cabinetry</div>
+            <h1 style={{ fontSize: 46, marginTop: 8 }}>Luxury cabinets, without the showroom.</h1>
+            <p style={{ color: "rgba(15,15,16,.78)" }}>
+              Choose a finish. Add base / wall / tall cabinets by SKU. Checkout confidently.
+              Want a full plan first? Request a free 3D layout + cabinet list.
+            </p>
 
-              <div className="row" style={{ marginTop: 14 }}>
-                <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
-                <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+            <div className="row" style={{ marginTop: 14 }}>
+              <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
+              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+              <a className="btn btn-ghost" href="#/learn">Learning</a>
+            </div>
+
+            <div className="row" style={{ marginTop: 14 }}>
+              <span className="pill">Nationwide Shipping</span>
+              <span className="pill">Warehouse Pickup</span>
+              <span className="pill gold">Gold accents available</span>
+            </div>
+          </div>
+
+          {/* Cool / useful: quick finish → configurator */}
+          <div className="card soft">
+            <div className="kicker">Quick Start</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Pick a finish and start building</h3>
+            <div className="grid two" style={{ marginTop: 10, alignItems: "center" }}>
+              <div>
+                <label>Finish</label>
+                <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
+                  {FINISH_GROUPS.map(g => (
+                    <optgroup key={g.group} label={g.group}>
+                      {g.finishes.map(f => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <div className="row" style={{ marginTop: 12 }}>
+                  <a className="btn btn-primary" href={`#/shop/${finishId}`}>Configure</a>
+                  <a className="btn btn-outline" href="#/shop">All finishes</a>
+                </div>
               </div>
 
-              <div className="row" style={{ marginTop: 14 }}>
-                <span className="pill">Nationwide Shipping</span>
-                <span className="pill gold">Gold accents available</span>
-                <span className="pill">Secure Checkout</span>
+              <div className="finish-img" style={{ marginTop: 12 }}>
+                <img
+                  src={imgForFinish(selectedFinish?.id)}
+                  alt={selectedFinish?.name || "Finish"}
+                  style={{ height: 170 }}
+                />
               </div>
             </div>
+          </div>
+
+          {/* Tight, premium steps (not “start here”) */}
+          <div className="grid three">
+            {[
+              { n: "01", t: "Choose finish", b: "Pick a Tribeca finish that matches your project." },
+              { n: "02", t: "Add by SKU", b: "Select base/wall/tall, set sizes, add quantities." },
+              { n: "03", t: "Checkout", b: "Freight is quoted after order. We confirm delivery details." },
+            ].map(x => (
+              <div key={x.n} className="step">
+                <div className="stepNum">{x.n}</div>
+                <div style={{ fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700, marginTop: 6 }}>{x.t}</div>
+                <div className="mini" style={{ marginTop: 6 }}>{x.b}</div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Right side: Finish Finder + Guidance */}
-        <div style={{ display: "grid", gap: 16 }}>
-          {/* Finish Finder (replaces “Start here” and “Quick picks”) */}
-          <div className="card">
-            <div className="kicker">Finish Finder</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Pick a finish and start building</h3>
-            <p className="mini" style={{ marginTop: 6 }}>
-              Choose a finish → configure cabinets → add to cart. Simple.
-            </p>
-
-            <label>Finish</label>
-            <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
-              {FINISH_GROUPS.map(g => (
-                <optgroup key={g.group} label={g.group}>
-                  {g.finishes.map(f => (
-                    <option key={f.id} value={f.id}>{f.name}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-
-            <div className="finish-img" style={{ marginTop: 12 }}>
-              <img src={imgForFinish(selectedFinish?.id)} alt={selectedFinish?.name || "Finish"} style={{ height: 150 }} />
-            </div>
-
-            <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href={`#/shop/${finishId}`}>Configure This Finish</a>
-              <a className="btn btn-outline" href="#/learn">Learn</a>
-            </div>
-          </div>
-
-          {/* Need guidance (kept) */}
-          <div className="card soft">
-            <div className="kicker">Need guidance?</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Get a free 3D plan before you buy</h3>
-            <p className="mini" style={{ marginTop: 6 }}>
-              Send measurements/photos. We return a layout + itemized list so you order confidently.
-            </p>
-            <div className="row" style={{ marginTop: 10 }}>
-              <a className="btn btn-primary" href="#/design">Request Free Design</a>
-              <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email Us</a>
-            </div>
-          </div>
+        {/* Right column: full photo, NO overlay */}
+        <div className="homePhoto">
+          <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
         </div>
       </div>
     </section>
@@ -763,7 +755,7 @@ function ShopList() {
                     <img src={imgForFinish(f.id)} alt={f.name} />
                   </div>
                   <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
-                    <div style={{ fontWeight: 950 }}>{f.name}</div>
+                    <div style={{ fontWeight: 900 }}>{f.name}</div>
                     <span className="pill red">Finish</span>
                   </div>
                   <p className="mini">Configure base/wall/tall cabinets in this finish.</p>
@@ -861,7 +853,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
         <div className="stickySide" style={{ display: "grid", gap: 16 }}>
           <div className="card soft">
             <div className="row" style={{ justifyContent: "space-between" }}>
-              <div style={{ fontWeight: 950 }}>Mini Cart</div>
+              <div style={{ fontWeight: 900 }}>Mini Cart</div>
               <span className="pill">{cartCount} items</span>
             </div>
             <div className="mini" style={{ marginTop: 8 }}>
@@ -1094,7 +1086,7 @@ function DesignCenter() {
 }
 
 /* ============================
-   LEARNING (combined, no duplicate FAQ section)
+   LEARNING
    ============================ */
 function Learning() {
   return (
@@ -1247,7 +1239,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, fontSize: 18 }}>
-              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 950 }}>{usd(subtotal)}</span>
+              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900 }}>{usd(subtotal)}</span>
             </div>
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
