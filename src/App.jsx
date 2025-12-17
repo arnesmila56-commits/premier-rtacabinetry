@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 /* ============================
    CONFIG (edit these)
    ============================ */
 const STRIPE_PAYMENT_LINK = "PASTE_STRIPE_PAYMENT_LINK_HERE"; // Apple Pay + card
+
+const SUPPORT_EMAIL = "premier@premierkm.com";
 
 const FINISH_IMAGES = {
   "hudson-snow-white": "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-1-788x1024.jpg",
@@ -24,14 +26,14 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
-   GLOBAL STYLES (Red / White / Black + Gold)
+   GLOBAL STYLES (Luxury: red/white/black + gold)
    ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
         --bg:#ffffff;
-        --bg2:#faf7f1;          /* warm light stone */
+        --bg2:#faf7f1;          /* warm stone */
         --card:#ffffff;
         --card2:#fbf9f4;
 
@@ -47,8 +49,7 @@ function GlobalStyles() {
         --border: rgba(15,15,16,.12);
         --ring: rgba(192,24,42,.20);
 
-        /* less “cartoon” = softer shadows + less bounce */
-        --shadow: 0 16px 36px rgba(0,0,0,.10);
+        --shadow: 0 16px 34px rgba(0,0,0,.10);
         --shadow2: 0 10px 22px rgba(0,0,0,.08);
       }
 
@@ -88,7 +89,7 @@ function GlobalStyles() {
         position:sticky;
         top:0;
         z-index:40;
-        background:rgba(255,255,255,.90);
+        background:rgba(255,255,255,.92);
         backdrop-filter: blur(12px);
         border-bottom:1px solid var(--border);
       }
@@ -149,7 +150,9 @@ function GlobalStyles() {
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns:1fr 1fr; }
       .three{ grid-template-columns:repeat(3,1fr); }
-      @media(max-width:900px){ .two,.three{ grid-template-columns:1fr; } }
+      .four{ grid-template-columns:repeat(4,1fr); }
+      @media(max-width:1100px){ .four{ grid-template-columns:repeat(2,1fr);} }
+      @media(max-width:900px){ .two,.three,.four{ grid-template-columns:1fr; } }
 
       .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
 
@@ -189,11 +192,10 @@ function GlobalStyles() {
       .btn:active{ transform: translateY(0px); box-shadow:none; }
       .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
 
-      /* strong, not faded */
       .btn-primary{
         background: linear-gradient(180deg, var(--primary), var(--primary2));
         color:#fff;
-        box-shadow: 0 14px 28px rgba(192,24,42,.24);
+        box-shadow: 0 14px 28px rgba(192,24,42,.22);
       }
       .btn-outline{
         border-color: rgba(15,15,16,.22);
@@ -242,6 +244,7 @@ function GlobalStyles() {
       }
 
       .mini{ font-size:13px; color:var(--muted2); line-height:1.65; }
+      .divider{ height:1px; background:var(--border); margin:14px 0; }
 
       .finish-img{
         border-radius:16px;
@@ -251,61 +254,34 @@ function GlobalStyles() {
       }
       .finish-img img{ width:100%; height:180px; object-fit:cover; }
 
-      .divider{ height:1px; background:var(--border); margin:14px 0; }
-
       .stickySide{ position: sticky; top: 92px; align-self:start; }
       @media(max-width:900px){ .stickySide{ position: static; } }
 
-      /* HOME (no overlay fade on image) */
-      .homeWrap{ padding: 18px 0 14px; }
-      .homeViewport{
-        min-height: calc(100vh - 120px);
-        display:grid;
-        grid-template-columns: 1fr 1fr;
-        gap:16px;
-        align-items:stretch;
-      }
-      @media(max-width:900px){
-        .homeViewport{
-          min-height:auto;
-          grid-template-columns:1fr;
-        }
-      }
-      .homePhoto{
+      /* Hero */
+      .heroWrap{
+        border:1px solid var(--border);
         border-radius:20px;
         overflow:hidden;
-        border:1px solid var(--border);
         box-shadow: var(--shadow);
         background:#eee;
-        height: 100%;
-        min-height: 520px;
       }
-      .homePhoto img{
-        width:100%;
-        height:100%;
-        object-fit:cover;
-      }
+      .heroWrap img{ width:100%; height:360px; object-fit:cover; }
+      @media(max-width:900px){ .heroWrap img{ height:280px; } }
 
-      .homeStack{
-        display:grid;
-        grid-template-rows: auto auto 1fr;
-        gap:16px;
+      /* “Store” blocks */
+      .storeStrip{
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        align-items:center;
       }
+      .storeStrip .pill{ background:#fff; }
 
-      /* elegant step strip */
-      .step{
-        border:1px solid var(--border);
-        border-radius:16px;
-        background: rgba(255,255,255,.92);
-        box-shadow: var(--shadow2);
-        padding: 14px;
-      }
-      .stepNum{
-        font-size:11px;
-        letter-spacing:.20em;
-        text-transform:uppercase;
-        font-weight:900;
-        color: rgba(15,15,16,.65);
+      .reviewBox{
+        min-height: 118px;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
       }
 
       /* Learning accordions */
@@ -340,6 +316,7 @@ function GlobalStyles() {
         background: rgba(255,255,255,.9);
       }
 
+      /* Floating help + toast */
       .floatingHelp{
         position: fixed;
         right: 16px;
@@ -347,7 +324,7 @@ function GlobalStyles() {
         z-index: 60;
       }
       .floatingPanel{
-        width: 300px;
+        width: 320px;
         border-radius: 16px;
         border: 1px solid var(--border);
         background: rgba(255,255,255,.97);
@@ -494,7 +471,12 @@ const GALLERY = [
   "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
 ];
 
-/* Learning (combined, non-duplicative) */
+const REVIEWS = [
+  { name: "M. R.", text: "Cabinet list was spot on. Finish looked even better in person.", meta: "Homeowner • NY" },
+  { name: "S. D.", text: "Smooth delivery and easy ordering. Great support when I had questions.", meta: "Contractor • NJ" },
+  { name: "K. L.", text: "The design help saved us time. Shopping by SKU was way easier than showrooms.", meta: "Homeowner • PA" },
+];
+
 const LEARNING_TOPICS = [
   {
     tag: "Ordering",
@@ -512,8 +494,8 @@ const LEARNING_TOPICS = [
     body: "Most cabinet orders ship LTL freight. Freight is quoted after order based on destination and order size. Inspect packaging before signing and take photos of any damage.",
   },
   {
-    tag: "Issues",
-    title: "Damages & support",
+    tag: "Support",
+    title: "Damages & replacements",
     body: "Report issues quickly with photos. Policies vary by order type and timing — email us and we’ll guide you through the fastest resolution path.",
   },
   {
@@ -564,7 +546,7 @@ function Toast({ text }) {
 
 function FloatingHelp() {
   const [open, setOpen] = useState(false);
-  const mailto = `mailto:premier@premierkm.com?subject=${encodeURIComponent("Quick Question — Premier RTA Cabinetry")}&body=${encodeURIComponent(
+  const mailto = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Quick Question — Premier RTA Cabinetry")}&body=${encodeURIComponent(
     "Hi Premier team,\n\nI have a question about:\n- Finish:\n- Cabinets/SKUs:\n- Measurements:\n\nThanks!"
   )}`;
 
@@ -631,7 +613,7 @@ function Header({ cartCount }) {
           ))}
         </nav>
         <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-          <a className="btn btn-outline" href="mailto:premier@premierkm.com">premier@premierkm.com</a>
+          <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
           <a className="btn btn-primary" href="#/cart">Checkout</a>
         </div>
       </div>
@@ -640,121 +622,310 @@ function Header({ cartCount }) {
 }
 
 /* ============================
-   HOME (fully changed: no fade overlay, not cartoon)
+   HOME (more “store”, more going on)
    ============================ */
 function Home() {
   const finishesFlat = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes), []);
   const [finishId, setFinishId] = useState(finishesFlat[0]?.id || "");
   const selectedFinish = finishesFlat.find(f => f.id === finishId) || finishesFlat[0];
 
+  const [estCabCount, setEstCabCount] = useState(12);
+  const [estAssembly, setEstAssembly] = useState(false);
+
+  // simple “average cabinet price” estimate from catalog
+  const avgPrice = useMemo(() => {
+    const all = Object.values(CABINET_CATALOG).flatMap(c => c.items);
+    const sum = all.reduce((s, x) => s + x.price, 0);
+    return all.length ? sum / all.length : 0;
+  }, []);
+  const estSubtotal = useMemo(() => {
+    const base = estCabCount * avgPrice;
+    const assembly = estAssembly ? estCabCount * ASSEMBLY_UPCHARGE_PER_CABINET : 0;
+    return base + assembly;
+  }, [estCabCount, estAssembly, avgPrice]);
+
+  // reviews carousel
+  const [reviewIdx, setReviewIdx] = useState(0);
+  const review = REVIEWS[reviewIdx % REVIEWS.length];
+
   return (
-    <section className="homeWrap">
-      <div className="container homeViewport">
-        {/* Left column: crisp content cards */}
-        <div className="homeStack">
-          <div className="card">
-            <div className="kicker">Premier RTA Cabinetry</div>
-            <h1 style={{ fontSize: 46, marginTop: 8 }}>Luxury cabinets, without the showroom.</h1>
-            <p style={{ color: "rgba(15,15,16,.78)" }}>
-              Choose a finish. Add base / wall / tall cabinets by SKU. Checkout confidently.
-              Want a full plan first? Request a free 3D layout + cabinet list.
-            </p>
-
-            <div className="row" style={{ marginTop: 14 }}>
-              <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
-              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
-              <a className="btn btn-ghost" href="#/learn">Learning</a>
-            </div>
-
-            <div className="row" style={{ marginTop: 14 }}>
-              <span className="pill">Nationwide Shipping</span>
-              <span className="pill">Warehouse Pickup</span>
-              <span className="pill gold">Gold accents available</span>
-            </div>
+    <>
+      <section className="section">
+        <div className="container">
+          <div className="heroWrap">
+            <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
           </div>
 
-          {/* Cool / useful: quick finish → configurator */}
-          <div className="card soft">
-            <div className="kicker">Quick Start</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Pick a finish and start building</h3>
-            <div className="grid two" style={{ marginTop: 10, alignItems: "center" }}>
-              <div>
-                <label>Finish</label>
-                <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
-                  {FINISH_GROUPS.map(g => (
-                    <optgroup key={g.group} label={g.group}>
-                      {g.finishes.map(f => (
-                        <option key={f.id} value={f.id}>{f.name}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-                <div className="row" style={{ marginTop: 12 }}>
-                  <a className="btn btn-primary" href={`#/shop/${finishId}`}>Configure</a>
-                  <a className="btn btn-outline" href="#/shop">All finishes</a>
-                </div>
+          <div className="grid two" style={{ marginTop: 16, alignItems: "start" }}>
+            <div className="card">
+              <div className="kicker">Premier RTA Cabinetry</div>
+              <h1 style={{ fontSize: 46, marginTop: 8 }}>Build a kitchen online—clean and confident.</h1>
+              <p style={{ color: "rgba(15,15,16,.78)" }}>
+                Choose a finish, add base/wall/tall cabinets by SKU, and checkout. If you want a full plan first,
+                request a free 3D layout + itemized cabinet list.
+              </p>
+
+              <div className="row" style={{ marginTop: 14 }}>
+                <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
+                <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+                <a className="btn btn-ghost" href="#/learn">Customer Guide</a>
               </div>
+
+              <div className="storeStrip" style={{ marginTop: 14 }}>
+                <span className="pill">Nationwide Shipping</span>
+                <span className="pill">Warehouse Pickup</span>
+                <span className="pill gold">Premium finishes</span>
+                <span className="pill red">Assembly optional</span>
+              </div>
+            </div>
+
+            <div className="card soft">
+              <div className="kicker">Quick Start</div>
+              <h3 style={{ fontSize: 22, marginTop: 8 }}>Pick a finish → start building</h3>
+
+              <label>Finish</label>
+              <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
+                {FINISH_GROUPS.map(g => (
+                  <optgroup key={g.group} label={g.group}>
+                    {g.finishes.map(f => (
+                      <option key={f.id} value={f.id}>{f.name}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
 
               <div className="finish-img" style={{ marginTop: 12 }}>
-                <img
-                  src={imgForFinish(selectedFinish?.id)}
-                  alt={selectedFinish?.name || "Finish"}
-                  style={{ height: 170 }}
-                />
+                <img src={imgForFinish(selectedFinish?.id)} alt={selectedFinish?.name || "Finish"} style={{ height: 180 }} />
+              </div>
+
+              <div className="row" style={{ marginTop: 12 }}>
+                <a className="btn btn-primary" href={`#/shop/${finishId}`}>Configure</a>
+                <a className="btn btn-outline" href="#/shop">Browse all</a>
+              </div>
+
+              <div className="divider" />
+              <div className="mini">
+                Tip: If you’re not sure what to buy, use <b>Design Center</b> and we’ll build your list.
               </div>
             </div>
           </div>
 
-          {/* Tight, premium steps (not “start here”) */}
-          <div className="grid three">
-            {[
-              { n: "01", t: "Choose finish", b: "Pick a Tribeca finish that matches your project." },
-              { n: "02", t: "Add by SKU", b: "Select base/wall/tall, set sizes, add quantities." },
-              { n: "03", t: "Checkout", b: "Freight is quoted after order. We confirm delivery details." },
-            ].map(x => (
-              <div key={x.n} className="step">
-                <div className="stepNum">{x.n}</div>
-                <div style={{ fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700, marginTop: 6 }}>{x.t}</div>
-                <div className="mini" style={{ marginTop: 6 }}>{x.b}</div>
+          {/* Shop by category */}
+          <div className="card" style={{ marginTop: 16 }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+              <div>
+                <div className="kicker">Shop</div>
+                <h2 style={{ fontSize: 28, marginTop: 10 }}>Shop by Category</h2>
               </div>
-            ))}
-          </div>
-        </div>
+              <a className="btn btn-ghost" href="#/shop">Go to finishes</a>
+            </div>
 
-        {/* Right column: full photo, NO overlay */}
-        <div className="homePhoto">
-          <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
+            <div className="grid three" style={{ marginTop: 14 }}>
+              {[
+                { t: "Base Cabinets", b: "Foundation of the kitchen", href: "#/shop" },
+                { t: "Wall Cabinets", b: "Upper storage & symmetry", href: "#/shop" },
+                { t: "Tall / Pantry", b: "Anchor walls with vertical storage", href: "#/shop" },
+              ].map(x => (
+                <div key={x.t} className="card soft">
+                  <div style={{ fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700, fontSize:18 }}>{x.t}</div>
+                  <p className="mini" style={{ marginTop: 6 }}>{x.b}</p>
+                  <a className="btn btn-outline" href={x.href}>Choose finish</a>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Comparison block */}
+          <div className="grid two" style={{ marginTop: 16 }}>
+            <div className="card">
+              <div className="kicker">Compare</div>
+              <h2 style={{ fontSize: 28, marginTop: 10 }}>RTA vs Assembled</h2>
+              <div className="grid two" style={{ marginTop: 12 }}>
+                <div className="card soft">
+                  <div className="pill red" style={{ display: "inline-flex" }}>RTA</div>
+                  <p className="mini">
+                    Ships flat-packed. Easier to carry inside. Great for tighter deliveries.
+                  </p>
+                </div>
+                <div className="card soft">
+                  <div className="pill gold" style={{ display: "inline-flex" }}>Assembled</div>
+                  <p className="mini">
+                    Arrives built. Saves time on installation day. Adds {usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet.
+                  </p>
+                </div>
+              </div>
+              <div className="row" style={{ marginTop: 12 }}>
+                <a className="btn btn-primary" href="#/learn">Read the guide</a>
+                <a className="btn btn-outline" href="#/shop">Start shopping</a>
+              </div>
+            </div>
+
+            {/* Quick estimate widget */}
+            <div className="card soft">
+              <div className="kicker">Quick Estimate</div>
+              <h2 style={{ fontSize: 28, marginTop: 10 }}>Rough kitchen subtotal</h2>
+              <p className="mini">This is a quick ballpark, not a quote. Freight/tax not included.</p>
+
+              <label>Estimated cabinet count</label>
+              <input
+                type="number"
+                min={1}
+                value={estCabCount}
+                onChange={(e)=>setEstCabCount(Math.max(1, parseInt(e.target.value || "1")))}
+              />
+
+              <div className="row" style={{ marginTop: 10 }}>
+                <input
+                  id="est-assembly"
+                  type="checkbox"
+                  checked={estAssembly}
+                  onChange={(e)=>setEstAssembly(e.target.checked)}
+                  style={{ width: 18, height: 18 }}
+                />
+                <label htmlFor="est-assembly" style={{ margin:0, fontSize:13, letterSpacing:0, textTransform:"none", color:"var(--muted)" }}>
+                  Include assembled ({usd(ASSEMBLY_UPCHARGE_PER_CABINET)} each)
+                </label>
+              </div>
+
+              <div className="divider" />
+              <div style={{ fontSize: 18, fontFamily:'Georgia,"Times New Roman",serif', fontWeight:700 }}>
+                Estimated subtotal: {usd(Math.round(estSubtotal))}
+              </div>
+              <div className="mini" style={{ marginTop: 8 }}>
+                For an exact list, use Design Center.
+              </div>
+
+              <div className="row" style={{ marginTop: 12 }}>
+                <a className="btn btn-primary" href="#/design">Free 3D Design</a>
+                <a className="btn btn-outline" href="#/shop">Shop finishes</a>
+              </div>
+            </div>
+          </div>
+
+          {/* Featured finishes */}
+          <div className="card" style={{ marginTop: 16 }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+              <div>
+                <div className="kicker">Featured</div>
+                <h2 style={{ fontSize: 28, marginTop: 10 }}>Popular finishes</h2>
+              </div>
+              <a className="btn btn-ghost" href="#/shop">All finishes</a>
+            </div>
+
+            <div className="grid four" style={{ marginTop: 14 }}>
+              {finishesFlat.slice(0, 4).map(f => (
+                <a key={f.id} href={`#/shop/${f.id}`} className="card soft" style={{ display: "block" }}>
+                  <div className="finish-img">
+                    <img src={imgForFinish(f.id)} alt={f.name} style={{ height: 150 }} />
+                  </div>
+                  <div style={{ marginTop: 10, fontWeight: 900 }}>{f.name}</div>
+                  <div className="mini">Click to configure</div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <div className="grid two" style={{ marginTop: 16 }}>
+            <div className="card soft reviewBox">
+              <div>
+                <div className="kicker">Reviews</div>
+                <h2 style={{ fontSize: 28, marginTop: 10 }}>Customers love the calm process</h2>
+                <p>"{review.text}"</p>
+              </div>
+              <div className="row" style={{ justifyContent: "space-between" }}>
+                <div className="mini">
+                  — <b style={{ color: "var(--text)" }}>{review.name}</b> • {review.meta}
+                </div>
+                <div className="row">
+                  <button className="btn btn-outline" type="button" onClick={()=>setReviewIdx(i=>Math.max(0, i-1))}>Prev</button>
+                  <button className="btn btn-primary" type="button" onClick={()=>setReviewIdx(i=>i+1)}>Next</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="kicker">Need guidance?</div>
+              <h2 style={{ fontSize: 28, marginTop: 10 }}>We’ll build your list for free</h2>
+              <p className="mini">
+                Send measurements/photos and we return a 3D layout + itemized cabinet list so you can order confidently.
+              </p>
+              <div className="row" style={{ marginTop: 12 }}>
+                <a className="btn btn-primary" href="#/design">Request Free Design</a>
+                <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email</a>
+              </div>
+              <div className="divider" />
+              <div className="mini">Prefer to shop yourself? Start with finishes → configure by SKU.</div>
+              <div className="row" style={{ marginTop: 10 }}>
+                <a className="btn btn-ghost" href="#/shop">Shop</a>
+                <a className="btn btn-ghost" href="#/learn">Guide</a>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 
 /* ============================
-   SHOP LIST
+   SHOP LIST (upgraded: search + filter)
    ============================ */
 function ShopList() {
+  const [group, setGroup] = useState("all");
+  const [q, setQ] = useState("");
+
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    return FINISH_GROUPS
+      .filter(g => group === "all" ? true : g.group.toLowerCase() === group)
+      .map(g => ({
+        group: g.group,
+        finishes: g.finishes.filter(f => !query ? true : f.name.toLowerCase().includes(query) || f.id.toLowerCase().includes(query))
+      }))
+      .filter(g => g.finishes.length > 0);
+  }, [group, q]);
+
   return (
     <section className="section">
       <div className="container">
         <div className="kicker">Shop</div>
         <h2 style={{ fontSize: 30, marginTop: 10 }}>Tribeca Finishes</h2>
-        <p>Select a finish to configure cabinet SKUs and add to cart.</p>
+        <p>Search finishes, then click Configure to add cabinets by SKU.</p>
 
-        {FINISH_GROUPS.map((g) => (
+        <div className="card soft" style={{ marginTop: 14 }}>
+          <div className="grid two">
+            <div>
+              <label>Search finishes</label>
+              <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Snow White, Rift Oak, Hudson…" />
+            </div>
+            <div>
+              <label>Collection</label>
+              <select value={group} onChange={(e)=>setGroup(e.target.value)}>
+                <option value="all">All</option>
+                {FINISH_GROUPS.map(g => (
+                  <option key={g.group} value={g.group.toLowerCase()}>{g.group}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {filtered.map(g=>(
           <div key={g.group} style={{ marginTop: 22 }}>
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-              <h3 style={{ margin: 0 }}>{g.group}</h3>
+            <div className="row" style={{ justifyContent:"space-between", alignItems:"baseline" }}>
+              <h3 style={{ margin:0 }}>{g.group}</h3>
               <span className="pill gold">Tribeca</span>
             </div>
 
             <div className="grid three" style={{ marginTop: 12 }}>
-              {g.finishes.map((f) => (
+              {g.finishes.map(f=>(
                 <div key={f.id} className="card">
                   <div className="finish-img">
                     <img src={imgForFinish(f.id)} alt={f.name} />
                   </div>
-                  <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
+                  <div className="row" style={{ justifyContent:"space-between", marginTop:10 }}>
                     <div style={{ fontWeight: 900 }}>{f.name}</div>
                     <span className="pill red">Finish</span>
                   </div>
@@ -968,7 +1139,7 @@ function Configurator({ finishId, cart, onAddToCart, onExportCartCSV, onToast })
 
             <div className="card soft" style={{ marginTop: 14 }}>
               <p className="mini" style={{ margin: 0 }}>
-                Want fillers/panels/crown or a full layout? Email <b style={{ color: "var(--text)" }}>premier@premierkm.com</b>
+                Want fillers/panels/crown or a full layout? Email <b style={{ color: "var(--text)" }}>{SUPPORT_EMAIL}</b>
               </p>
             </div>
           </div>
@@ -1007,7 +1178,7 @@ function DesignCenter() {
       `Photos/Measurements to include: wall lengths, ceiling height, windows/doors, appliance sizes.`,
     ];
     const body = encodeURIComponent(bodyLines.join("\n"));
-    return `mailto:premier@premierkm.com?subject=${subject}&body=${body}`;
+    return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
   }, [path, budget, contact, notes, files]);
 
   return (
@@ -1077,7 +1248,7 @@ function DesignCenter() {
 
           <div className="row" style={{ marginTop: 14 }}>
             <a className="btn btn-primary" href={mailtoHref}>Request Free Design (Email)</a>
-            <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email</a>
+            <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email</a>
           </div>
         </div>
       </div>
@@ -1116,7 +1287,7 @@ function Learning() {
           </p>
           <div className="row" style={{ marginTop: 10 }}>
             <a className="btn btn-primary" href="#/design">Request Free Design</a>
-            <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email Us</a>
+            <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Email Us</a>
           </div>
         </div>
       </div>
@@ -1265,7 +1436,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
                   Pay (Apple Pay / Card)
                 </a>
               ) : (
-                <a className="btn btn-primary" href="mailto:premier@premierkm.com">Checkout Setup Needed</a>
+                <a className="btn btn-primary" href={`mailto:${SUPPORT_EMAIL}`}>Checkout Setup Needed</a>
               )}
             </div>
 
@@ -1300,7 +1471,7 @@ function Contact() {
       <div className="container">
         <div className="kicker">Contact</div>
         <h2 style={{ fontSize: 30, marginTop: 10 }}>Premier RTA Cabinetry</h2>
-        <p>Email: <b style={{ color: "var(--text)" }}>premier@premierkm.com</b></p>
+        <p>Email: <b style={{ color: "var(--text)" }}>{SUPPORT_EMAIL}</b></p>
         <p>Phone: 800-PREMIER</p>
       </div>
     </section>
