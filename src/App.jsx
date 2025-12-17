@@ -87,7 +87,7 @@ function GlobalStyles() {
         position:sticky;
         top:0;
         z-index:40;
-        background:rgba(255,255,255,.86);
+        background:rgba(255,255,255,.90);
         backdrop-filter: blur(12px);
         border-bottom:1px solid var(--border);
       }
@@ -121,11 +121,11 @@ function GlobalStyles() {
         padding:8px 10px;
         border-radius:10px;
         font-weight:750;
-        color: rgba(15,15,16,.85);
+        color: rgba(15,15,16,.86);
       }
       nav a:hover{
         background: rgba(192,24,42,.08);
-        color: rgba(15,15,16,.95);
+        color: rgba(15,15,16,.98);
       }
 
       .kicker{
@@ -148,9 +148,7 @@ function GlobalStyles() {
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns:1fr 1fr; }
       .three{ grid-template-columns:repeat(3,1fr); }
-      .four{ grid-template-columns:repeat(4,1fr); }
-      @media(max-width:1100px){ .four{ grid-template-columns:repeat(2,1fr); } }
-      @media(max-width:900px){ .two,.three,.four{ grid-template-columns:1fr; } }
+      @media(max-width:900px){ .two,.three{ grid-template-columns:1fr; } }
 
       .row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
 
@@ -158,10 +156,10 @@ function GlobalStyles() {
         padding:7px 12px;
         border-radius:999px;
         border:1px solid var(--border);
-        background: rgba(255,255,255,.9);
+        background: rgba(255,255,255,.92);
         font-size:12px;
         font-weight:850;
-        color: rgba(15,15,16,.85);
+        color: rgba(15,15,16,.86);
       }
       .pill.gold{
         background: rgba(176,141,87,.16);
@@ -181,7 +179,7 @@ function GlobalStyles() {
         padding:12px 16px;
         border-radius:12px;
         border:1px solid transparent;
-        font-weight:900;
+        font-weight:950;
         cursor:pointer;
         background:transparent;
         transition: transform .12s ease, box-shadow .12s ease, background .12s ease, opacity .12s ease;
@@ -194,10 +192,10 @@ function GlobalStyles() {
       .btn-primary{
         background: linear-gradient(180deg, var(--primary), var(--primary2));
         color:#fff;
-        box-shadow: 0 12px 24px rgba(192,24,42,.22);
+        box-shadow: 0 14px 28px rgba(192,24,42,.26);
       }
       .btn-outline{
-        border-color: rgba(15,15,16,.18);
+        border-color: rgba(15,15,16,.22);
         background: #fff;
         color: var(--text);
       }
@@ -230,8 +228,6 @@ function GlobalStyles() {
         border-color: var(--primary);
         box-shadow:0 0 0 4px var(--ring);
       }
-
-      /* ✅ dropdown readability */
       select option{ color:#111; background:#fff; }
 
       table{ width:100%; border-collapse:collapse; }
@@ -260,13 +256,11 @@ function GlobalStyles() {
       @media(max-width:900px){ .stickySide{ position: static; } }
 
       /* ✅ HOME one-screen layout */
-      .homeOneScreen{
-        padding: 22px 0 18px;
-      }
+      .homeOneScreen{ padding: 18px 0 14px; }
       .homeViewport{
-        min-height: calc(100vh - 120px); /* header + announce approx */
+        min-height: calc(100vh - 120px);
         display:grid;
-        grid-template-columns: 1.25fr .75fr;
+        grid-template-columns: 1.15fr .85fr;
         gap:16px;
         align-items:stretch;
       }
@@ -291,14 +285,14 @@ function GlobalStyles() {
         object-fit:cover;
         filter: saturate(1.03) contrast(1.03);
       }
-      /* ✅ reduce “fade” so buttons stand out */
+      /* ✅ less fade + higher clarity */
       .hero::after{
         content:"";
         position:absolute;
         inset:0;
         background:
-          linear-gradient(90deg, rgba(255,255,255,.86) 0%, rgba(255,255,255,.52) 46%, rgba(255,255,255,.20) 100%),
-          radial-gradient(820px 520px at 26% 52%, rgba(176,141,87,.18), transparent 58%);
+          linear-gradient(90deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.78) 44%, rgba(255,255,255,.35) 100%),
+          radial-gradient(820px 520px at 26% 52%, rgba(176,141,87,.16), transparent 58%);
         pointer-events:none;
       }
       .heroInner{
@@ -307,41 +301,56 @@ function GlobalStyles() {
         display:flex;
         align-items:center;
       }
-      .heroContent{
-        max-width: 620px;
-        padding: 22px;
+      .heroPanel{
+        max-width: 640px;
+        padding: 18px;
+        margin-left: 18px;
+        margin-right: 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(15,15,16,.10);
+        background: rgba(255,255,255,.92);
+        box-shadow: 0 16px 40px rgba(0,0,0,.10);
+        backdrop-filter: blur(6px);
       }
-      .heroTitle{ font-size: 46px; margin-top: 10px; }
-      .heroSub{ color: rgba(15,15,16,.74); }
+      .heroTitle{ font-size: 46px; margin-top: 6px; }
+      .heroSub{ color: rgba(15,15,16,.78); }
       @media(max-width:900px){
         .hero{ min-height: 520px; }
         .heroTitle{ font-size: 36px; }
+        .heroPanel{ margin: 14px; }
       }
 
-      details.faq{
+      /* Learning accordions (luxury) */
+      details.lux{
         border:1px solid var(--border);
-        border-radius:14px;
-        padding:12px 14px;
+        border-radius:16px;
+        padding:14px 14px;
         background: rgba(255,255,255,.92);
+        box-shadow: var(--shadow2);
       }
-      details.faq summary{
+      details.lux summary{
         cursor:pointer;
         list-style:none;
-        font-weight:900;
+        font-weight:950;
         color: var(--text);
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
       }
-      details.faq summary::-webkit-details-marker{ display:none; }
-      details.faq p{ margin:10px 0 0; color: var(--muted); }
-
-      .smallLink{
-        font-size:12px;
-        letter-spacing:.12em;
+      details.lux summary::-webkit-details-marker{ display:none; }
+      details.lux p{ margin:10px 0 0; color: var(--muted); }
+      .luxTag{
+        font-size:11px;
+        letter-spacing:.16em;
         text-transform:uppercase;
-        color: rgba(15,15,16,.78);
-        text-decoration: underline;
-        text-underline-offset: 4px;
+        color: rgba(15,15,16,.60);
+        font-weight:850;
+        border:1px solid rgba(15,15,16,.14);
+        padding:6px 10px;
+        border-radius:999px;
+        background: rgba(255,255,255,.9);
       }
-      .smallLink:hover{ color: var(--primary); }
 
       .floatingHelp{
         position: fixed;
@@ -370,8 +379,8 @@ function GlobalStyles() {
         padding: 10px 14px;
         box-shadow: var(--shadow);
         font-size: 13px;
-        font-weight: 900;
-        color: rgba(15,15,16,.85);
+        font-weight: 950;
+        color: rgba(15,15,16,.88);
       }
     `}</style>
   );
@@ -422,7 +431,7 @@ const FINISH_GROUPS = [
   ]},
   { group: "Soho", finishes: [
     { id: "soho-snow-white", name: "Soho Snow White" },
-    { id: "soho-empire-blue", name: "Soho Empire Blue" }, // keep if you want, but theme is red/white/black
+    { id: "soho-empire-blue", name: "Soho Empire Blue" },
   ]},
   { group: "Southampton", finishes: [
     { id: "southampton-snow-white", name: "Southampton Snow White" },
@@ -497,12 +506,33 @@ const GALLERY = [
   "https://images.unsplash.com/photo-1556912998-c57cc6b63cd7?q=80&w=1400&auto=format&fit=crop",
 ];
 
-const FAQS = [
-  { q: "RTA vs Assembled — what’s the difference?", a: "RTA ships flat-packed. Assembled arrives built. Assembly pricing shows per cabinet in the cart." },
-  { q: "How does freight shipping work?", a: "Most orders ship LTL freight. We confirm freight cost based on destination and order size. Inspect boxes before signing." },
-  { q: "What should I measure?", a: "Wall lengths, ceiling height, window/door locations, and appliance sizes. Photos from each corner help a lot." },
-  { q: "What if something arrives damaged?", a: "Report issues quickly with photos. Policies vary by order type and timing, but we’ll guide you." },
-  { q: "Not sure what cabinets I need?", a: "Use the Design Center. We’ll create a 3D layout and itemized list before you buy." },
+/* Learning (combined, non-duplicative) */
+const LEARNING_TOPICS = [
+  {
+    tag: "Ordering",
+    title: "RTA vs Assembled",
+    body: `RTA ships flat-packed (easier to deliver and handle). Assembled arrives built. Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet and shows in your cart.`,
+  },
+  {
+    tag: "Measuring",
+    title: "What to measure for a quote & 3D design",
+    body: "Wall lengths, ceiling height, window/door positions, and appliance sizes. Photos from each corner help. If you have a sketch, upload it in Design Center.",
+  },
+  {
+    tag: "Shipping",
+    title: "Freight shipping (LTL) & delivery day",
+    body: "Most cabinet orders ship LTL freight. Freight is quoted after order based on destination and order size. Inspect packaging before signing and take photos of any damage.",
+  },
+  {
+    tag: "Issues",
+    title: "Damages & support",
+    body: "Report issues quickly with photos. Policies vary by order type and timing — email us and we’ll guide you through the fastest resolution path.",
+  },
+  {
+    tag: "Help",
+    title: "Not sure what to buy?",
+    body: "Use Design Center. We’ll create a 3D layout and itemized cabinet list before you purchase so you can order confidently.",
+  },
 ];
 
 /* ============================
@@ -555,7 +585,7 @@ function FloatingHelp() {
       {open && (
         <div className="floatingPanel">
           <div className="kicker">Need help?</div>
-          <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 850, marginTop: 6 }}>
+          <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 950, marginTop: 6 }}>
             Quick Support
           </div>
           <p className="mini" style={{ marginTop: 8 }}>
@@ -585,9 +615,9 @@ function FloatingHelp() {
 function Logo() {
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 8, lineHeight: 1 }}>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900, fontSize: 20 }}>Premier</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 950, fontSize: 20 }}>Premier</span>
       <span style={{ fontWeight: 950, fontSize: 14, color: "var(--primary)", letterSpacing: ".20em" }}>RTA</span>
-      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 750, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
+      <span style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 850, fontSize: 16, opacity: 0.95 }}>Cabinetry</span>
     </div>
   );
 }
@@ -622,27 +652,26 @@ function Header({ cartCount }) {
 }
 
 /* ============================
-   HOME (ONE SCREEN, NO FAQ)
+   HOME (clean, no bubbles, no faded look)
    ============================ */
 function Home() {
-  const quickFinishes = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes).slice(0, 3), []);
+  const finishesFlat = useMemo(() => FINISH_GROUPS.flatMap(g => g.finishes), []);
+  const [finishId, setFinishId] = useState(finishesFlat[0]?.id || "");
+
+  const selectedFinish = finishesFlat.find(f => f.id === finishId) || finishesFlat[0];
 
   return (
     <section className="homeOneScreen">
       <div className="container homeViewport">
-        {/* LEFT: HERO */}
+        {/* Left hero */}
         <div className="hero">
           <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
           <div className="heroInner">
-            <div className="heroContent">
-              <div className="row">
-                <span className="pill gold">Gold accents</span>
-                <span className="pill red">Red • White • Black</span>
-              </div>
-
-              <h1 className="heroTitle">A refined way to buy cabinets.</h1>
+            <div className="heroPanel">
+              <div className="kicker">Premier RTA Cabinetry</div>
+              <h1 className="heroTitle">Luxury cabinets, without the showroom.</h1>
               <p className="heroSub">
-                Choose a finish. Add base/wall/tall cabinets by SKU. Checkout confidently.
+                Choose a finish. Add base / wall / tall cabinets by SKU. Checkout with confidence.
                 If you want a full plan first — we’ll create a free 3D layout + cabinet list.
               </p>
 
@@ -653,69 +682,54 @@ function Home() {
 
               <div className="row" style={{ marginTop: 14 }}>
                 <span className="pill">Nationwide Shipping</span>
-                <span className="pill">Warehouse Pickup</span>
+                <span className="pill gold">Gold accents available</span>
                 <span className="pill">Secure Checkout</span>
-              </div>
-
-              <div style={{ marginTop: 12 }}>
-                <a className="smallLink" href="#/learn">Questions? Read the Learning Center →</a>
               </div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT: ACTIONS (compact, no-scroll) */}
+        {/* Right side: Finish Finder + Guidance */}
         <div style={{ display: "grid", gap: 16 }}>
-          {/* shop by type */}
+          {/* Finish Finder (replaces “Start here” and “Quick picks”) */}
           <div className="card">
-            <div className="kicker">Start Here</div>
-            <h3 style={{ fontSize: 18, marginTop: 8 }}>Shop by Cabinet Type</h3>
-            <div className="grid three" style={{ marginTop: 12 }}>
-              {[
-                { t: "Base", d: "Foundation", href: "#/shop" },
-                { t: "Wall", d: "Uppers", href: "#/shop" },
-                { t: "Tall", d: "Pantry", href: "#/shop" },
-              ].map(x => (
-                <a key={x.t} href={x.href} className="card soft" style={{ padding: 14, textAlign: "center" }}>
-                  <div style={{ fontWeight: 950 }}>{x.t}</div>
-                  <div className="mini">{x.d}</div>
-                </a>
+            <div className="kicker">Finish Finder</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Pick a finish and start building</h3>
+            <p className="mini" style={{ marginTop: 6 }}>
+              Choose a finish → configure cabinets → add to cart. Simple.
+            </p>
+
+            <label>Finish</label>
+            <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
+              {FINISH_GROUPS.map(g => (
+                <optgroup key={g.group} label={g.group}>
+                  {g.finishes.map(f => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
+                  ))}
+                </optgroup>
               ))}
+            </select>
+
+            <div className="finish-img" style={{ marginTop: 12 }}>
+              <img src={imgForFinish(selectedFinish?.id)} alt={selectedFinish?.name || "Finish"} style={{ height: 150 }} />
+            </div>
+
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href={`#/shop/${finishId}`}>Configure This Finish</a>
+              <a className="btn btn-outline" href="#/learn">Learn</a>
             </div>
           </div>
 
-          {/* quick finishes */}
-          <div className="card">
-            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-              <div>
-                <div className="kicker">Quick Picks</div>
-                <h3 style={{ fontSize: 18, marginTop: 8 }}>Popular finishes</h3>
-              </div>
-              <a className="smallLink" href="#/shop">All finishes →</a>
-            </div>
-
-            <div className="grid three" style={{ marginTop: 12 }}>
-              {quickFinishes.map(f => (
-                <a key={f.id} href={`#/shop/${f.id}`} className="card soft" style={{ padding: 10 }}>
-                  <div className="finish-img">
-                    <img src={imgForFinish(f.id)} alt={f.name} style={{ height: 110 }} />
-                  </div>
-                  <div style={{ marginTop: 8, fontWeight: 900, fontSize: 13 }}>{f.name}</div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* keep the Need Guidance CTA */}
+          {/* Need guidance (kept) */}
           <div className="card soft">
             <div className="kicker">Need guidance?</div>
-            <h3 style={{ fontSize: 18, marginTop: 8 }}>Get a free 3D plan before you buy</h3>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Get a free 3D plan before you buy</h3>
             <p className="mini" style={{ marginTop: 6 }}>
-              Send measurements/photos. We return a layout + cabinet list so you order confidently.
+              Send measurements/photos. We return a layout + itemized list so you order confidently.
             </p>
             <div className="row" style={{ marginTop: 10 }}>
               <a className="btn btn-primary" href="#/design">Request Free Design</a>
-              <a className="btn btn-outline" href="#/shop">Shop Now</a>
+              <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email Us</a>
             </div>
           </div>
         </div>
@@ -1080,46 +1094,38 @@ function DesignCenter() {
 }
 
 /* ============================
-   LEARNING (FAQ moved here)
+   LEARNING (combined, no duplicate FAQ section)
    ============================ */
 function Learning() {
-  const items = [
-    { title: "What is RTA?", body: "Ready-to-Assemble ships flat-packed for easier delivery and handling." },
-    { title: "How to measure", body: "Measure wall lengths, ceiling height, and mark windows/doors. Take photos from each corner." },
-    { title: "Freight shipping", body: "Most cabinet orders ship LTL freight. Inspect boxes before signing." },
-    { title: "Assembly pricing", body: `Assembled adds ${usd(ASSEMBLY_UPCHARGE_PER_CABINET)} per cabinet (shown in the cart).` },
-    { title: "Damages/returns", body: "Report issues quickly with photos. Policies vary by order type." },
-    { title: "Need help?", body: "Email premier@premierkm.com and we’ll guide you through finish + cabinet list." },
-  ];
-
   return (
     <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Learning</div>
-        <h2 style={{ fontSize: 30, marginTop: 10 }}>Learning Center</h2>
-        <p>Clear answers so customers feel confident ordering online.</p>
+        <h2 style={{ fontSize: 30, marginTop: 10 }}>Customer Guide</h2>
+        <p>Everything customers usually ask — in one clean place.</p>
 
         <div className="grid two" style={{ marginTop: 14 }}>
-          {items.map((it) => (
-            <div key={it.title} className="card">
-              <h3 style={{ fontSize: 18 }}>{it.title}</h3>
-              <p className="mini">{it.body}</p>
-            </div>
+          {LEARNING_TOPICS.map((t) => (
+            <details key={t.title} className="lux">
+              <summary>
+                <span>{t.title}</span>
+                <span className="luxTag">{t.tag}</span>
+              </summary>
+              <p className="mini">{t.body}</p>
+            </details>
           ))}
         </div>
 
-        <div className="divider" />
-
-        <div className="kicker">FAQ</div>
-        <h2 style={{ fontSize: 26, marginTop: 10 }}>Quick answers</h2>
-
-        <div className="grid two" style={{ marginTop: 14 }}>
-          {FAQS.map((f) => (
-            <details key={f.q} className="faq">
-              <summary>{f.q}</summary>
-              <p className="mini">{f.a}</p>
-            </details>
-          ))}
+        <div className="card" style={{ marginTop: 16 }}>
+          <div className="kicker">Still unsure?</div>
+          <h3 style={{ fontSize: 20, marginTop: 8 }}>We’ll build your cabinet list for you</h3>
+          <p className="mini" style={{ marginTop: 6 }}>
+            Use Design Center for a free 3D layout + itemized list.
+          </p>
+          <div className="row" style={{ marginTop: 10 }}>
+            <a className="btn btn-primary" href="#/design">Request Free Design</a>
+            <a className="btn btn-outline" href="mailto:premier@premierkm.com">Email Us</a>
+          </div>
         </div>
       </div>
     </section>
@@ -1241,7 +1247,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, fontSize: 18 }}>
-              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 850 }}>{usd(subtotal)}</span>
+              Subtotal: <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 950 }}>{usd(subtotal)}</span>
             </div>
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
