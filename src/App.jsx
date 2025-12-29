@@ -13,6 +13,14 @@ const SAMPLE_PRICE = 25; // door sample price
 const SAMPLE_CREDIT_PLACEHOLDER = 25; // UI-only placeholder credit
 const ASSEMBLY_UPCHARGE_PER_CABINET = 99;
 
+/* ✅ Your real install photos */
+const REAL_PHOTOS = [
+  "https://premierkm.com/wp-content/uploads/2021/09/IMG_0699-scaled.jpg",
+  "https://premierkm.com/wp-content/uploads/2021/09/IMG_7315-scaled.jpg",
+  "https://premierkm.com/wp-content/uploads/2021/09/DSC_3495.jpg",
+];
+
+/* Finish images */
 const FINISH_IMAGES = {
   "hudson-snow-white":
     "https://tribecacabinetry.com/wp-content/uploads/2023/08/Web-doors_1-1-788x1024.jpg",
@@ -58,14 +66,14 @@ function GlobalStyles() {
         --muted:#2f2f34;
         --muted2:#6a6a72;
 
-        /* deeper “luxury” red (no gradients) */
+        /* deep burgundy red */
         --primary:#8f1322;
         --primary2:#6f0f19;
 
         --border: rgba(15,15,16,.12);
         --ring: rgba(143,19,34,.16);
 
-        /* softer shadows = less cartoon */
+        /* soft shadows */
         --shadow: 0 10px 24px rgba(0,0,0,.08);
         --shadow2: 0 6px 16px rgba(0,0,0,.06);
       }
@@ -109,7 +117,7 @@ function GlobalStyles() {
         border-bottom:1px solid var(--border);
       }
 
-      /* ✅ announcement bar = WHITE with black text */
+      /* ✅ top bar: WHITE with black text */
       .announce{
         background:#fff;
         color: rgba(15,15,16,.86);
@@ -161,9 +169,7 @@ function GlobalStyles() {
         padding:18px;
         box-shadow: var(--shadow2);
       }
-      .card.soft{
-        background: var(--card2);
-      }
+      .card.soft{ background: var(--card2); }
 
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns:1fr 1fr; }
@@ -202,21 +208,9 @@ function GlobalStyles() {
       .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
       .btn:active{ transform: translateY(0px); box-shadow:none; }
 
-      /* luxury: solid fills, no gradients */
-      .btn-primary{
-        background: var(--primary);
-        color:#fff;
-      }
-      .btn-outline{
-        border-color: rgba(15,15,16,.20);
-        background: #fff;
-        color: var(--text);
-      }
-      .btn-ghost{
-        border-color: transparent;
-        background: rgba(15,15,16,.05);
-        color: var(--text);
-      }
+      .btn-primary{ background: var(--primary); color:#fff; }
+      .btn-outline{ border-color: rgba(15,15,16,.20); background: #fff; color: var(--text); }
+      .btn-ghost{ border-color: transparent; background: rgba(15,15,16,.05); color: var(--text); }
 
       label{
         font-size:11px;
@@ -243,7 +237,7 @@ function GlobalStyles() {
       }
       select option{ color:#111; background:#fff; }
 
-      /* Shop finish cards: show full door, no zoom */
+      /* Finish cards: show full door */
       .finish-img{
         border-radius:16px;
         overflow:hidden;
@@ -309,6 +303,15 @@ function GlobalStyles() {
         border-top:1px solid var(--border);
         padding:22px 0;
         background: #fff;
+      }
+
+      /* Small section lists (What’s included) */
+      ul.clean{
+        margin: 10px 0 0;
+        padding-left: 18px;
+        color: rgba(15,15,16,.68);
+        line-height: 1.7;
+        font-size: 13px;
       }
     `}</style>
   );
@@ -449,33 +452,22 @@ const CABINET_CATALOG = {
   },
 };
 
-const CASE_STUDIES = [
+/* ✅ Real installs now use your photos */
+const REAL_INSTALLS = [
   {
-    title: "Bright classic kitchen",
+    title: "Premier install",
     location: "Staten Island, NY",
-    finishId: "hudson-snow-white",
-    cabinetCount: 18,
-    range: "$9k–$14k (example)",
-    image:
-      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1400&auto=format&fit=crop",
+    image: REAL_PHOTOS[0],
   },
   {
-    title: "Warm oak + white quartz",
-    location: "New Jersey",
-    finishId: "southampton-white-rift-oak",
-    cabinetCount: 20,
-    range: "$11k–$16k (example)",
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1400&auto=format&fit=crop",
+    title: "Premier install",
+    location: "Staten Island, NY",
+    image: REAL_PHOTOS[1],
   },
   {
-    title: "Bold pantry wall",
-    location: "Pennsylvania",
-    finishId: "southampton-carbon-black-oak",
-    cabinetCount: 16,
-    range: "$10k–$15k (example)",
-    image:
-      "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1400&auto=format&fit=crop",
+    title: "Premier install",
+    location: "Staten Island, NY",
+    image: REAL_PHOTOS[2],
   },
 ];
 
@@ -507,9 +499,9 @@ function AnnouncementBar() {
   return (
     <div className="announce">
       <div className="container">
-        <div>Showroom • {SHOWROOM_ADDRESS} • Now shipping RTA nationwide</div>
+        <div>Showroom visits by appointment • {SHOWROOM_ADDRESS}</div>
         <div>
-          <a href="#/design">Free 3D Design</a>
+          <a href="#/design">Complimentary Design</a>
         </div>
       </div>
     </div>
@@ -535,10 +527,10 @@ function Logo() {
 function Header({ cartCount }) {
   const links = [
     ["#/home", "Home"],
-    ["#/shop", "Shop"],
+    ["#/shop", "Finishes"],
     ["#/design", "Design Center"],
-    ["#/learn", "Learning"],
-    ["#/gallery", "Gallery"],
+    ["#/learn", "Info"],
+    ["#/gallery", "Installs"],
     ["#/cart", `Cart (${cartCount})`],
     ["#/contact", "Contact"],
   ];
@@ -557,7 +549,7 @@ function Header({ cartCount }) {
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 10, flexWrap: "wrap" }}>
           <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
-          <a className="btn btn-primary" href="#/cart">Checkout</a>
+          <a className="btn btn-primary" href="#/cart">Review Order</a>
         </div>
       </div>
     </header>
@@ -576,22 +568,29 @@ function Home() {
   const [reviewIdx, setReviewIdx] = useState(0);
   const review = REVIEWS[reviewIdx % REVIEWS.length];
 
+  // rotate through your 3 real photos in hero
+  const [heroIdx, setHeroIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setHeroIdx((i) => (i + 1) % REAL_PHOTOS.length), 4500);
+    return () => clearInterval(t);
+  }, []);
+
   return (
     <section className="section">
       <div className="container">
         <div className="heroGrid">
           <div className="card">
-            <div className="kicker">Showroom & Warehouse</div>
-            <h1 style={{ fontSize: 44, marginTop: 8 }}>A kitchen you buy once — done right.</h1>
+            <div className="kicker">Premier RTA Cabinetry</div>
+            <h1 style={{ fontSize: 44, marginTop: 8 }}>A considered purchase. A calmer process.</h1>
             <p>
-              We’ve served customers for years from our Staten Island showroom/warehouse at <b>{SHOWROOM_ADDRESS}</b>.
-              Now we’re offering that same experience online — curated finishes, SKU-based ordering, and designer-led help.
+              Serving Staten Island for years from our showroom/warehouse at <b>{SHOWROOM_ADDRESS}</b>. Now offering RTA cabinetry
+              nationwide — finish guidance, SKU-based ordering, and complimentary design support when you want it.
             </p>
 
             <div className="row" style={{ marginTop: 14 }}>
-              <a className="btn btn-primary" href="#/shop">View Finishes</a>
+              <a className="btn btn-primary" href="#/shop">View Cabinet Finishes</a>
               <a className="btn btn-outline" href="#/design">Complimentary Design</a>
-              <a className="btn btn-ghost" href="#/contact">Contact</a>
+              <a className="btn btn-ghost" href="#/contact">Appointment / Contact</a>
             </div>
 
             <div className="divider" />
@@ -605,7 +604,7 @@ function Home() {
           </div>
 
           <div className="heroImage">
-            <img src="https://premierkm.com/wp-content/uploads/2021/09/DSC_3484.jpg" alt="Kitchen" />
+            <img src={REAL_PHOTOS[heroIdx]} alt="Premier install" />
           </div>
         </div>
 
@@ -614,8 +613,8 @@ function Home() {
           <div className="card soft">
             <div className="kicker">Door samples</div>
             <h3 style={{ fontSize: 20, marginTop: 8 }}>Try a finish at home</h3>
-            <p className="mini">Order a sample before committing. Match stone, flooring, and hardware confidently.</p>
-            <a className="btn btn-primary" href="#/shop">Shop + Samples</a>
+            <p className="mini">Order a door sample before committing. Match stone, flooring, and hardware confidently.</p>
+            <a className="btn btn-primary" href="#/shop">Order a Sample</a>
           </div>
 
           <div className="card soft">
@@ -641,15 +640,15 @@ function ShopList({ onAddSample }) {
   return (
     <section className="section">
       <div className="container">
-        <div className="kicker">Shop</div>
-        <h2 style={{ fontSize: 32, marginTop: 10 }}>Finishes + Door Samples</h2>
-        <p>Click a finish to configure cabinets. Order a door sample anytime.</p>
+        <div className="kicker">Finishes</div>
+        <h2 style={{ fontSize: 32, marginTop: 10 }}>Cabinet finishes</h2>
+        <p>Choose a finish to configure cabinets by SKU. Door samples are available for each finish.</p>
 
         {FINISH_GROUPS.map((g) => (
           <div key={g.group} style={{ marginTop: 22 }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
               <h3 style={{ margin: 0 }}>{g.group}</h3>
-              <span className="pill">Tribeca</span>
+              <span className="pill">Collection</span>
             </div>
 
             <div className="grid three" style={{ marginTop: 12 }}>
@@ -664,12 +663,12 @@ function ShopList({ onAddSample }) {
                     <span className="pill red">Finish</span>
                   </div>
 
-                  <p className="mini">Configure cabinets by SKU or order a sample.</p>
+                  <p className="mini">Configure cabinets by SKU or order a door sample.</p>
 
                   <div className="row" style={{ marginTop: 10 }}>
                     <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
                     <button className="btn btn-outline" type="button" onClick={() => onAddSample(f.id, f.name)}>
-                      Order sample ({usd(SAMPLE_PRICE)})
+                      Door Sample ({usd(SAMPLE_PRICE)})
                     </button>
                   </div>
                 </div>
@@ -717,13 +716,13 @@ function Configurator({ finishId, onAddToCart, onAddSample }) {
           <div style={{ padding: 18 }}>
             <div className="kicker">Finish</div>
             <h2 style={{ fontSize: 28, marginTop: 10 }}>{finish.name}</h2>
-            <p className="mini">Pick cabinet type + SKU + qty. (Search removed. Accessories removed.)</p>
+            <p className="mini">Select cabinet type + SKU + quantity. (Search removed. Accessories removed.)</p>
 
             <div className="row" style={{ marginTop: 10 }}>
               <button className="btn btn-outline" type="button" onClick={() => onAddSample(finish.id, finish.name)}>
-                Order sample ({usd(SAMPLE_PRICE)})
+                Door Sample ({usd(SAMPLE_PRICE)})
               </button>
-              <a className="btn btn-ghost" href="#/cart">Cart</a>
+              <a className="btn btn-ghost" href="#/cart">Review Order</a>
             </div>
 
             <div className="divider" />
@@ -735,7 +734,7 @@ function Configurator({ finishId, onAddToCart, onAddSample }) {
         </div>
 
         <div className="card">
-          <h3 style={{ fontSize: 22 }}>Add Cabinets</h3>
+          <h3 style={{ fontSize: 22 }}>Add cabinets</h3>
 
           <label>Assembly</label>
           <select value={assembly} onChange={(e) => setAssembly(e.target.value)}>
@@ -835,13 +834,13 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
     <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Cart</div>
-        <h2 style={{ fontSize: 32, marginTop: 10 }}>Review Order</h2>
+        <h2 style={{ fontSize: 32, marginTop: 10 }}>Review order</h2>
 
         {cart.length === 0 ? (
           <div className="card">
             <p>Your cart is empty.</p>
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/shop">Shop finishes</a>
+              <a className="btn btn-primary" href="#/shop">View Cabinet Finishes</a>
               <a className="btn btn-outline" href="#/design">Complimentary Design</a>
             </div>
           </div>
@@ -926,12 +925,12 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
 
             <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
               <div className="row">
-                <button className="btn btn-outline" type="button" onClick={onClear}>Clear cart</button>
+                <button className="btn btn-outline" type="button" onClick={onClear}>Clear</button>
                 <button className="btn btn-outline" type="button" onClick={() => { onExportCSV(); onToast("CSV exported"); }}>
                   Export CSV
                 </button>
                 <button className="btn btn-ghost" type="button" onClick={async () => { await onShareLink(); onToast("Share link copied"); }}>
-                  Share cart
+                  Share
                 </button>
               </div>
 
@@ -950,14 +949,6 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
                 <a className="btn btn-primary" href={`mailto:${SUPPORT_EMAIL}`}>Checkout Setup Needed</a>
               )}
             </div>
-
-            {!checkoutOk && (
-              <div className="card soft" style={{ marginTop: 14 }}>
-                <p className="mini" style={{ margin: 0 }}>
-                  Paste your Stripe payment link into STRIPE_PAYMENT_LINK at the top of this file.
-                </p>
-              </div>
-            )}
           </>
         )}
       </div>
@@ -1005,7 +996,7 @@ Notes: ${m.mnotes || "-"}
   }, [m]);
 
   const mailtoHref = useMemo(() => {
-    const subject = encodeURIComponent("Free 3D Design Request — Premier RTA Cabinetry");
+    const subject = encodeURIComponent("Complimentary Design Request — Premier RTA Cabinetry");
     const bodyLines = [
       `Showroom/Warehouse: ${SHOWROOM_ADDRESS}`,
       `Path: ${path}`,
@@ -1018,7 +1009,7 @@ Notes: ${m.mnotes || "-"}
       `Measurement summary:`,
       measurementSummaryText,
       ``,
-      `Project notes:`,
+      `Notes:`,
       notes || "(none)",
       ``,
       `Uploads (attach these to this email):`,
@@ -1032,8 +1023,10 @@ Notes: ${m.mnotes || "-"}
     <section className="section">
       <div className="container">
         <div className="kicker">Design Center</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>Measurements + complimentary design</h2>
-        <p>Fill this out once. We’ll use your measurements and photos to create a 3D layout + itemized cabinet list.</p>
+        <h2 style={{ fontSize: 34, marginTop: 10 }}>Complimentary design consultation</h2>
+        <p className="mini">
+          Calm process: (1) Send measurements + photos → (2) We build a layout + SKU list → (3) You order confidently.
+        </p>
 
         <div className="grid two" style={{ marginTop: 16 }}>
           <div className="card">
@@ -1079,20 +1072,20 @@ Notes: ${m.mnotes || "-"}
               </div>
 
               <div>
-                <label>Wall A length</label>
+                <label>Wall A</label>
                 <input value={m.wallA} onChange={(e) => setM((x) => ({ ...x, wallA: e.target.value }))} placeholder='e.g. 144"' />
               </div>
               <div>
-                <label>Wall B length</label>
+                <label>Wall B</label>
                 <input value={m.wallB} onChange={(e) => setM((x) => ({ ...x, wallB: e.target.value }))} placeholder='e.g. 120"' />
               </div>
 
               <div>
-                <label>Wall C length</label>
+                <label>Wall C</label>
                 <input value={m.wallC} onChange={(e) => setM((x) => ({ ...x, wallC: e.target.value }))} placeholder="optional" />
               </div>
               <div>
-                <label>Wall D length</label>
+                <label>Wall D</label>
                 <input value={m.wallD} onChange={(e) => setM((x) => ({ ...x, wallD: e.target.value }))} placeholder="optional" />
               </div>
             </div>
@@ -1100,7 +1093,7 @@ Notes: ${m.mnotes || "-"}
             <label>Appliances</label>
             <input value={m.appliances} onChange={(e) => setM((x) => ({ ...x, appliances: e.target.value }))} placeholder="range/fridge/dishwasher sizes" />
 
-            <label>Measurement notes</label>
+            <label>Notes</label>
             <textarea rows={3} value={m.mnotes} onChange={(e) => setM((x) => ({ ...x, mnotes: e.target.value }))} placeholder="pantry? island? timeline?" />
 
             <label>Upload photos/sketches</label>
@@ -1126,8 +1119,8 @@ Notes: ${m.mnotes || "-"}
           </div>
 
           <div className="card soft">
-            <div className="kicker">Showroom</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Visit or call</h3>
+            <div className="kicker">By appointment</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Showroom visits</h3>
             <p className="mini">
               <b style={{ color: "var(--text)" }}>{SHOWROOM_ADDRESS}</b><br />
               Phone: <b style={{ color: "var(--text)" }}>{SUPPORT_PHONE}</b><br />
@@ -1141,13 +1134,13 @@ Notes: ${m.mnotes || "-"}
             </p>
 
             <div className="divider" />
-            <div className="kicker">Expectations</div>
+            <div className="kicker">Lead time</div>
             <p className="mini" style={{ marginTop: 8 }}>
               Typical lead time is 2–5 weeks. Freight is quoted after order.
             </p>
 
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/shop">Shop</a>
+              <a className="btn btn-primary" href="#/shop">View Finishes</a>
               <a className="btn btn-outline" href="#/cart">Review Order</a>
             </div>
           </div>
@@ -1158,6 +1151,7 @@ Notes: ${m.mnotes || "-"}
 }
 
 function Learning() {
+  // ✅ Added “Our Process” + “What’s included” here (no new tab)
   const emailTemplateHref = useMemo(() => {
     const subject = encodeURIComponent("Measurements — Premier RTA Cabinetry");
     const body = encodeURIComponent(
@@ -1169,34 +1163,72 @@ function Learning() {
   return (
     <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container">
-        <div className="kicker">Learning</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>How we work</h2>
+        <div className="kicker">Info</div>
+        <h2 style={{ fontSize: 34, marginTop: 10 }}>What to expect</h2>
         <p className="mini">
-          Serving Staten Island for years — now offering RTA cabinetry shipping nationwide with designer-led support.
+          Serving Staten Island for years — now offering RTA cabinetry shipping nationwide. Showroom visits by appointment.
         </p>
 
         <div className="grid two" style={{ marginTop: 16 }}>
-          <div className="card soft">
-            <div className="kicker">Sending measurements</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Best method</h3>
-            <p className="mini">Use Design Center (recommended). Or use the email template below.</p>
+          <div className="card">
+            <div className="kicker">Our process</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Simple and calm</h3>
+            <ul className="clean">
+              <li><b>Choose a finish</b> (or order a door sample)</li>
+              <li><b>Confirm your cabinet list</b> (or request complimentary design)</li>
+              <li><b>Order → freight scheduled → delivery</b> (freight quoted after order)</li>
+            </ul>
+
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/design">Design Center form</a>
-              <a className="btn btn-outline" href={emailTemplateHref}>Email template</a>
+              <a className="btn btn-primary" href="#/shop">View Finishes</a>
+              <a className="btn btn-outline" href="#/design">Complimentary Design</a>
             </div>
           </div>
 
-          <div className="card">
+          <div className="card soft">
+            <div className="kicker">How to send measurements</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Recommended</h3>
+            <p className="mini">Use Design Center (recommended). Or use the email template below.</p>
+
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href="#/design">Design Center</a>
+              <a className="btn btn-outline" href={emailTemplateHref}>Email template</a>
+            </div>
+
+            <div className="divider" />
             <div className="kicker">Showroom</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Visit us</h3>
-            <p className="mini">
+            <p className="mini" style={{ marginTop: 8 }}>
               <b style={{ color: "var(--text)" }}>{SHOWROOM_ADDRESS}</b><br />
-              Phone: <b style={{ color: "var(--text)" }}>{SUPPORT_PHONE}</b><br />
-              Email: <b style={{ color: "var(--text)" }}>{SUPPORT_EMAIL}</b>
+              Phone: <b style={{ color: "var(--text)" }}>{SUPPORT_PHONE}</b>
+            </p>
+          </div>
+        </div>
+
+        <div className="grid two" style={{ marginTop: 16 }}>
+          <div className="card">
+            <div className="kicker">What’s included</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Quality & essentials</h3>
+            <ul className="clean">
+              <li>Durable cabinet finish</li>
+              <li>Soft-close hardware (where applicable)</li>
+              <li>Standard cabinet components & instructions</li>
+              <li>Clear ordering support and planning guidance</li>
+              <li>Warranty (varies by line)</li>
+            </ul>
+            <div className="mini" style={{ marginTop: 10 }}>
+              If you’re unsure what you need, request complimentary design and we’ll build the list.
+            </div>
+          </div>
+
+          <div className="card soft">
+            <div className="kicker">By appointment</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Showroom visits</h3>
+            <p className="mini">
+              We recommend scheduling a visit so we can review finishes and your plan with you.
             </p>
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/shop">Shop</a>
-              <a className="btn btn-outline" href="#/contact">Contact</a>
+              <a className="btn btn-primary" href="#/contact">Book / Contact</a>
+              <a className="btn btn-outline" href="#/shop">View Finishes</a>
             </div>
           </div>
         </div>
@@ -1206,59 +1238,36 @@ function Learning() {
 }
 
 function Gallery() {
-  const finishesFlat = useMemo(() => FINISH_GROUPS.flatMap((g) => g.finishes), []);
-  const [filterFinish, setFilterFinish] = useState("all");
-
-  const studies = useMemo(() => {
-    if (filterFinish === "all") return CASE_STUDIES;
-    return CASE_STUDIES.filter((s) => s.finishId === filterFinish);
-  }, [filterFinish]);
-
+  // ✅ This tab is now truly “real installs” using your photos
   return (
     <section className="section">
       <div className="container">
-        <div className="kicker">Gallery</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>Installs & Case Studies</h2>
-        <p>Replace the examples with real installs and tag the finish used.</p>
-
-        <div className="card soft" style={{ marginTop: 14 }}>
-          <div className="grid three">
-            <div>
-              <label>Filter by finish</label>
-              <select value={filterFinish} onChange={(e) => setFilterFinish(e.target.value)}>
-                <option value="all">All</option>
-                {finishesFlat.map((f) => (
-                  <option key={f.id} value={f.id}>{f.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="mini" style={{ alignSelf: "end" }}>Real installs convert fast.</div>
-            <div style={{ alignSelf: "end" }}>
-              <a className="btn btn-outline" href="#/shop">Shop finishes</a>
-            </div>
-          </div>
-        </div>
+        <div className="kicker">Installs</div>
+        <h2 style={{ fontSize: 34, marginTop: 10 }}>Real installs</h2>
+        <p className="mini">
+          Your real projects — this is the proof that makes the site feel established.
+        </p>
 
         <div className="grid three" style={{ marginTop: 14 }}>
-          {studies.map((s, i) => (
+          {REAL_INSTALLS.map((s, i) => (
             <div key={i} className="card" style={{ padding: 0, overflow: "hidden" }}>
-              <img src={s.image} alt={s.title} style={{ width: "100%", height: 220, objectFit: "cover" }} />
+              <img src={s.image} alt={s.title} style={{ width: "100%", height: 240, objectFit: "cover" }} />
               <div style={{ padding: 14 }}>
                 <div className="kicker">{s.location}</div>
-                <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 700, fontSize: 18, marginTop: 6 }}>{s.title}</div>
-                <div className="mini" style={{ marginTop: 8 }}>
-                  <b>Finish:</b> {getFinishById(s.finishId).name}<br />
-                  <b>Cabinets:</b> {s.cabinetCount}<br />
-                  <b>Range:</b> {s.range}
+                <div style={{ fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 700, fontSize: 18, marginTop: 6 }}>
+                  {s.title}
                 </div>
                 <div className="row" style={{ marginTop: 12 }}>
-                  <a className="btn btn-primary" href={`#/shop/${s.finishId}`}>Shop this finish</a>
-                  <a className="btn btn-outline" href="#/design">Get a design</a>
+                  <a className="btn btn-primary" href="#/shop">View Finishes</a>
+                  <a className="btn btn-outline" href="#/design">Complimentary Design</a>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Optional: keep your old placeholder case studies section if you want later.
+            For now, it’s removed to avoid “fake” feeling. */}
       </div>
     </section>
   );
@@ -1268,9 +1277,9 @@ function Contact() {
   const [msg, setMsg] = useState({ name: "", email: "", phone: "", body: "" });
 
   const mailtoHref = useMemo(() => {
-    const subject = encodeURIComponent("Website Inquiry — Premier RTA Cabinetry");
+    const subject = encodeURIComponent("Showroom Appointment / Inquiry — Premier RTA Cabinetry");
     const body = encodeURIComponent(
-      `Name: ${msg.name}\nEmail: ${msg.email}\nPhone: ${msg.phone}\n\nMessage:\n${msg.body}\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
+      `Name: ${msg.name}\nEmail: ${msg.email}\nPhone: ${msg.phone}\n\nMessage:\n${msg.body}\n\nShowroom (by appointment): ${SHOWROOM_ADDRESS}\n`
     );
     return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
   }, [msg]);
@@ -1282,7 +1291,7 @@ function Contact() {
           <div className="kicker">Contact</div>
           <h2 style={{ fontSize: 34, marginTop: 10 }}>Premier RTA Cabinetry</h2>
           <p className="mini">
-            Showroom/Warehouse: <b style={{ color: "var(--text)" }}>{SHOWROOM_ADDRESS}</b><br />
+            Showroom (by appointment): <b style={{ color: "var(--text)" }}>{SHOWROOM_ADDRESS}</b><br />
             Email: <b style={{ color: "var(--text)" }}>{SUPPORT_EMAIL}</b><br />
             Phone: <b style={{ color: "var(--text)" }}>{SUPPORT_PHONE}</b>
           </p>
@@ -1292,12 +1301,12 @@ function Contact() {
 
           <div className="row" style={{ marginTop: 12 }}>
             <a className="btn btn-primary" href="#/design">Complimentary Design</a>
-            <a className="btn btn-outline" href="#/shop">Shop</a>
+            <a className="btn btn-outline" href="#/shop">View Finishes</a>
           </div>
         </div>
 
         <div className="card soft">
-          <div className="kicker">Message</div>
+          <div className="kicker">Appointment / Message</div>
           <h3 style={{ fontSize: 22, marginTop: 8 }}>Send a note</h3>
 
           <div className="grid two" style={{ marginTop: 10 }}>
@@ -1315,13 +1324,154 @@ function Contact() {
           <input value={msg.email} onChange={(e) => setMsg((m) => ({ ...m, email: e.target.value }))} />
 
           <label>Message</label>
-          <textarea rows={5} value={msg.body} onChange={(e) => setMsg((m) => ({ ...m, body: e.target.value }))} />
+          <textarea rows={5} value={msg.body} onChange={(e) => setMsg((m) => ({ ...m, body: e.target.value }))} placeholder="Finish, measurements, timeline, appointment request…" />
 
           <div className="row" style={{ marginTop: 12 }}>
             <a className="btn btn-primary" href={mailtoHref}>Send Email</a>
             <a className="btn btn-outline" href={`mailto:${SUPPORT_EMAIL}`}>Open Mail</a>
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================
+   CART + CONFIGURATOR + SHOP
+   ============================ */
+function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
+  const totals = useMemo(() => computeCartTotals(cart), [cart]);
+
+  const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
+  const [freightOk, setFreightOk] = useState(false);
+  const [applySampleCredit, setApplySampleCredit] = useState(true);
+
+  const sampleCredit = applySampleCredit ? Math.min(SAMPLE_CREDIT_PLACEHOLDER, totals.samplesSubtotal) : 0;
+  const totalAfterCredit = Math.max(0, totals.subtotal - sampleCredit);
+
+  const canPay = checkoutOk && cart.length > 0 && freightOk;
+
+  return (
+    <section className="section" style={{ background: "var(--bg2)" }}>
+      <div className="container">
+        <div className="kicker">Cart</div>
+        <h2 style={{ fontSize: 32, marginTop: 10 }}>Review order</h2>
+
+        {cart.length === 0 ? (
+          <div className="card">
+            <p>Your cart is empty.</p>
+            <div className="row" style={{ marginTop: 12 }}>
+              <a className="btn btn-primary" href="#/shop">View Cabinet Finishes</a>
+              <a className="btn btn-outline" href="#/design">Complimentary Design</a>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="card soft">
+              <div className="row" style={{ justifyContent: "space-between" }}>
+                <span className="pill red">Freight shipping is quoted after order</span>
+                <span className="pill">Lead time: 2–5 weeks (typical)</span>
+              </div>
+
+              <div className="row" style={{ marginTop: 12 }}>
+                <input
+                  id="freight-ok"
+                  type="checkbox"
+                  checked={freightOk}
+                  onChange={(e) => setFreightOk(e.target.checked)}
+                  style={{ width: 18, height: 18 }}
+                />
+                <label htmlFor="freight-ok" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "rgba(15,15,16,.70)" }}>
+                  I understand freight will be quoted separately.
+                </label>
+              </div>
+
+              <div className="row" style={{ marginTop: 10 }}>
+                <input
+                  id="sample-credit"
+                  type="checkbox"
+                  checked={applySampleCredit}
+                  onChange={(e) => setApplySampleCredit(e.target.checked)}
+                  style={{ width: 18, height: 18 }}
+                />
+                <label htmlFor="sample-credit" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "rgba(15,15,16,.70)" }}>
+                  Apply sample credit (placeholder): {usd(sampleCredit)}
+                </label>
+              </div>
+            </div>
+
+            <div className="card" style={{ padding: 0, overflow: "hidden", marginTop: 14 }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Finish</th>
+                    <th>Type</th>
+                    <th>SKU</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Assembly</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cart.map((it) => {
+                    const assemblyFeeLine = (it.assemblyFeeEach || 0) * it.qty;
+                    const lineTotal = it.unitPrice * it.qty + assemblyFeeLine;
+                    return (
+                      <tr key={it.key}>
+                        <td>{it.finishName}</td>
+                        <td>{it.cabinetTypeLabel}</td>
+                        <td>{it.sku}</td>
+                        <td>{it.qty}</td>
+                        <td>{usd(it.unitPrice)}</td>
+                        <td>{it.assembly === "assembled" ? usd(it.assemblyFeeEach || 0) : usd(0)}</td>
+                        <td>{usd(lineTotal)}</td>
+                        <td>
+                          <button className="btn btn-outline" type="button" onClick={() => onRemove(it.key)}>Remove</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, fontSize: 18 }}>
+              Total:{" "}
+              <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900 }}>
+                {usd(totalAfterCredit)}
+              </span>
+            </div>
+
+            <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
+              <div className="row">
+                <button className="btn btn-outline" type="button" onClick={onClear}>Clear</button>
+                <button className="btn btn-outline" type="button" onClick={() => { onExportCSV(); onToast("CSV exported"); }}>
+                  Export CSV
+                </button>
+                <button className="btn btn-ghost" type="button" onClick={async () => { await onShareLink(); onToast("Share link copied"); }}>
+                  Share
+                </button>
+              </div>
+
+              {checkoutOk ? (
+                <a
+                  className="btn btn-primary"
+                  href={canPay ? STRIPE_PAYMENT_LINK : undefined}
+                  onClick={(e) => { if (!canPay) e.preventDefault(); }}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ opacity: canPay ? 1 : 0.55, pointerEvents: canPay ? "auto" : "none" }}
+                >
+                  Pay (Apple Pay / Card)
+                </a>
+              ) : (
+                <a className="btn btn-primary" href={`mailto:${SUPPORT_EMAIL}`}>Checkout Setup Needed</a>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
@@ -1508,7 +1658,7 @@ export default function App() {
         <div className="container">
           <div className="grid two">
             <div className="mini">
-              <b style={{ color: "var(--text)" }}>Showroom/Warehouse:</b> {SHOWROOM_ADDRESS}<br />
+              <b style={{ color: "var(--text)" }}>Showroom (by appointment):</b> {SHOWROOM_ADDRESS}<br />
               <b style={{ color: "var(--text)" }}>Email:</b> {SUPPORT_EMAIL}<br />
               <b style={{ color: "var(--text)" }}>Phone:</b> {SUPPORT_PHONE}
             </div>
