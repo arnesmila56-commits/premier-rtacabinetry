@@ -42,7 +42,7 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
-   GLOBAL STYLES (Old money luxury: calm, minimal)
+   GLOBAL STYLES (Old money luxury)
    ============================ */
 function GlobalStyles() {
   return (
@@ -58,14 +58,14 @@ function GlobalStyles() {
         --muted:#2f2f34;
         --muted2:#6a6a72;
 
-        /* deeper, more luxury red */
+        /* deeper “luxury” red (no gradients) */
         --primary:#8f1322;
         --primary2:#6f0f19;
 
         --border: rgba(15,15,16,.12);
         --ring: rgba(143,19,34,.16);
 
-        /* softer shadows (less cartoon) */
+        /* softer shadows = less cartoon */
         --shadow: 0 10px 24px rgba(0,0,0,.08);
         --shadow2: 0 6px 16px rgba(0,0,0,.06);
       }
@@ -109,9 +109,9 @@ function GlobalStyles() {
         border-bottom:1px solid var(--border);
       }
 
-      /* ✅ announcement bar = white w/ black text */
+      /* ✅ announcement bar = WHITE with black text */
       .announce{
-        background: #fff;
+        background:#fff;
         color: rgba(15,15,16,.86);
         border-bottom:1px solid var(--border);
       }
@@ -202,7 +202,7 @@ function GlobalStyles() {
       .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
       .btn:active{ transform: translateY(0px); box-shadow:none; }
 
-      /* luxury: solid, no gradients */
+      /* luxury: solid fills, no gradients */
       .btn-primary{
         background: var(--primary);
         color:#fff;
@@ -583,15 +583,15 @@ function Home() {
           <div className="card">
             <div className="kicker">Showroom & Warehouse</div>
             <h1 style={{ fontSize: 44, marginTop: 8 }}>A kitchen you buy once — done right.</h1>
-            <p style={{ color: "rgba(15,15,16,.72)" }}>
+            <p>
               We’ve served customers for years from our Staten Island showroom/warehouse at <b>{SHOWROOM_ADDRESS}</b>.
-              Now we’re offering that same experience online — curated finishes, SKU-based ordering, and designer-led help when you need it.
+              Now we’re offering that same experience online — curated finishes, SKU-based ordering, and designer-led help.
             </p>
 
             <div className="row" style={{ marginTop: 14 }}>
-              <a className="btn btn-primary" href="#/shop">Shop Finishes</a>
-              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
-              <a className="btn btn-ghost" href="#/contact">Visit / Contact</a>
+              <a className="btn btn-primary" href="#/shop">View Finishes</a>
+              <a className="btn btn-outline" href="#/design">Complimentary Design</a>
+              <a className="btn btn-ghost" href="#/contact">Contact</a>
             </div>
 
             <div className="divider" />
@@ -609,17 +609,17 @@ function Home() {
           </div>
         </div>
 
-        {/* ✅ Only keep these 3 cards (as requested) */}
+        {/* ✅ Only the 3 cards remain */}
         <div className="grid three" style={{ marginTop: 16 }}>
           <div className="card soft">
             <div className="kicker">Door samples</div>
             <h3 style={{ fontSize: 20, marginTop: 8 }}>Try a finish at home</h3>
-            <p className="mini">Order a door sample before committing. Perfect for matching stone + hardware.</p>
+            <p className="mini">Order a sample before committing. Match stone, flooring, and hardware confidently.</p>
             <a className="btn btn-primary" href="#/shop">Shop + Samples</a>
           </div>
 
           <div className="card soft">
-            <div className="kicker">Free design help</div>
+            <div className="kicker">Complimentary design</div>
             <h3 style={{ fontSize: 20, marginTop: 8 }}>3D layout + cabinet list</h3>
             <p className="mini">Send measurements and photos. We return a layout + itemized list of SKUs.</p>
             <a className="btn btn-primary" href="#/design">Design Center</a>
@@ -629,7 +629,7 @@ function Home() {
             <div className="kicker">Nationwide freight</div>
             <h3 style={{ fontSize: 20, marginTop: 8 }}>Delivery expectations</h3>
             <p className="mini">Lead time typically 2–5 weeks. Freight is quoted after order.</p>
-            <a className="btn btn-outline" href="#/cart">Checkout</a>
+            <a className="btn btn-outline" href="#/cart">Review Order</a>
           </div>
         </div>
       </div>
@@ -739,7 +739,7 @@ function Configurator({ finishId, onAddToCart, onAddSample }) {
 
           <label>Assembly</label>
           <select value={assembly} onChange={(e) => setAssembly(e.target.value)}>
-            <option value="rta">RTA (unassembled)</option>
+            <option value="rta">RTA</option>
             <option value="assembled">Assembled (+{usd(ASSEMBLY_UPCHARGE_PER_CABINET)} each)</option>
           </select>
 
@@ -835,14 +835,14 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
     <section className="section" style={{ background: "var(--bg2)" }}>
       <div className="container">
         <div className="kicker">Cart</div>
-        <h2 style={{ fontSize: 32, marginTop: 10 }}>Checkout</h2>
+        <h2 style={{ fontSize: 32, marginTop: 10 }}>Review Order</h2>
 
         {cart.length === 0 ? (
           <div className="card">
             <p>Your cart is empty.</p>
             <div className="row" style={{ marginTop: 12 }}>
               <a className="btn btn-primary" href="#/shop">Shop finishes</a>
-              <a className="btn btn-outline" href="#/design">Free 3D Design</a>
+              <a className="btn btn-outline" href="#/design">Complimentary Design</a>
             </div>
           </div>
         ) : (
@@ -861,7 +861,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
                   onChange={(e) => setFreightOk(e.target.checked)}
                   style={{ width: 18, height: 18 }}
                 />
-                <label htmlFor="freight-ok" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "var(--muted)" }}>
+                <label htmlFor="freight-ok" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "rgba(15,15,16,.70)" }}>
                   I understand freight will be quoted separately.
                 </label>
               </div>
@@ -874,7 +874,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
                   onChange={(e) => setApplySampleCredit(e.target.checked)}
                   style={{ width: 18, height: 18 }}
                 />
-                <label htmlFor="sample-credit" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "var(--muted)" }}>
+                <label htmlFor="sample-credit" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "rgba(15,15,16,.70)" }}>
                   Apply sample credit (placeholder): {usd(sampleCredit)}
                 </label>
               </div>
@@ -1032,8 +1032,8 @@ Notes: ${m.mnotes || "-"}
     <section className="section">
       <div className="container">
         <div className="kicker">Design Center</div>
-        <h2 style={{ fontSize: 34, marginTop: 10 }}>One form: measurements + free 3D design request</h2>
-        <p>Fill this out once. We’ll use your measurements and photos to create a 3D layout + an itemized cabinet list.</p>
+        <h2 style={{ fontSize: 34, marginTop: 10 }}>Measurements + complimentary design</h2>
+        <p>Fill this out once. We’ll use your measurements and photos to create a 3D layout + itemized cabinet list.</p>
 
         <div className="grid two" style={{ marginTop: 16 }}>
           <div className="card">
@@ -1148,7 +1148,7 @@ Notes: ${m.mnotes || "-"}
 
             <div className="row" style={{ marginTop: 12 }}>
               <a className="btn btn-primary" href="#/shop">Shop</a>
-              <a className="btn btn-outline" href="#/cart">Cart</a>
+              <a className="btn btn-outline" href="#/cart">Review Order</a>
             </div>
           </div>
         </div>
@@ -1171,33 +1171,14 @@ function Learning() {
       <div className="container">
         <div className="kicker">Learning</div>
         <h2 style={{ fontSize: 34, marginTop: 10 }}>How we work</h2>
-        <p>
-          We’ve served customers for years from our Staten Island showroom/warehouse at <b>{SHOWROOM_ADDRESS}</b>. Now we ship
-          RTA nationwide — with the same planning support and clean ordering experience.
+        <p className="mini">
+          Serving Staten Island for years — now offering RTA cabinetry shipping nationwide with designer-led support.
         </p>
-
-        <div className="grid three" style={{ marginTop: 14 }}>
-          <div className="card">
-            <div className="kicker">1) Choose a finish</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Shop online</h3>
-            <p className="mini">Pick a finish, configure cabinets by SKU, and checkout.</p>
-          </div>
-          <div className="card">
-            <div className="kicker">2) Get a plan</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Free 3D design</h3>
-            <p className="mini">Send measurements and photos. We return a layout + itemized list.</p>
-          </div>
-          <div className="card">
-            <div className="kicker">3) Delivery</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Freight + lead time</h3>
-            <p className="mini">Lead time is typically 2–5 weeks. Freight is quoted after order.</p>
-          </div>
-        </div>
 
         <div className="grid two" style={{ marginTop: 16 }}>
           <div className="card soft">
             <div className="kicker">Sending measurements</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Easiest way</h3>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Best method</h3>
             <p className="mini">Use Design Center (recommended). Or use the email template below.</p>
             <div className="row" style={{ marginTop: 12 }}>
               <a className="btn btn-primary" href="#/design">Design Center form</a>
@@ -1206,8 +1187,8 @@ function Learning() {
           </div>
 
           <div className="card">
-            <div className="kicker">Visit us</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Showroom & warehouse</h3>
+            <div className="kicker">Showroom</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Visit us</h3>
             <p className="mini">
               <b style={{ color: "var(--text)" }}>{SHOWROOM_ADDRESS}</b><br />
               Phone: <b style={{ color: "var(--text)" }}>{SUPPORT_PHONE}</b><br />
@@ -1310,14 +1291,14 @@ function Contact() {
           <p className="mini">Serving Staten Island for years — now shipping RTA nationwide.</p>
 
           <div className="row" style={{ marginTop: 12 }}>
-            <a className="btn btn-primary" href="#/design">Free 3D Design</a>
+            <a className="btn btn-primary" href="#/design">Complimentary Design</a>
             <a className="btn btn-outline" href="#/shop">Shop</a>
           </div>
         </div>
 
         <div className="card soft">
           <div className="kicker">Message</div>
-          <h3 style={{ fontSize: 22, marginTop: 8 }}>Send us a quick note</h3>
+          <h3 style={{ fontSize: 22, marginTop: 8 }}>Send a note</h3>
 
           <div className="grid two" style={{ marginTop: 10 }}>
             <div>
