@@ -13,7 +13,7 @@ const SAMPLE_PRICE = 25; // door sample price
 const SAMPLE_CREDIT_PLACEHOLDER = 25; // UI-only placeholder credit
 const ASSEMBLY_UPCHARGE_PER_CABINET = 99;
 
-/* ✅ Your real install photos */
+/* ✅ Your real photos */
 const REAL_PHOTOS = [
   "https://premierkm.com/wp-content/uploads/2021/09/IMG_0699-scaled.jpg",
   "https://premierkm.com/wp-content/uploads/2021/09/IMG_7315-scaled.jpg",
@@ -66,14 +66,12 @@ function GlobalStyles() {
         --muted:#2f2f34;
         --muted2:#6a6a72;
 
-        /* deep burgundy red */
-        --primary:#8f1322;
+        --primary:#8f1322;     /* deep burgundy */
         --primary2:#6f0f19;
 
         --border: rgba(15,15,16,.12);
         --ring: rgba(143,19,34,.16);
 
-        /* soft shadows */
         --shadow: 0 10px 24px rgba(0,0,0,.08);
         --shadow2: 0 6px 16px rgba(0,0,0,.06);
       }
@@ -305,7 +303,6 @@ function GlobalStyles() {
         background: #fff;
       }
 
-      /* Small section lists (What’s included) */
       ul.clean{
         margin: 10px 0 0;
         padding-left: 18px;
@@ -452,23 +449,10 @@ const CABINET_CATALOG = {
   },
 };
 
-/* ✅ Real installs now use your photos */
 const REAL_INSTALLS = [
-  {
-    title: "Premier install",
-    location: "Staten Island, NY",
-    image: REAL_PHOTOS[0],
-  },
-  {
-    title: "Premier install",
-    location: "Staten Island, NY",
-    image: REAL_PHOTOS[1],
-  },
-  {
-    title: "Premier install",
-    location: "Staten Island, NY",
-    image: REAL_PHOTOS[2],
-  },
+  { title: "Premier install", location: "Staten Island, NY", image: REAL_PHOTOS[0] },
+  { title: "Premier install", location: "Staten Island, NY", image: REAL_PHOTOS[1] },
+  { title: "Premier install", location: "Staten Island, NY", image: REAL_PHOTOS[2] },
 ];
 
 const REVIEWS = [
@@ -493,7 +477,7 @@ function computeCartTotals(cart) {
 }
 
 /* ============================
-   TOP UI
+   UI
    ============================ */
 function AnnouncementBar() {
   return (
@@ -564,17 +548,7 @@ function Toast({ text }) {
 /* ============================
    PAGES
    ============================ */
-function Home() {
-  const [reviewIdx, setReviewIdx] = useState(0);
-  const review = REVIEWS[reviewIdx % REVIEWS.length];
-
-  // rotate through your 3 real photos in hero
-  const [heroIdx, setHeroIdx] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setHeroIdx((i) => (i + 1) % REAL_PHOTOS.length), 4500);
-    return () => clearInterval(t);
-  }, []);
-
+function Home({ heroIdx, setReviewIdx, review }) {
   return (
     <section className="section">
       <div className="container">
@@ -608,7 +582,7 @@ function Home() {
           </div>
         </div>
 
-        {/* ✅ Only the 3 cards remain */}
+        {/* Home = hero + ONLY the 3 cards */}
         <div className="grid three" style={{ marginTop: 16 }}>
           <div className="card soft">
             <div className="kicker">Door samples</div>
@@ -660,10 +634,10 @@ function ShopList({ onAddSample }) {
 
                   <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
                     <div style={{ fontWeight: 900 }}>{f.name}</div>
-                    <span className="pill red">Finish</span>
+                    <span className="pill.red" />
                   </div>
 
-                  <p className="mini">Configure cabinets by SKU or order a door sample.</p>
+                  <p className="mini">Configure cabinets by SKU or order a sample.</p>
 
                   <div className="row" style={{ marginTop: 10 }}>
                     <a className="btn btn-primary" href={`#/shop/${f.id}`}>Configure</a>
@@ -716,7 +690,7 @@ function Configurator({ finishId, onAddToCart, onAddSample }) {
           <div style={{ padding: 18 }}>
             <div className="kicker">Finish</div>
             <h2 style={{ fontSize: 28, marginTop: 10 }}>{finish.name}</h2>
-            <p className="mini">Select cabinet type + SKU + quantity. (Search removed. Accessories removed.)</p>
+            <p className="mini">Select cabinet type + SKU + quantity. (No search. No accessories.)</p>
 
             <div className="row" style={{ marginTop: 10 }}>
               <button className="btn btn-outline" type="button" onClick={() => onAddSample(finish.id, finish.name)}>
@@ -818,7 +792,8 @@ function Configurator({ finishId, onAddToCart, onAddSample }) {
   );
 }
 
-function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
+/* ✅ RENAMED to avoid duplicate symbol errors */
+function CartPage({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
   const totals = useMemo(() => computeCartTotals(cart), [cart]);
 
   const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
@@ -982,10 +957,10 @@ Showroom/Warehouse:
 ${SHOWROOM_ADDRESS}
 
 Ceiling height: ${m.ceiling || "-"}
-Wall A length: ${m.wallA || "-"}
-Wall B length: ${m.wallB || "-"}
-Wall C length: ${m.wallC || "-"}
-Wall D length: ${m.wallD || "-"}
+Wall A: ${m.wallA || "-"}
+Wall B: ${m.wallB || "-"}
+Wall C: ${m.wallC || "-"}
+Wall D: ${m.wallD || "-"}
 Windows/doors: ${m.windowsDoors || "-"}
 Appliances: ${m.appliances || "-"}
 Notes: ${m.mnotes || "-"}
@@ -1025,7 +1000,7 @@ Notes: ${m.mnotes || "-"}
         <div className="kicker">Design Center</div>
         <h2 style={{ fontSize: 34, marginTop: 10 }}>Complimentary design consultation</h2>
         <p className="mini">
-          Calm process: (1) Send measurements + photos → (2) We build a layout + SKU list → (3) You order confidently.
+          Process: Choose finish → confirm list (or request design) → order → freight scheduled → delivery.
         </p>
 
         <div className="grid two" style={{ marginTop: 16 }}>
@@ -1151,11 +1126,10 @@ Notes: ${m.mnotes || "-"}
 }
 
 function Learning() {
-  // ✅ Added “Our Process” + “What’s included” here (no new tab)
   const emailTemplateHref = useMemo(() => {
     const subject = encodeURIComponent("Measurements — Premier RTA Cabinetry");
     const body = encodeURIComponent(
-      `Hi Premier team,\n\nHere are my measurements:\n- Ceiling height:\n- Wall A length:\n- Wall B length:\n- Wall C length (optional):\n- Wall D length (optional):\n- Windows/doors:\n- Appliances:\n- Notes:\n\n(Attached photos/sketches)\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
+      `Hi Premier team,\n\nHere are my measurements:\n- Ceiling height:\n- Wall A:\n- Wall B:\n- Wall C (optional):\n- Wall D (optional):\n- Windows/doors:\n- Appliances:\n- Notes:\n\n(Attached photos/sketches)\n\nShowroom: ${SHOWROOM_ADDRESS}\n`
     );
     return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
   }, []);
@@ -1169,6 +1143,7 @@ function Learning() {
           Serving Staten Island for years — now offering RTA cabinetry shipping nationwide. Showroom visits by appointment.
         </p>
 
+        {/* #2 Process reassurance + #4 appointment vibe */}
         <div className="grid two" style={{ marginTop: 16 }}>
           <div className="card">
             <div className="kicker">Our process</div>
@@ -1186,7 +1161,7 @@ function Learning() {
           </div>
 
           <div className="card soft">
-            <div className="kicker">How to send measurements</div>
+            <div className="kicker">Send measurements</div>
             <h3 style={{ fontSize: 22, marginTop: 8 }}>Recommended</h3>
             <p className="mini">Use Design Center (recommended). Or use the email template below.</p>
 
@@ -1196,7 +1171,7 @@ function Learning() {
             </div>
 
             <div className="divider" />
-            <div className="kicker">Showroom</div>
+            <div className="kicker">Showroom by appointment</div>
             <p className="mini" style={{ marginTop: 8 }}>
               <b style={{ color: "var(--text)" }}>{SHOWROOM_ADDRESS}</b><br />
               Phone: <b style={{ color: "var(--text)" }}>{SUPPORT_PHONE}</b>
@@ -1204,6 +1179,7 @@ function Learning() {
           </div>
         </div>
 
+        {/* ✅ #5 What’s included (Learning only) */}
         <div className="grid two" style={{ marginTop: 16 }}>
           <div className="card">
             <div className="kicker">What’s included</div>
@@ -1221,14 +1197,14 @@ function Learning() {
           </div>
 
           <div className="card soft">
-            <div className="kicker">By appointment</div>
-            <h3 style={{ fontSize: 22, marginTop: 8 }}>Showroom visits</h3>
+            <div className="kicker">Door samples</div>
+            <h3 style={{ fontSize: 22, marginTop: 8 }}>Try before you commit</h3>
             <p className="mini">
-              We recommend scheduling a visit so we can review finishes and your plan with you.
+              Door samples help confirm undertone and finish in your lighting. Ideal for matching stone and flooring.
             </p>
             <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/contact">Book / Contact</a>
-              <a className="btn btn-outline" href="#/shop">View Finishes</a>
+              <a className="btn btn-primary" href="#/shop">Order a sample</a>
+              <a className="btn btn-outline" href="#/contact">Appointment</a>
             </div>
           </div>
         </div>
@@ -1238,15 +1214,12 @@ function Learning() {
 }
 
 function Gallery() {
-  // ✅ This tab is now truly “real installs” using your photos
   return (
     <section className="section">
       <div className="container">
         <div className="kicker">Installs</div>
         <h2 style={{ fontSize: 34, marginTop: 10 }}>Real installs</h2>
-        <p className="mini">
-          Your real projects — this is the proof that makes the site feel established.
-        </p>
+        <p className="mini">Your real projects — this removes the “fake” feel immediately.</p>
 
         <div className="grid three" style={{ marginTop: 14 }}>
           {REAL_INSTALLS.map((s, i) => (
@@ -1265,9 +1238,6 @@ function Gallery() {
             </div>
           ))}
         </div>
-
-        {/* Optional: keep your old placeholder case studies section if you want later.
-            For now, it’s removed to avoid “fake” feeling. */}
       </div>
     </section>
   );
@@ -1337,147 +1307,6 @@ function Contact() {
 }
 
 /* ============================
-   CART + CONFIGURATOR + SHOP
-   ============================ */
-function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
-  const totals = useMemo(() => computeCartTotals(cart), [cart]);
-
-  const checkoutOk = STRIPE_PAYMENT_LINK && STRIPE_PAYMENT_LINK !== "PASTE_STRIPE_PAYMENT_LINK_HERE";
-  const [freightOk, setFreightOk] = useState(false);
-  const [applySampleCredit, setApplySampleCredit] = useState(true);
-
-  const sampleCredit = applySampleCredit ? Math.min(SAMPLE_CREDIT_PLACEHOLDER, totals.samplesSubtotal) : 0;
-  const totalAfterCredit = Math.max(0, totals.subtotal - sampleCredit);
-
-  const canPay = checkoutOk && cart.length > 0 && freightOk;
-
-  return (
-    <section className="section" style={{ background: "var(--bg2)" }}>
-      <div className="container">
-        <div className="kicker">Cart</div>
-        <h2 style={{ fontSize: 32, marginTop: 10 }}>Review order</h2>
-
-        {cart.length === 0 ? (
-          <div className="card">
-            <p>Your cart is empty.</p>
-            <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/shop">View Cabinet Finishes</a>
-              <a className="btn btn-outline" href="#/design">Complimentary Design</a>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="card soft">
-              <div className="row" style={{ justifyContent: "space-between" }}>
-                <span className="pill red">Freight shipping is quoted after order</span>
-                <span className="pill">Lead time: 2–5 weeks (typical)</span>
-              </div>
-
-              <div className="row" style={{ marginTop: 12 }}>
-                <input
-                  id="freight-ok"
-                  type="checkbox"
-                  checked={freightOk}
-                  onChange={(e) => setFreightOk(e.target.checked)}
-                  style={{ width: 18, height: 18 }}
-                />
-                <label htmlFor="freight-ok" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "rgba(15,15,16,.70)" }}>
-                  I understand freight will be quoted separately.
-                </label>
-              </div>
-
-              <div className="row" style={{ marginTop: 10 }}>
-                <input
-                  id="sample-credit"
-                  type="checkbox"
-                  checked={applySampleCredit}
-                  onChange={(e) => setApplySampleCredit(e.target.checked)}
-                  style={{ width: 18, height: 18 }}
-                />
-                <label htmlFor="sample-credit" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 13, color: "rgba(15,15,16,.70)" }}>
-                  Apply sample credit (placeholder): {usd(sampleCredit)}
-                </label>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: 0, overflow: "hidden", marginTop: 14 }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Finish</th>
-                    <th>Type</th>
-                    <th>SKU</th>
-                    <th>Qty</th>
-                    <th>Unit</th>
-                    <th>Assembly</th>
-                    <th>Total</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cart.map((it) => {
-                    const assemblyFeeLine = (it.assemblyFeeEach || 0) * it.qty;
-                    const lineTotal = it.unitPrice * it.qty + assemblyFeeLine;
-                    return (
-                      <tr key={it.key}>
-                        <td>{it.finishName}</td>
-                        <td>{it.cabinetTypeLabel}</td>
-                        <td>{it.sku}</td>
-                        <td>{it.qty}</td>
-                        <td>{usd(it.unitPrice)}</td>
-                        <td>{it.assembly === "assembled" ? usd(it.assemblyFeeEach || 0) : usd(0)}</td>
-                        <td>{usd(lineTotal)}</td>
-                        <td>
-                          <button className="btn btn-outline" type="button" onClick={() => onRemove(it.key)}>Remove</button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, fontSize: 18 }}>
-              Total:{" "}
-              <span style={{ marginLeft: 10, fontFamily: 'Georgia,"Times New Roman",serif', fontWeight: 900 }}>
-                {usd(totalAfterCredit)}
-              </span>
-            </div>
-
-            <div className="row" style={{ justifyContent: "space-between", marginTop: 12 }}>
-              <div className="row">
-                <button className="btn btn-outline" type="button" onClick={onClear}>Clear</button>
-                <button className="btn btn-outline" type="button" onClick={() => { onExportCSV(); onToast("CSV exported"); }}>
-                  Export CSV
-                </button>
-                <button className="btn btn-ghost" type="button" onClick={async () => { await onShareLink(); onToast("Share link copied"); }}>
-                  Share
-                </button>
-              </div>
-
-              {checkoutOk ? (
-                <a
-                  className="btn btn-primary"
-                  href={canPay ? STRIPE_PAYMENT_LINK : undefined}
-                  onClick={(e) => { if (!canPay) e.preventDefault(); }}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ opacity: canPay ? 1 : 0.55, pointerEvents: canPay ? "auto" : "none" }}
-                >
-                  Pay (Apple Pay / Card)
-                </a>
-              ) : (
-                <a className="btn btn-primary" href={`mailto:${SUPPORT_EMAIL}`}>Checkout Setup Needed</a>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* ============================
    MAIN APP
    ============================ */
 export default function App() {
@@ -1497,6 +1326,16 @@ export default function App() {
     if (typeof window === "undefined") return "";
     return localStorage.getItem("premier_measurements") || "";
   });
+
+  // hero photo rotation index
+  const [heroIdx, setHeroIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setHeroIdx((i) => (i + 1) % REAL_PHOTOS.length), 4500);
+    return () => clearInterval(t);
+  }, []);
+
+  const [reviewIdx, setReviewIdx] = useState(0);
+  const review = REVIEWS[reviewIdx % REVIEWS.length];
 
   useEffect(() => {
     const onHash = () => setHash(window.location.hash || "#/home");
@@ -1618,7 +1457,7 @@ export default function App() {
       <GlobalStyles />
       <Header cartCount={cartCount} />
 
-      {route === "home" && <Home />}
+      {route === "home" && <Home heroIdx={heroIdx} setReviewIdx={setReviewIdx} review={review} />}
 
       {route === "shop" &&
         (!sub ? (
@@ -1642,7 +1481,7 @@ export default function App() {
       {route === "gallery" && <Gallery />}
 
       {route === "cart" && (
-        <Cart
+        <CartPage
           cart={cart}
           onRemove={removeFromCart}
           onClear={clearCart}
