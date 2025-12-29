@@ -42,37 +42,37 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1800&auto=format&fit=crop";
 
 /* ============================
-   GLOBAL STYLES (WHITE / RED / BLACK)
+   GLOBAL STYLES (Old money luxury: calm, minimal)
    ============================ */
 function GlobalStyles() {
   return (
     <style>{`
       :root{
         --bg:#ffffff;
-        --bg2:#f6f6f7;
+        --bg2:#fbfbfc;
 
         --card:#ffffff;
-        --card2:#fafafa;
+        --card2:#fbfbfc;
 
         --text:#0f0f10;
         --muted:#2f2f34;
         --muted2:#6a6a72;
 
-        --primary:#c0182a;
-        --primary2:#9f1322;
+        /* deeper, more luxury red */
+        --primary:#8f1322;
+        --primary2:#6f0f19;
 
         --border: rgba(15,15,16,.12);
-        --ring: rgba(192,24,42,.18);
+        --ring: rgba(143,19,34,.16);
 
-        --shadow: 0 16px 34px rgba(0,0,0,.10);
-        --shadow2: 0 10px 22px rgba(0,0,0,.08);
+        /* softer shadows (less cartoon) */
+        --shadow: 0 10px 24px rgba(0,0,0,.08);
+        --shadow2: 0 6px 16px rgba(0,0,0,.06);
       }
 
       html,body{
         margin:0;
-        background:
-          radial-gradient(900px 520px at 85% 10%, rgba(192,24,42,.06), transparent 60%),
-          var(--bg);
+        background: var(--bg);
         color:var(--text);
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -88,11 +88,12 @@ function GlobalStyles() {
         font-weight:700;
         letter-spacing:-0.02em;
         line-height:1.15;
+        color: var(--text);
       }
       p{
         margin:10px 0;
         line-height:1.7;
-        color:var(--muted);
+        color: rgba(15,15,16,.72);
       }
 
       .container{ max-width:1200px; margin:0 auto; padding:0 22px; }
@@ -104,14 +105,15 @@ function GlobalStyles() {
         top:0;
         z-index:40;
         background:rgba(255,255,255,.92);
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(10px);
         border-bottom:1px solid var(--border);
       }
 
+      /* ✅ announcement bar = white w/ black text */
       .announce{
-        background: linear-gradient(90deg, var(--text), rgba(15,15,16,.92));
-        color:#fff;
-        border-bottom:1px solid rgba(255,255,255,.14);
+        background: #fff;
+        color: rgba(15,15,16,.86);
+        border-bottom:1px solid var(--border);
       }
       .announce .container{
         display:flex;
@@ -120,12 +122,12 @@ function GlobalStyles() {
         justify-content:space-between;
         padding:10px 22px;
         font-size:12px;
-        letter-spacing:.12em;
+        letter-spacing:.14em;
         text-transform:uppercase;
-        opacity:.95;
+        font-weight:750;
       }
       .announce a{
-        color:#fff;
+        color: var(--primary);
         text-decoration: underline;
         text-underline-offset: 4px;
       }
@@ -137,18 +139,18 @@ function GlobalStyles() {
         padding:8px 10px;
         border-radius:10px;
         font-weight:750;
-        color: rgba(15,15,16,.86);
+        color: rgba(15,15,16,.82);
       }
       nav a:hover{
-        background: rgba(192,24,42,.08);
-        color: rgba(15,15,16,.98);
+        background: rgba(15,15,16,.04);
+        color: rgba(15,15,16,.95);
       }
 
       .kicker{
         font-size:11px;
         letter-spacing:.22em;
         text-transform:uppercase;
-        color:var(--muted2);
+        color: rgba(15,15,16,.55);
         font-weight:800;
       }
 
@@ -159,7 +161,9 @@ function GlobalStyles() {
         padding:18px;
         box-shadow: var(--shadow2);
       }
-      .card.soft{ background:var(--card2); }
+      .card.soft{
+        background: var(--card2);
+      }
 
       .grid{ display:grid; gap:16px; }
       .two{ grid-template-columns:1fr 1fr; }
@@ -172,14 +176,14 @@ function GlobalStyles() {
         padding:7px 12px;
         border-radius:999px;
         border:1px solid var(--border);
-        background: rgba(255,255,255,.92);
+        background: #fff;
         font-size:12px;
         font-weight:800;
-        color: rgba(15,15,16,.86);
+        color: rgba(15,15,16,.84);
       }
       .pill.red{
-        background: rgba(192,24,42,.10);
-        border-color: rgba(192,24,42,.22);
+        background: rgba(143,19,34,.08);
+        border-color: rgba(143,19,34,.22);
         color: var(--primary2);
       }
 
@@ -193,25 +197,24 @@ function GlobalStyles() {
         font-weight:900;
         cursor:pointer;
         background:transparent;
-        transition: transform .10s ease, box-shadow .10s ease, background .10s ease, opacity .10s ease;
+        transition: transform .10s ease, box-shadow .10s ease, background .10s ease;
       }
       .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); }
       .btn:active{ transform: translateY(0px); box-shadow:none; }
-      .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
 
+      /* luxury: solid, no gradients */
       .btn-primary{
-        background: linear-gradient(180deg, var(--primary), var(--primary2));
+        background: var(--primary);
         color:#fff;
-        box-shadow: 0 14px 28px rgba(192,24,42,.22);
       }
       .btn-outline{
-        border-color: rgba(15,15,16,.22);
+        border-color: rgba(15,15,16,.20);
         background: #fff;
         color: var(--text);
       }
       .btn-ghost{
         border-color: transparent;
-        background: rgba(15,15,16,.06);
+        background: rgba(15,15,16,.05);
         color: var(--text);
       }
 
@@ -219,7 +222,7 @@ function GlobalStyles() {
         font-size:11px;
         letter-spacing:.18em;
         text-transform:uppercase;
-        color:var(--muted2);
+        color: rgba(15,15,16,.55);
         font-weight:800;
         display:block;
         margin:12px 0 6px;
@@ -240,7 +243,7 @@ function GlobalStyles() {
       }
       select option{ color:#111; background:#fff; }
 
-      /* SHOP finish images: show full door (not zoomed) */
+      /* Shop finish cards: show full door, no zoom */
       .finish-img{
         border-radius:16px;
         overflow:hidden;
@@ -258,7 +261,7 @@ function GlobalStyles() {
       }
 
       .divider{ height:1px; background:var(--border); margin:14px 0; }
-      .mini{ font-size:13px; color:var(--muted2); line-height:1.65; }
+      .mini{ font-size:13px; color: rgba(15,15,16,.62); line-height:1.65; }
 
       table{ width:100%; border-collapse:collapse; }
       th,td{ padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
@@ -266,7 +269,7 @@ function GlobalStyles() {
         font-size:11px;
         letter-spacing:.18em;
         text-transform:uppercase;
-        color: var(--muted2);
+        color: rgba(15,15,16,.55);
         font-weight:850;
       }
 
@@ -305,7 +308,7 @@ function GlobalStyles() {
       .footer{
         border-top:1px solid var(--border);
         padding:22px 0;
-        background: rgba(255,255,255,.75);
+        background: #fff;
       }
     `}</style>
   );
@@ -579,10 +582,10 @@ function Home() {
         <div className="heroGrid">
           <div className="card">
             <div className="kicker">Showroom & Warehouse</div>
-            <h1 style={{ fontSize: 44, marginTop: 8 }}>From Staten Island to nationwide RTA shipping.</h1>
-            <p style={{ color: "rgba(15,15,16,.78)" }}>
+            <h1 style={{ fontSize: 44, marginTop: 8 }}>A kitchen you buy once — done right.</h1>
+            <p style={{ color: "rgba(15,15,16,.72)" }}>
               We’ve served customers for years from our Staten Island showroom/warehouse at <b>{SHOWROOM_ADDRESS}</b>.
-              Now we’re bringing that same experience online — curated finishes, SKU-based ordering, and designer-led help when you need it.
+              Now we’re offering that same experience online — curated finishes, SKU-based ordering, and designer-led help when you need it.
             </p>
 
             <div className="row" style={{ marginTop: 14 }}>
@@ -606,12 +609,12 @@ function Home() {
           </div>
         </div>
 
-        {/* ✅ Missing Home content added back (clean + not cluttered) */}
+        {/* ✅ Only keep these 3 cards (as requested) */}
         <div className="grid three" style={{ marginTop: 16 }}>
           <div className="card soft">
             <div className="kicker">Door samples</div>
             <h3 style={{ fontSize: 20, marginTop: 8 }}>Try a finish at home</h3>
-            <p className="mini">Order a door sample before committing. Great for matching counters and flooring.</p>
+            <p className="mini">Order a door sample before committing. Perfect for matching stone + hardware.</p>
             <a className="btn btn-primary" href="#/shop">Shop + Samples</a>
           </div>
 
@@ -623,42 +626,12 @@ function Home() {
           </div>
 
           <div className="card soft">
-            <div className="kicker">Nationwide shipping</div>
-            <h3 style={{ fontSize: 20, marginTop: 8 }}>Freight done right</h3>
-            <p className="mini">Lead time typically 2–5 weeks. Freight is quoted after order based on delivery options.</p>
+            <div className="kicker">Nationwide freight</div>
+            <h3 style={{ fontSize: 20, marginTop: 8 }}>Delivery expectations</h3>
+            <p className="mini">Lead time typically 2–5 weeks. Freight is quoted after order.</p>
             <a className="btn btn-outline" href="#/cart">Checkout</a>
           </div>
         </div>
-
-        <div className="grid two" style={{ marginTop: 16 }}>
-          <div className="card">
-            <div className="kicker">Why Premier</div>
-            <h2 style={{ fontSize: 28, marginTop: 10 }}>Experience you can visit.</h2>
-            <p className="mini" style={{ marginTop: 8 }}>
-              Real showroom + warehouse in Staten Island. Years of cabinet planning experience.
-              Now offering the same support online with RTA shipping nationwide.
-            </p>
-            <div className="row" style={{ marginTop: 12 }}>
-              <span className="pill">Showroom</span>
-              <span className="pill">Warehouse pickup</span>
-              <span className="pill">Nationwide freight</span>
-            </div>
-          </div>
-
-          <div className="card soft">
-            <div className="kicker">Quick actions</div>
-            <h2 style={{ fontSize: 28, marginTop: 10 }}>Start your project</h2>
-            <p className="mini" style={{ marginTop: 8 }}>
-              Shop finishes, order samples, or request a free 3D design — all in a couple clicks.
-            </p>
-            <div className="row" style={{ marginTop: 12 }}>
-              <a className="btn btn-primary" href="#/shop">Shop</a>
-              <a className="btn btn-outline" href="#/design">Free Design</a>
-              <a className="btn btn-ghost" href="#/contact">Contact</a>
-            </div>
-          </div>
-        </div>
-
       </div>
     </section>
   );
@@ -935,9 +908,7 @@ function Cart({ cart, onRemove, onClear, onExportCSV, onShareLink, onToast }) {
                         <td>{it.assembly === "assembled" ? usd(it.assemblyFeeEach || 0) : usd(0)}</td>
                         <td>{usd(lineTotal)}</td>
                         <td>
-                          <button className="btn btn-outline" type="button" onClick={() => onRemove(it.key)}>
-                            Remove
-                          </button>
+                          <button className="btn btn-outline" type="button" onClick={() => onRemove(it.key)}>Remove</button>
                         </td>
                       </tr>
                     );
@@ -1166,7 +1137,7 @@ Notes: ${m.mnotes || "-"}
             <div className="divider" />
             <div className="kicker">What to send</div>
             <p className="mini" style={{ marginTop: 8 }}>
-              Wall lengths (A/B/C/D if applicable), ceiling height, windows/doors, appliance sizes, and photos from each corner.
+              Wall lengths (A/B/C/D), ceiling height, windows/doors, appliance sizes, and photos from each corner.
             </p>
 
             <div className="divider" />
@@ -1444,28 +1415,14 @@ export default function App() {
   const cartCount = useMemo(() => cart.reduce((s, it) => s + (it.qty || 0), 0), [cart]);
 
   const addToCart = (item) => {
-    const {
-      finishId,
-      finishName,
-      cabinetType,
-      cabinetTypeLabel,
-      sku,
-      qty,
-      unitPrice,
-      assembly,
-      assemblyFeeEach,
-      width,
-      height,
-      depth,
-    } = item;
-
+    const { finishId, cabinetType, sku, assembly, width, height, depth, qty } = item;
     const key = `${finishId}|${cabinetType}|${sku}|${assembly}|${width}|${height}|${depth}`;
 
     setCart((prev) => {
       const idx = prev.findIndex((x) => x.key === key);
       if (idx >= 0) {
         const copy = prev.slice();
-        copy[idx] = { ...copy[idx], qty: (copy[idx].qty || 0) + qty };
+        copy[idx] = { ...copy[idx], qty: (copy[idx].qty || 0) + (qty || 0) };
         return copy;
       }
       return [...prev, { key, ...item }];
@@ -1575,7 +1532,8 @@ export default function App() {
               <b style={{ color: "var(--text)" }}>Phone:</b> {SUPPORT_PHONE}
             </div>
             <div className="mini">
-              <b style={{ color: "var(--text)" }}>About:</b> Serving Staten Island for years — now offering RTA cabinetry shipping nationwide with designer-led support.
+              <b style={{ color: "var(--text)" }}>About:</b> Serving Staten Island for years — now offering RTA cabinetry
+              shipping nationwide with designer-led support.
             </div>
           </div>
         </div>
